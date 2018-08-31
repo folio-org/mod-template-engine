@@ -1,0 +1,52 @@
+#%RAML 0.8
+
+title: Template engine
+baseUri: http://api.example.com/{version}
+version: v1
+
+
+documentation:
+  - title: mod-template-engine API
+    content: This module dedicated for storing templates and generating text, html, xml, doc, docx etc from the template.
+
+schemas:
+  - template.json: !include template.json
+  - localizedTemplate.json: !include localizedTemplate.json
+  - raml-util/schemas/metadata.schema: !include raml-util/schemas/metadata.schema
+
+
+/template:
+  /{templateId}:
+    get:
+      description: Get template by id
+      responses:
+        200:
+          body:
+            application/json:
+              schema: template.json
+        404:
+          description: "Template not found"
+          body:
+            text/plain:
+              example: "Template not found"
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+    delete:
+      description: Delete template by id
+      responses:
+        204:
+          body:
+            text/plain: !!null
+        404:
+          description: "Template not found"
+          body:
+            text/plain:
+              example: "Template not found"
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
