@@ -18,6 +18,10 @@
       },
       "description": "Array of output formats"
     },
+    "templateResolver": {
+      "type": "string",
+      "description": "Template engine name"
+    },
     "localizedTemplates": {
       "type": "array",
       "items": {

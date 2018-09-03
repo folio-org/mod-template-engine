@@ -5,6 +5,7 @@
     "text",
     "html"
   ],
+  "templateResolver": "mustache",
   "templates": [
     {
       "lang": "en",
