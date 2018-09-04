@@ -1,0 +1,45 @@
+{
+  "id": "${artifactId}-${version}",
+  "name": "Template engine module",
+  "provides": [
+    {
+      "id": "${artifactId}",
+      "version": "1.0",
+      "handlers": [
+        {
+          "methods": [
+            "GET"
+          ],
+          "pathPattern": "/template/{templateId}"
+        },
+        {
+          "methods": [
+            "DELETE"
+          ],
+          "pathPattern": "/template/{templateId}"
+        }
+      ]
+    },
+    {
+      "id": "_tenant",
+      "version": "1.0",
+      "interfaceType": "system",
+      "handlers": [
+        {
+          "methods": [
+            "POST"
+          ],
+          "pathPattern": "/_/tenant"
+        }
+      ]
+    }
+  ],
+  "launchDescriptor": {
+    "dockerImage": "${artifactId}:${version}",
+    "dockerArgs": {
+      "HostConfig": { "PortBindings": { "8081/tcp":  [{ "HostPort": "%p" }] } }
+    },
+    "dockerCMD": [ "verify.user=true" ],
+    "dockerPull": false
+  }
+}
