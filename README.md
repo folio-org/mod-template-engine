@@ -7,10 +7,10 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 # Introduction
 
-This module is responsible for storing templates and generating 
-text, html, xml, doc, docx etc from the template. 
-Generated payload is described by meta information which contain info 
-about format, size and date. Supports localization of templates. 
+This module is responsible for storing templates and generating
+text, html, xml, doc, docx etc from the template.
+Generated payload is described by meta information which contain info
+about format, size and date. Supports localization of templates.
 
 
 # Additional information
