@@ -1,40 +1,21 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "description": "Template",
   "type": "object",
+  "description": "Collection of templates",
   "properties": {
-    "id": {
-      "type": "string",
-      "description": "Template id"
-    },
-    "description": {
-      "type": "string",
-      "description": "Template description"
-    },
-    "outputFormat": {
-      "type": "array",
-      "items": {
-        "type": "string"
-      },
-      "description": "Array of output formats"
-    },
-    "templateResolver": {
-      "type": "string",
-      "description": "Template engine name"
-    },
-    "localizedTemplates": {
+    "templates": {
       "type": "array",
       "items": {
         "type": "object",
-        "$ref" : "localizedTemplate.json"
+        "$ref": "template.json"
       }
-    },
-    "metadata": {
-      "type" : "object",
-      "$ref" : "raml-util/schemas/metadata.schema"
     },
     "totalRecords": {
       "type": "integer"
     }
-  }
+  },
+  "required": [
+    "templates",
+    "totalRecords"
+  ]
 }

@@ -1,4 +1,4 @@
-#%RAML 1.0
+#%RAML 0.8
 
 title: Template engine
 baseUri: http://api.example.com/{version}
@@ -13,27 +13,30 @@ schemas:
   - template.json: !include template.json
   - localizedTemplate.json: !include localizedTemplate.json
   - raml-util/schemas/metadata.schema: !include raml-util/schemas/metadata.schema
-
-types:
-  template: !include template.json
-  templatesCollection: !include templatesCollection.json
-
-resourceTypes:
-  collection: !include raml-util/rtypes/collection.raml
-  collection-item: !include raml-util/rtypes/item-collection.raml
+  - templatesCollection.json: !include templatesCollection.json
 
 /template:
-  displayName: Templates
-  description: Templates for user notifications
-  type:
-    collection:
-      schemaCollection: templatesCollection
-      schemaItem: template
-      exampleCollection: !include examples/templatesCollection.sample
-      exampleItem: !include examples/template.sample
-
   post:
-    description: Create new template
+    description: Add a new template
+    body:
+      application/json:
+        schema: template.json
+    responses:
+      201:
+        body:
+          application/json:
+            schema: template.json
+      400:
+        description: "Bad request"
+        body:
+          text/plain:
+            example: "Bad request"
+      500:
+        description: "Internal server error"
+        body:
+          text/plain:
+            example: "Internal server error"
+
   /{templateId}:
     get:
       description: Get template by id
