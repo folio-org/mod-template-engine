@@ -34,22 +34,21 @@ public class TemplateResourceImpl implements TemplateResource {
     TemplateJson entity,
     Map<String, String> okapiHeaders,
     Handler<AsyncResult<Response>> asyncResultHandler,
-    Context context) {
+    Context vertxContext) {
 
-    context.runOnContext(h -> {
+    vertxContext.runOnContext(h -> {
       try {
         String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
         String id = UUID.randomUUID().toString();
         entity.setId(id);
 
-        PostgresClient.getInstance(context.owner(), tenantId).save(TEMPLATES_TABLE,
-          id, entity,
+        PostgresClient.getInstance(vertxContext.owner(), tenantId).save(TEMPLATES_TABLE, id, entity,
           reply -> {
             if (reply.succeeded()) {
               logger.info("Template created with id: " + id);
               asyncResultHandler.handle(Future.succeededFuture(PostTemplateResponse.withJsonCreated(entity)));
             } else {
-              logger.error("Template creation error.");
+              logger.error("Template creation error");
               ValidationHelper.handleError(reply.cause(), asyncResultHandler);
             }
           });
@@ -81,9 +80,42 @@ public class TemplateResourceImpl implements TemplateResource {
   }
 
   @Override
-  public void deleteTemplateByTemplateId(@NotNull String templateId, Map<String, String> okapiHeaders,
-                                         Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    //TODO replace stub response
-    asyncResultHandler.handle(Future.succeededFuture(Response.noContent().build()));
+  public void deleteTemplateByTemplateId(@NotNull String templateId,
+                                         Map<String, String> okapiHeaders,
+                                         Handler<AsyncResult<Response>> asyncResultHandler,
+                                         Context vertxContext) {
+
+    vertxContext.runOnContext(h -> {
+      try {
+        String tenantId = TenantTool.calculateTenantId(okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT));
+
+        PostgresClient
+          .getInstance(vertxContext.owner(), tenantId)
+          .delete(TEMPLATES_TABLE, templateId,
+            reply -> {
+              if (reply.succeeded()) {
+
+                if (reply.result().getUpdated() == 1) {
+                  logger.info("Template with id: " + templateId + " deleted");
+                  asyncResultHandler.handle(succeededFuture(
+                    DeleteTemplateByTemplateIdResponse.withPlainNoContent("Template with id: " + templateId + " deleted")));
+                } else {
+                  logger.error("Delete count error");
+                  asyncResultHandler.handle(succeededFuture(DeleteTemplateByTemplateIdResponse
+                    .withPlainNotFound("Delete count error  not found id")));
+                }
+              } else {
+                logger.error("Template deletion error");
+                ValidationHelper.handleError(reply.cause(), asyncResultHandler);
+              }
+            });
+
+      } catch (Exception e) {
+        String message = "Template deletion internal error";
+        logger.error(message, e);
+        asyncResultHandler.handle(Future.succeededFuture(
+          PostTemplateResponse.withPlainInternalServerError(message)));
+      }
+    });
   }
 }
