@@ -18,17 +18,17 @@
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/template/{id}",
+          "pathPattern": "/template/{templateId}",
           "permissionsRequired": ["templates.item.get"]
         },
         {
           "methods": ["PUT"],
-          "pathPattern": "/template/{id}",
+          "pathPattern": "/template/{templateId}",
           "permissionsRequired": ["templates.item.put"]
         },
         {
           "methods": ["DELETE"],
-          "pathPattern": "/template/{id}",
+          "pathPattern": "/template/{templateId}",
           "permissionsRequired": ["templates.item.delete"]
         }
       ]
