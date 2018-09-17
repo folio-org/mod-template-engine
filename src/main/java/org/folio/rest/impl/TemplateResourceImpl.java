@@ -33,7 +33,7 @@ public class TemplateResourceImpl implements TemplateResource {
 
   private static final String TEMPLATES_TABLE = "template";
   private static final String TEMPLATES_ID_FIELD = "'id'";
-  private static final String TEMPLATE_SCHEMA_PATHH = "ramls/template.json";
+  private static final String TEMPLATE_SCHEMA_PATH = "ramls/template.json";
   public static final String INTERNAL_ERROR = "Internal Server error";
   private static final String POSTGRES_ERROR = "Error from PostgresClient: ";
   private final Logger logger = LoggerFactory.getLogger("mod-template-engine");
@@ -117,10 +117,10 @@ public class TemplateResourceImpl implements TemplateResource {
       vertxContext.runOnContext(v -> {
         String tenantId = getTenant(okapiHeaders);
         try {
-          Criteria idCrit = new Criteria(TEMPLATE_SCHEMA_PATHH);
-          idCrit.addField(TEMPLATES_ID_FIELD);
-          idCrit.setOperation("=");
-          idCrit.setValue(templateId);
+          Criteria idCrit = new Criteria(TEMPLATE_SCHEMA_PATH)
+            .addField(TEMPLATES_ID_FIELD)
+            .setOperation("=")
+            .setValue(templateId);
           PostgresClient.getInstance(vertxContext.owner(), tenantId).get(TEMPLATES_TABLE, TemplateJson.class, new Criterion(idCrit), true, false, getReply -> {
             if(getReply.failed()) {
               logger.debug("Error in PostgresClient get operation: " + getReply.cause().getLocalizedMessage());

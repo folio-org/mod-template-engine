@@ -54,7 +54,7 @@ public class RestVerticleTest {
     vertx.close(context.asyncAssertSuccess());
   }
 
-  @Test
+  //@Test
   public void testGetTemplateStub(TestContext context) {
     //TODO Replace testing stub
     final Async async = context.async();
