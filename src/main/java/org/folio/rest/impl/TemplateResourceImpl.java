@@ -31,12 +31,11 @@ import static io.vertx.core.Future.succeededFuture;
 
 public class TemplateResourceImpl implements TemplateResource {
 
-  private static final String TEMPLATE_STUB_PATH = "ramls/examples/template.sample";
-  private static final String CONTENT_TYPE_HEADER = "Content-Type";
-  private static final String APPLICATION_JSON = "application/json";
   private static final String TEMPLATES_TABLE = "template";
   private static final String TEMPLATES_ID_FIELD = "'id'";
+  private static final String TEMPLATE_SCHEMA_PATHH = "ramls/template.json";
   public static final String INTERNAL_ERROR = "Internal Server error";
+  private static final String POSTGRES_ERROR = "Error from PostgresClient: ";
   private final Logger logger = LoggerFactory.getLogger("mod-template-engine");
 
   @Override
@@ -114,19 +113,36 @@ public class TemplateResourceImpl implements TemplateResource {
   @Override
   public void getTemplateByTemplateId(@NotNull String templateId, Map<String, String> okapiHeaders,
                                       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
-    //TODO replace stub response
-    vertxContext.owner().fileSystem().readFile(TEMPLATE_STUB_PATH, event -> {
-      if (event.succeeded()) {
-        asyncResultHandler.handle(
-          Future.succeededFuture(
-            Response.ok(event.result().toString()).header(CONTENT_TYPE_HEADER, APPLICATION_JSON).build()
-          ));
-      } else {
-        asyncResultHandler.handle(Future.succeededFuture(
-          GetTemplateByTemplateIdResponse.withPlainNotFound("Template not found")
-        ));
-      }
-    });
+    try {
+      vertxContext.runOnContext(v -> {
+        String tenantId = getTenant(okapiHeaders);
+        try {
+          Criteria idCrit = new Criteria(TEMPLATE_SCHEMA_PATHH);
+          idCrit.addField(TEMPLATES_ID_FIELD);
+          idCrit.setOperation("=");
+          idCrit.setValue(templateId);
+          PostgresClient.getInstance(vertxContext.owner(), tenantId).get(TEMPLATES_TABLE, TemplateJson.class, new Criterion(idCrit), true, false, getReply -> {
+            if(getReply.failed()) {
+              logger.debug("Error in PostgresClient get operation: " + getReply.cause().getLocalizedMessage());
+              asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
+            } else {
+              List<TemplateJson> templates = (List<TemplateJson>)getReply.result().getResults();
+              if(templates.isEmpty()) {
+                asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainNotFound("No templates for id " + templateId + " found")));
+              } else {
+                asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withJsonOK(templates.get(0))));
+              }
+            }
+          });
+        } catch(Exception e) {
+          logger.debug(POSTGRES_ERROR + e.getLocalizedMessage());
+          asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
+        }
+      });
+    } catch(Exception e) {
+      logger.debug("Error running on vertx context: " + e.getLocalizedMessage());
+      asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
+    }
   }
 
   @Override
