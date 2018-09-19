@@ -39,11 +39,8 @@ public class TemplateResourceImpl implements TemplateResource {
   private final Logger logger = LoggerFactory.getLogger("mod-template-engine");
 
   @Override
-  public void postTemplate(
-    TemplateJson entity,
-    Map<String, String> okapiHeaders,
-    Handler<AsyncResult<Response>> asyncResultHandler,
-    Context vertxContext) {
+  public void postTemplate(TemplateJson entity, Map<String, String> okapiHeaders,
+                           Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     try {
       vertxContext.runOnContext(h -> {
         String tenantId = getTenant(okapiHeaders);
@@ -76,7 +73,7 @@ public class TemplateResourceImpl implements TemplateResource {
   public void getTemplate(int length, int start, String sortBy,
                           String query, Map<String, String> okapiHeaders,
                           Handler<AsyncResult<Response>> asyncResultHandler,
-                          Context vertxContext) throws Exception {
+                          Context vertxContext) {
     try {
       vertxContext.runOnContext(v -> {
         String tenantId = getTenant(okapiHeaders);
@@ -150,7 +147,7 @@ public class TemplateResourceImpl implements TemplateResource {
   @Override
   public void putTemplateByTemplateId(@NotNull String templateId, TemplateJson entity, Map<String, String> okapiHeaders,
                                       Handler<AsyncResult<Response>> asyncResultHandler,
-                                      Context vertxContext) throws Exception {
+                                      Context vertxContext) {
     try {
       vertxContext.runOnContext(v -> {
         String tenantId = getTenant(okapiHeaders);
