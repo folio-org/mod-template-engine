@@ -1,7 +1,7 @@
 ## 2018-08-30 v1.0.0-SNAPSHOT
 The module provide storing of templates and access to them through REST API. 
 Templates support internationalization and store a set of templates texts for each language. 
-Also templates contains meta information that describes the type of source document and its scope.
+Also templates contain meta information that describes the type of source document and its scope.
 
 CRUD API for templates was added: 
 
