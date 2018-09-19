@@ -35,6 +35,7 @@ public class TemplateResourceImpl implements TemplateResource {
   public static final String TEMPLATE_SCHEMA_PATH = "ramls/template.json";
   private static final String INTERNAL_ERROR = "Internal Server error";
   private static final String POSTGRES_ERROR = "Error from PostgresClient: ";
+  private static final String INTERNAL_CONTEXT_ERROR = "Error running on vertx context: ";
   private final Logger logger = LoggerFactory.getLogger("mod-template-engine");
 
   @Override
@@ -60,7 +61,7 @@ public class TemplateResourceImpl implements TemplateResource {
               }
             });
         } catch (Exception e) {
-          logger.debug(POSTGRES_ERROR + e.getLocalizedMessage());
+          logger.error(POSTGRES_ERROR + e.getLocalizedMessage());
           asyncResultHandler.handle(Future.succeededFuture(PostTemplateResponse.withPlainInternalServerError(INTERNAL_ERROR)));
         }
       });
@@ -85,7 +86,7 @@ public class TemplateResourceImpl implements TemplateResource {
           PostgresClient.getInstance(vertxContext.owner(), tenantId).get(
             TEMPLATES_TABLE, TemplateJson.class, fieldList, cql, true, false, getReply -> {
               if (getReply.failed()) {
-                logger.debug("Error in PostgresClient get operation " + getReply.cause().getLocalizedMessage());
+                logger.error("Error in PostgresClient get operation " + getReply.cause().getLocalizedMessage());
                 asyncResultHandler.handle(Future.succeededFuture(GetTemplateResponse.withPlainInternalServerError(INTERNAL_ERROR)));
               } else {
                 TemplatesCollectionJson templatesCollection = new TemplatesCollectionJson();
@@ -96,12 +97,12 @@ public class TemplateResourceImpl implements TemplateResource {
               }
             });
         } catch (Exception e) {
-          logger.debug("Error invoking Postgresclient: " + e.getLocalizedMessage());
+          logger.error("Error invoking Postgresclient: " + e.getLocalizedMessage());
           asyncResultHandler.handle(Future.succeededFuture(GetTemplateResponse.withPlainInternalServerError(INTERNAL_ERROR)));
         }
       });
     } catch (Exception e) {
-      logger.debug("Error running on vertx context: " + e.getLocalizedMessage());
+      logger.error(INTERNAL_CONTEXT_ERROR + e.getLocalizedMessage());
       if (e.getCause() != null && e.getCause().getClass().getSimpleName().contains("CQLParseException")) {
         asyncResultHandler.handle(Future.succeededFuture(GetTemplateResponse.withPlainBadRequest("CQL Parsing Error for '" + query + "': " +
           e.getLocalizedMessage())));
@@ -124,7 +125,7 @@ public class TemplateResourceImpl implements TemplateResource {
           idCrit.setValue(templateId);
           PostgresClient.getInstance(vertxContext.owner(), tenantId).get(TEMPLATES_TABLE, TemplateJson.class, new Criterion(idCrit), true, getReply -> {
             if (getReply.failed()) {
-              logger.debug("Error in PostgresClient get operation: " + getReply.cause().getLocalizedMessage());
+              logger.error("Error in PostgresClient get operation: " + getReply.cause().getLocalizedMessage());
               asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
             } else {
               List<TemplateJson> templates = (List<TemplateJson>) getReply.result().getResults();
@@ -136,12 +137,12 @@ public class TemplateResourceImpl implements TemplateResource {
             }
           });
         } catch (Exception e) {
-          logger.debug(POSTGRES_ERROR + e.getLocalizedMessage());
+          logger.error(POSTGRES_ERROR + e.getLocalizedMessage());
           asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
         }
       });
     } catch (Exception e) {
-      logger.debug("Error running on vertx context: " + e.getLocalizedMessage());
+      logger.error(INTERNAL_CONTEXT_ERROR + e.getLocalizedMessage());
       asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
     }
   }
@@ -160,7 +161,7 @@ public class TemplateResourceImpl implements TemplateResource {
         try {
           PostgresClient.getInstance(vertxContext.owner(), tenantId).get(TEMPLATES_TABLE, TemplateJson.class, new Criterion(idCrit), true, getReply -> {
             if (getReply.failed()) {
-              logger.debug("PostgresClient get operation failed: " + getReply.cause().getLocalizedMessage());
+              logger.error("PostgresClient get operation failed: " + getReply.cause().getLocalizedMessage());
               asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
             } else {
               List<TemplateJson> templateList = (List<TemplateJson>) getReply.result().getResults();
@@ -173,26 +174,26 @@ public class TemplateResourceImpl implements TemplateResource {
                   }
                   PostgresClient.getInstance(vertxContext.owner(), tenantId).update(TEMPLATES_TABLE, entity, new Criterion(idCrit), true, putReply -> {
                     if (putReply.failed()) {
-                      logger.debug("Error with PostgresClient update operation: " + putReply.cause().getLocalizedMessage());
+                      logger.error("Error with PostgresClient update operation: " + putReply.cause().getLocalizedMessage());
                       asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
                     } else {
                       asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withJsonOK(entity)));
                     }
                   });
                 } catch (Exception e) {
-                  logger.debug("Error with PostgresClient: " + e.getLocalizedMessage());
+                  logger.error("Error with PostgresClient: " + e.getLocalizedMessage());
                   asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
                 }
               }
             }
           });
         } catch (Exception e) {
-          logger.debug("Error with PostgresClient: " + e.getLocalizedMessage());
+          logger.error("Error with PostgresClient: " + e.getLocalizedMessage());
           asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
         }
       });
     } catch (Exception e) {
-      logger.debug("Error running on vertx context: " + e.getLocalizedMessage());
+      logger.error(INTERNAL_CONTEXT_ERROR + e.getLocalizedMessage());
       asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
     }
   }
@@ -226,7 +227,7 @@ public class TemplateResourceImpl implements TemplateResource {
                 }
               });
         } catch (Exception e) {
-          logger.debug(POSTGRES_ERROR + e.getLocalizedMessage());
+          logger.error(POSTGRES_ERROR + e.getLocalizedMessage());
           asyncResultHandler.handle(Future.succeededFuture(DeleteTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
         }
       });
