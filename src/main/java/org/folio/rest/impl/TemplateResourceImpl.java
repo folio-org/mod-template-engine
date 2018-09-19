@@ -2,7 +2,6 @@ package org.folio.rest.impl;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
-import static io.vertx.core.Future.succeededFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.logging.Logger;
@@ -33,8 +32,8 @@ public class TemplateResourceImpl implements TemplateResource {
 
   private static final String TEMPLATES_TABLE = "template";
   private static final String TEMPLATES_ID_FIELD = "'id'";
-  private static final String TEMPLATE_SCHEMA_PATH = "ramls/template.json";
-  public static final String INTERNAL_ERROR = "Internal Server error";
+  public static final String TEMPLATE_SCHEMA_PATH = "ramls/template.json";
+  private static final String INTERNAL_ERROR = "Internal Server error";
   private static final String POSTGRES_ERROR = "Error from PostgresClient: ";
   private final Logger logger = LoggerFactory.getLogger("mod-template-engine");
 
@@ -44,30 +43,32 @@ public class TemplateResourceImpl implements TemplateResource {
     Map<String, String> okapiHeaders,
     Handler<AsyncResult<Response>> asyncResultHandler,
     Context vertxContext) {
-
-    vertxContext.runOnContext(h -> {
-      try {
+    try {
+      vertxContext.runOnContext(h -> {
         String tenantId = getTenant(okapiHeaders);
         String id = UUID.randomUUID().toString();
         entity.setId(id);
-
-        PostgresClient.getInstance(vertxContext.owner(), tenantId).save(TEMPLATES_TABLE, id, entity,
-          reply -> {
-            if (reply.succeeded()) {
-              logger.info("Template created with id: " + id);
-              asyncResultHandler.handle(Future.succeededFuture(PostTemplateResponse.withJsonCreated(entity)));
-            } else {
-              logger.error("Template creation error");
-              ValidationHelper.handleError(reply.cause(), asyncResultHandler);
-            }
-          });
-      } catch (Exception e) {
-        String message = "Template creation internal error";
-        logger.error(message, e);
-        asyncResultHandler.handle(Future.succeededFuture(
-          PostTemplateResponse.withPlainInternalServerError(message)));
-      }
-    });
+        try {
+          PostgresClient.getInstance(vertxContext.owner(), tenantId).save(TEMPLATES_TABLE, id, entity,
+            reply -> {
+              if (reply.succeeded()) {
+                logger.info("Template created with id: " + id);
+                asyncResultHandler.handle(Future.succeededFuture(PostTemplateResponse.withJsonCreated(entity)));
+              } else {
+                logger.error("Template creation error");
+                ValidationHelper.handleError(reply.cause(), asyncResultHandler);
+              }
+            });
+        } catch (Exception e) {
+          logger.debug(POSTGRES_ERROR + e.getLocalizedMessage());
+          asyncResultHandler.handle(Future.succeededFuture(PostTemplateResponse.withPlainInternalServerError(INTERNAL_ERROR)));
+        }
+      });
+    } catch (Exception e) {
+      String message = "Template creation internal error";
+      logger.error(message, e);
+      asyncResultHandler.handle(Future.succeededFuture(PostTemplateResponse.withPlainInternalServerError(message)));
+    }
   }
 
   @Override
@@ -83,25 +84,25 @@ public class TemplateResourceImpl implements TemplateResource {
           CQLWrapper cql = getCQL(query, length, start - 1);
           PostgresClient.getInstance(vertxContext.owner(), tenantId).get(
             TEMPLATES_TABLE, TemplateJson.class, fieldList, cql, true, false, getReply -> {
-              if(getReply.failed()) {
+              if (getReply.failed()) {
                 logger.debug("Error in PostgresClient get operation " + getReply.cause().getLocalizedMessage());
                 asyncResultHandler.handle(Future.succeededFuture(GetTemplateResponse.withPlainInternalServerError(INTERNAL_ERROR)));
               } else {
                 TemplatesCollectionJson templatesCollection = new TemplatesCollectionJson();
-                List<TemplateJson> templateJsonList = (List<TemplateJson>)getReply.result().getResults();
+                List<TemplateJson> templateJsonList = (List<TemplateJson>) getReply.result().getResults();
                 templatesCollection.setTemplates(templateJsonList);
                 templatesCollection.setTotalRecords(getReply.result().getResultInfo().getTotalRecords());
                 asyncResultHandler.handle(Future.succeededFuture(GetTemplateResponse.withJsonOK(templatesCollection)));
               }
             });
-        } catch(Exception e) {
-          logger.debug("Error invoking Postgresclient: "+ e.getLocalizedMessage());
+        } catch (Exception e) {
+          logger.debug("Error invoking Postgresclient: " + e.getLocalizedMessage());
           asyncResultHandler.handle(Future.succeededFuture(GetTemplateResponse.withPlainInternalServerError(INTERNAL_ERROR)));
         }
       });
-    } catch(Exception e) {
+    } catch (Exception e) {
       logger.debug("Error running on vertx context: " + e.getLocalizedMessage());
-      if(e.getCause() != null && e.getCause().getClass().getSimpleName().contains("CQLParseException")) {
+      if (e.getCause() != null && e.getCause().getClass().getSimpleName().contains("CQLParseException")) {
         asyncResultHandler.handle(Future.succeededFuture(GetTemplateResponse.withPlainBadRequest("CQL Parsing Error for '" + query + "': " +
           e.getLocalizedMessage())));
       } else {
@@ -114,32 +115,32 @@ public class TemplateResourceImpl implements TemplateResource {
   public void getTemplateByTemplateId(@NotNull String templateId, Map<String, String> okapiHeaders,
                                       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     try {
+      String tenantId = getTenant(okapiHeaders);
       vertxContext.runOnContext(v -> {
-        String tenantId = getTenant(okapiHeaders);
         try {
-          Criteria idCrit = new Criteria(TEMPLATE_SCHEMA_PATH)
-            .addField(TEMPLATES_ID_FIELD)
-            .setOperation("=")
-            .setValue(templateId);
-          PostgresClient.getInstance(vertxContext.owner(), tenantId).get(TEMPLATES_TABLE, TemplateJson.class, new Criterion(idCrit), true, false, getReply -> {
-            if(getReply.failed()) {
+          Criteria idCrit = new Criteria(TEMPLATE_SCHEMA_PATH);
+          idCrit.addField(TEMPLATES_ID_FIELD);
+          idCrit.setOperation("=");
+          idCrit.setValue(templateId);
+          PostgresClient.getInstance(vertxContext.owner(), tenantId).get(TEMPLATES_TABLE, TemplateJson.class, new Criterion(idCrit), true, getReply -> {
+            if (getReply.failed()) {
               logger.debug("Error in PostgresClient get operation: " + getReply.cause().getLocalizedMessage());
               asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
             } else {
-              List<TemplateJson> templates = (List<TemplateJson>)getReply.result().getResults();
-              if(templates.isEmpty()) {
+              List<TemplateJson> templates = (List<TemplateJson>) getReply.result().getResults();
+              if (templates.isEmpty()) {
                 asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainNotFound("No templates for id " + templateId + " found")));
               } else {
                 asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withJsonOK(templates.get(0))));
               }
             }
           });
-        } catch(Exception e) {
+        } catch (Exception e) {
           logger.debug(POSTGRES_ERROR + e.getLocalizedMessage());
           asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
         }
       });
-    } catch(Exception e) {
+    } catch (Exception e) {
       logger.debug("Error running on vertx context: " + e.getLocalizedMessage());
       asyncResultHandler.handle(Future.succeededFuture(GetTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
     }
@@ -157,37 +158,40 @@ public class TemplateResourceImpl implements TemplateResource {
         idCrit.setOperation("=");
         idCrit.setValue(templateId);
         try {
-          PostgresClient.getInstance(vertxContext.owner(), tenantId).get(TEMPLATES_TABLE, TemplateJson.class, new Criterion(idCrit),true, getReply -> {
-            if(getReply.failed()) {
+          PostgresClient.getInstance(vertxContext.owner(), tenantId).get(TEMPLATES_TABLE, TemplateJson.class, new Criterion(idCrit), true, getReply -> {
+            if (getReply.failed()) {
               logger.debug("PostgresClient get operation failed: " + getReply.cause().getLocalizedMessage());
               asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
             } else {
-              List<TemplateJson> templateList = (List<TemplateJson>)getReply.result().getResults();
-              if(templateList.isEmpty()) {
+              List<TemplateJson> templateList = (List<TemplateJson>) getReply.result().getResults();
+              if (templateList.isEmpty()) {
                 asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainNotFound("No templates was found")));
               } else {
                 try {
+                  if (entity.getId() == null || entity.getId().isEmpty()) {
+                    entity.setId(templateId);
+                  }
                   PostgresClient.getInstance(vertxContext.owner(), tenantId).update(TEMPLATES_TABLE, entity, new Criterion(idCrit), true, putReply -> {
-                    if(putReply.failed()) {
+                    if (putReply.failed()) {
                       logger.debug("Error with PostgresClient update operation: " + putReply.cause().getLocalizedMessage());
                       asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
                     } else {
                       asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withJsonOK(entity)));
                     }
                   });
-                } catch(Exception e) {
+                } catch (Exception e) {
                   logger.debug("Error with PostgresClient: " + e.getLocalizedMessage());
                   asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
                 }
               }
             }
           });
-        } catch(Exception e) {
+        } catch (Exception e) {
           logger.debug("Error with PostgresClient: " + e.getLocalizedMessage());
           asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
         }
       });
-    } catch(Exception e) {
+    } catch (Exception e) {
       logger.debug("Error running on vertx context: " + e.getLocalizedMessage());
       asyncResultHandler.handle(Future.succeededFuture(PutTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
     }
@@ -198,45 +202,59 @@ public class TemplateResourceImpl implements TemplateResource {
                                          Map<String, String> okapiHeaders,
                                          Handler<AsyncResult<Response>> asyncResultHandler,
                                          Context vertxContext) {
-
-    vertxContext.runOnContext(h -> {
-      try {
+    try {
+      vertxContext.runOnContext(h -> {
         String tenantId = getTenant(okapiHeaders);
-
-        PostgresClient
-          .getInstance(vertxContext.owner(), tenantId)
-          .delete(TEMPLATES_TABLE, templateId,
-            reply -> {
-              if (reply.succeeded()) {
-
-                if (reply.result().getUpdated() == 1) {
-                  logger.info("Template with id: " + templateId + " deleted");
-                  asyncResultHandler.handle(succeededFuture(
-                    DeleteTemplateByTemplateIdResponse.withPlainNoContent("Template with id: " + templateId + " deleted")));
+        try {
+          PostgresClient
+            .getInstance(vertxContext.owner(), tenantId)
+            .delete(TEMPLATES_TABLE, templateId,
+              reply -> {
+                if (reply.succeeded()) {
+                  if (reply.result().getUpdated() == 1) {
+                    logger.info("Template with id: " + templateId + " deleted");
+                    asyncResultHandler.handle(succeededFuture(
+                      DeleteTemplateByTemplateIdResponse.withPlainNoContent("Template with id: " + templateId + " deleted")));
+                  } else {
+                    logger.error("Delete count error");
+                    asyncResultHandler.handle(succeededFuture(DeleteTemplateByTemplateIdResponse
+                      .withPlainNotFound("Delete count error  not found id")));
+                  }
                 } else {
-                  logger.error("Delete count error");
-                  asyncResultHandler.handle(succeededFuture(DeleteTemplateByTemplateIdResponse
-                    .withPlainNotFound("Delete count error  not found id")));
+                  logger.error("Template deletion error");
+                  ValidationHelper.handleError(reply.cause(), asyncResultHandler);
                 }
-              } else {
-                logger.error("Template deletion error");
-                ValidationHelper.handleError(reply.cause(), asyncResultHandler);
-              }
-            });
-
-      } catch (Exception e) {
-        String message = "Template deletion internal error";
-        logger.error(message, e);
-        asyncResultHandler.handle(Future.succeededFuture(
-          PostTemplateResponse.withPlainInternalServerError(message)));
-      }
-    });
+              });
+        } catch (Exception e) {
+          logger.debug(POSTGRES_ERROR + e.getLocalizedMessage());
+          asyncResultHandler.handle(Future.succeededFuture(DeleteTemplateByTemplateIdResponse.withPlainInternalServerError(INTERNAL_ERROR)));
+        }
+      });
+    } catch (Exception e) {
+      String message = "Template deletion internal error";
+      logger.error(message, e);
+      asyncResultHandler.handle(Future.succeededFuture(DeleteTemplateByTemplateIdResponse.withPlainInternalServerError(message)));
+    }
   }
 
+  /**
+   * Get okapi tenant id from request headers
+   *
+   * @param headers - map with headers
+   * @return - okapi tenant id
+   */
   private String getTenant(Map<String, String> headers) {
     return TenantTool.calculateTenantId(headers.get(RestVerticle.OKAPI_HEADER_TENANT));
   }
 
+  /**
+   * Build CQL from request URL query
+   *
+   * @param query - query from URL
+   * @param limit - limit of records for pagination
+   * @return - CQL wrapper for building postgres request to database
+   * @throws org.z3950.zing.cql.cql2pgjson.FieldException
+   */
   private CQLWrapper getCQL(String query, int limit, int offset)
     throws org.z3950.zing.cql.cql2pgjson.FieldException {
     CQL2PgJSON cql2pgJson = new CQL2PgJSON(TEMPLATES_TABLE + ".jsonb");
