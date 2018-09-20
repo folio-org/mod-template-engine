@@ -14,6 +14,9 @@ schemas:
   - localizedTemplate.json: !include localizedTemplate.json
   - raml-util/schemas/metadata.schema: !include raml-util/schemas/metadata.schema
   - templatesCollection.json: !include templatesCollection.json
+  - errors: !include ./raml-util/schemas/errors.schema
+  - error.schema: !include ./raml-util/schemas/error.schema
+  - parameters.schema: !include ./raml-util/schemas/parameters.schema
 
 traits:
   - pageable:
@@ -45,9 +48,11 @@ traits:
           description: "A query string to filter templates based on matching criteria in fields."
           required: false
           type: string
+  - validate: !include ./raml-util/traits/validation.raml
 
 /template:
   post:
+    is: [validate]
     description: Add a new template
     body:
       application/json:
