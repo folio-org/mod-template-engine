@@ -70,7 +70,7 @@ public class TemplateResourceImpl implements TemplateResource {
   }
 
   @Override
-  public void getTemplate(int length, int start, String sortBy,
+  public void getTemplate(int length, int start,
                           String query, Map<String, String> okapiHeaders,
                           Handler<AsyncResult<Response>> asyncResultHandler,
                           Context vertxContext) {

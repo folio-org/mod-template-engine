@@ -36,12 +36,6 @@ traits:
           minimum: 1
           default: 1
           maximum: 1000
-  - sortable:
-      queryParameters:
-        sortBy:
-          description: "A comma-separated list of fieldnames to sort by"
-          required: false
-          type: string
   - queryable:
       queryParameters:
         query:
@@ -76,7 +70,6 @@ traits:
     description: Get a list of templates
     is: [
       pageable,
-      sortable,
       queryable
     ]
     responses:
