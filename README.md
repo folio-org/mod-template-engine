@@ -15,9 +15,9 @@ about format, size and date. Supports localization of templates.
 | METHOD                             | DESCRIPTION                                        |
 |------------------------------------|----------------------------------------------------|
 | POST /template                     | Create new template in storage                     |
-| GET /template/id                   | Get template from storage by id                    |
-| PUT /template/id                   | Update template in storage                         |
-| DELETE /template/id                | Delete template from storage                       |
+| GET /template/{templateId}         | Get template from storage by id                    |
+| PUT /template/{templateId}         | Update template in storage                         |
+| DELETE /template/{templateId}      | Delete template from storage                       |
 | GET /template?query={custom_query} | Get list of templates from storage by custom query |
 
 

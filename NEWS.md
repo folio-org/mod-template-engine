@@ -8,9 +8,9 @@ CRUD API for templates was added:
 | METHOD                             | DESCRIPTION                                        |
 |------------------------------------|----------------------------------------------------|
 | POST /template                     | Create new template in storage                     |
-| GET /template/id                   | Get template from storage by id                    |
-| PUT /template/id                   | Update template in storage                         |
-| DELETE /template/id                | Delete template from storage                       |
+| GET /template/{templateId}         | Get template from storage by id                    |
+| PUT /template/{templateId}         | Update template in storage                         |
+| DELETE /template/{templateId}      | Delete template from storage                       |
 | GET /template?query={custom_query} | Get list of templates from storage by custom query |
 ## 2018-08-30 v0.0.1
  * Initial module setup
