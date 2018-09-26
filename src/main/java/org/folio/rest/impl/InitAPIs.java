@@ -10,14 +10,13 @@ import org.folio.rest.resource.interfaces.InitAPI;
 import java.net.URL;
 import java.util.MissingResourceException;
 
-import static org.folio.rest.impl.TemplateResourceImpl.TEMPLATE_SCHEMA_PATH;
-
 public class InitAPIs implements InitAPI {
 
   public void init(Vertx vertx, Context context, Handler<AsyncResult<Boolean>> resultHandler) {
-    URL u = InitAPIs.class.getClassLoader().getResource(TEMPLATE_SCHEMA_PATH);
-    if(u == null) {
-      resultHandler.handle(Future.failedFuture(new MissingResourceException(TEMPLATE_SCHEMA_PATH, InitAPIs.class.getName(), TEMPLATE_SCHEMA_PATH)));
+    URL u = InitAPIs.class.getClassLoader().getResource(TemplateResourceImpl.TEMPLATE_SCHEMA_PATH);
+    if (u == null) {
+      resultHandler.handle(Future.failedFuture(new MissingResourceException(TemplateResourceImpl.TEMPLATE_SCHEMA_PATH,
+        InitAPIs.class.getName(), TemplateResourceImpl.TEMPLATE_SCHEMA_PATH)));
     } else {
       resultHandler.handle(Future.succeededFuture(true));
     }

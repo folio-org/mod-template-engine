@@ -26,13 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static io.vertx.core.Future.succeededFuture;
-
 public class TemplateResourceImpl implements TemplateResource {
 
+  public static final String TEMPLATE_SCHEMA_PATH = "ramls/template.json";
   private static final String TEMPLATES_TABLE = "template";
   private static final String TEMPLATES_ID_FIELD = "'id'";
-  public static final String TEMPLATE_SCHEMA_PATH = "ramls/template.json";
   private static final String INTERNAL_ERROR = "Internal Server error";
   private static final String POSTGRES_ERROR = "Error from PostgresClient: ";
   private static final String INTERNAL_CONTEXT_ERROR = "Error running on vertx context: ";
@@ -211,11 +209,11 @@ public class TemplateResourceImpl implements TemplateResource {
                 if (reply.succeeded()) {
                   if (reply.result().getUpdated() == 1) {
                     logger.info("Template with id: " + templateId + " deleted");
-                    asyncResultHandler.handle(succeededFuture(
+                    asyncResultHandler.handle(Future.succeededFuture(
                       DeleteTemplateByTemplateIdResponse.withPlainNoContent("Template with id: " + templateId + " deleted")));
                   } else {
                     logger.error("Delete count error");
-                    asyncResultHandler.handle(succeededFuture(DeleteTemplateByTemplateIdResponse
+                    asyncResultHandler.handle(Future.succeededFuture(DeleteTemplateByTemplateIdResponse
                       .withPlainNotFound("Delete count error  not found id")));
                   }
                 } else {

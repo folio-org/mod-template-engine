@@ -24,8 +24,6 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
-import static org.folio.rest.impl.ApiTestHelper.doRequest;
-
 @RunWith(VertxUnitRunner.class)
 public class RestVerticleTest {
 
@@ -150,33 +148,33 @@ public class RestVerticleTest {
   }
 
   private Future<ApiTestHelper.WrappedResponse> doPost(TestContext context, JsonObject template, Handler<ApiTestHelper.WrappedResponse> handler) {
-    return doRequest(vertx, templateUrl, HttpMethod.POST, buildDefHeaders(), template.encode(),
+    return ApiTestHelper.doRequest(vertx, templateUrl, HttpMethod.POST, buildDefHeaders(), template.encode(),
       201, "POST template", handler);
   }
 
   private Future<ApiTestHelper.WrappedResponse> doGetById(TestContext context, String id, Handler<ApiTestHelper.WrappedResponse> handler) {
-    return doRequest(vertx, templateUrl + "/" + id, HttpMethod.GET, buildDefHeaders(), null,
+    return ApiTestHelper.doRequest(vertx, templateUrl + "/" + id, HttpMethod.GET, buildDefHeaders(), null,
       200, "GET template by id", handler);
   }
 
   private Future<ApiTestHelper.WrappedResponse> doGet(TestContext context, String query, Handler<ApiTestHelper.WrappedResponse> handler) {
-    return doRequest(vertx, templateUrl + "?query=" + query, HttpMethod.GET, buildDefHeaders(), null,
+    return ApiTestHelper.doRequest(vertx, templateUrl + "?query=" + query, HttpMethod.GET, buildDefHeaders(), null,
       200, "GET template with query", handler);
   }
 
   private Future<ApiTestHelper.WrappedResponse> doGetAll(TestContext context, Handler<ApiTestHelper.WrappedResponse> handler) {
-    return doRequest(vertx, templateUrl, HttpMethod.GET, buildDefHeaders(), null,
+    return ApiTestHelper.doRequest(vertx, templateUrl, HttpMethod.GET, buildDefHeaders(), null,
       200, "GET all templates", handler);
   }
 
   private Future<ApiTestHelper.WrappedResponse> doPutById(TestContext context, String id, JsonObject body, Handler<ApiTestHelper.WrappedResponse> handler) {
-    return doRequest(vertx, templateUrl + "/" + id, HttpMethod.PUT, buildDefHeaders(), body.encode(),
+    return ApiTestHelper.doRequest(vertx, templateUrl + "/" + id, HttpMethod.PUT, buildDefHeaders(), body.encode(),
       200, "UPDATE template", handler);
   }
 
   private Future<ApiTestHelper.WrappedResponse> doDeleteById(TestContext context, String id, Handler<ApiTestHelper.WrappedResponse> handler) {
     CaseInsensitiveHeaders headers = new CaseInsensitiveHeaders();
-    return doRequest(vertx, templateUrl + "/" + id, HttpMethod.DELETE, buildDefHeaders(), null,
+    return ApiTestHelper.doRequest(vertx, templateUrl + "/" + id, HttpMethod.DELETE, buildDefHeaders(), null,
       204, "DELETE template", handler);
   }
 
