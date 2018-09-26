@@ -70,7 +70,7 @@ public class TemplateResourceImpl implements TemplateResource {
   }
 
   @Override
-  public void getTemplate(int length, int start,
+  public void getTemplate(int offset, int limit,
                           String query, Map<String, String> okapiHeaders,
                           Handler<AsyncResult<Response>> asyncResultHandler,
                           Context vertxContext) {
@@ -79,7 +79,7 @@ public class TemplateResourceImpl implements TemplateResource {
         String tenantId = getTenant(okapiHeaders);
         String[] fieldList = {"*"};
         try {
-          CQLWrapper cql = getCQL(query, length, start - 1);
+          CQLWrapper cql = getCQL(query, limit, offset);
           PostgresClient.getInstance(vertxContext.owner(), tenantId).get(
             TEMPLATES_TABLE, TemplateJson.class, fieldList, cql, true, false, getReply -> {
               if (getReply.failed()) {
