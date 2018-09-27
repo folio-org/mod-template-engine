@@ -1,0 +1,27 @@
+{
+  "templates": [
+    {
+      "id": "1",
+      "description": "template for change password",
+      "templateResolver": "mustache",
+      "outputFormat":[
+        "text",
+        "html"
+      ],
+      "templates":[
+        {
+          "lang":"en",
+          "template":"Hello ${context.user.name}"
+        },
+        {
+          "lang": "de",
+          "template": "Hallo ${context.user.name}"
+        }
+      ],
+      "metadata": {
+        "date":"21.11.2010"
+      }
+    }
+  ],
+  "totalRecords": 1
+}

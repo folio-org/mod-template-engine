@@ -13,9 +13,64 @@ schemas:
   - template.json: !include template.json
   - localizedTemplate.json: !include localizedTemplate.json
   - raml-util/schemas/metadata.schema: !include raml-util/schemas/metadata.schema
+  - templatesCollection.json: !include templatesCollection.json
+  - errors: !include ./raml-util/schemas/errors.schema
+  - error.schema: !include ./raml-util/schemas/error.schema
+  - parameters.schema: !include ./raml-util/schemas/parameters.schema
 
+traits:
+  - pageable: !include ./raml-util/traits/pageable.raml
+  - queryable:
+      queryParameters:
+        query:
+          description: "A query string to filter templates based on matching criteria in fields."
+          required: false
+          type: string
+  - validate: !include ./raml-util/traits/validation.raml
 
 /template:
+  post:
+    is: [validate]
+    description: Add a new template
+    body:
+      application/json:
+        schema: template.json
+    responses:
+      201:
+        body:
+          application/json:
+            schema: template.json
+      400:
+        description: "Bad request"
+        body:
+          text/plain:
+            example: "Bad request"
+      500:
+        description: "Internal server error"
+        body:
+          text/plain:
+            example: "Internal server error"
+  get:
+    description: Get a list of templates
+    is: [
+      pageable,
+      queryable
+    ]
+    responses:
+      200:
+        body:
+          application/json:
+            schema: templatesCollection.json
+      400:
+        description: "Bad request"
+        body:
+          text/plain:
+            example: "Bad request"
+      500:
+        description: "Internal server error"
+        body:
+          text/plain:
+            example: "Internal server error"
   /{templateId}:
     get:
       description: Get template by id
@@ -29,6 +84,26 @@ schemas:
           body:
             text/plain:
               example: "Template not found"
+        500:
+          description: "Internal server error"
+          body:
+            text/plain:
+              example: "Internal server error"
+    put:
+      description: Modify a template
+      body:
+        application/json:
+         schema: template.json
+      responses:
+        200:
+          body:
+            application/json:
+              schema: template.json
+        404:
+          description: "Template not found"
+          body:
+            text/plain:
+                example: "Template not found"
         500:
           description: "Internal server error"
           body:

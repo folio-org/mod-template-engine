@@ -7,16 +7,29 @@
       "version": "1.0",
       "handlers": [
         {
-          "methods": [
-            "GET"
-          ],
-          "pathPattern": "/template/{templateId}"
+          "methods": ["GET"],
+          "pathPattern": "/template",
+          "permissionsRequired": ["templates.collection.get"]
         },
         {
-          "methods": [
-            "DELETE"
-          ],
-          "pathPattern": "/template/{templateId}"
+          "methods": ["POST"],
+          "pathPattern": "/template",
+          "permissionsRequired": ["templates.item.post"]
+        },
+        {
+          "methods": ["GET"],
+          "pathPattern": "/template/{templateId}",
+          "permissionsRequired": ["templates.item.get"]
+        },
+        {
+          "methods": ["PUT"],
+          "pathPattern": "/template/{templateId}",
+          "permissionsRequired": ["templates.item.put"]
+        },
+        {
+          "methods": ["DELETE"],
+          "pathPattern": "/template/{templateId}",
+          "permissionsRequired": ["templates.item.delete"]
         }
       ]
     },
@@ -32,6 +45,46 @@
           "pathPattern": "/_/tenant"
         }
       ]
+    }
+  ],
+  "permissionSets": [
+    {
+      "permissionName": "templates.collection.get",
+      "displayName": "Templates - get Templates collection",
+      "description": "Get Templates collection"
+    },
+    {
+      "permissionName": "templates.item.get",
+      "displayName": "Templates - get individual tag from storage",
+      "description": "Get individual tag"
+    },
+    {
+      "permissionName": "templates.item.post",
+      "displayName": "Templates - create tag",
+      "description": "Create tag"
+    },
+    {
+      "permissionName": "templates.item.put",
+      "displayName": "Templates - modify tag",
+      "description": "Modify tag"
+    },
+    {
+      "permissionName": "templates.item.delete",
+      "displayName": "Templates - delete tag",
+      "description": "Delete tag"
+    },
+    {
+      "permissionName": "templates.all",
+      "displayName": "Templates module - all permissions",
+      "description": "Entire set of permissions needed to use the Templates module",
+      "subPermissions": [
+        "templates.collection.get",
+        "templates.item.get",
+        "templates.item.post",
+        "templates.item.put",
+        "templates.item.delete"
+      ],
+      "visible": false
     }
   ],
   "launchDescriptor": {

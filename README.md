@@ -9,8 +9,16 @@ Version 2.0. See the file "[LICENSE](LICENSE)" for more information.
 
 This module is responsible for storing templates and generating
 text, html, xml, doc, docx etc from the template.
-Generated payload is described by meta information which contain info
+Generated payload is described by meta information which contains info
 about format, size and date. Supports localization of templates.
+
+| METHOD                             | DESCRIPTION                                        |
+|------------------------------------|----------------------------------------------------|
+| POST /template                     | Create new template in storage                     |
+| GET /template/{templateId}         | Get template from storage by id                    |
+| PUT /template/{templateId}         | Update template in storage                         |
+| DELETE /template/{templateId}      | Delete template from storage                       |
+| GET /template?query={custom_query} | Get list of templates from storage by custom query |
 
 
 # Additional information
