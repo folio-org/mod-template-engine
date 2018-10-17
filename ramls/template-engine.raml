@@ -1,4 +1,4 @@
-#%RAML 0.8
+#%RAML 1.0
 
 title: Template engine
 baseUri: http://api.example.com/{version}
@@ -9,37 +9,36 @@ documentation:
   - title: mod-template-engine API
     content: This module dedicated for storing templates and generating text, html, xml, doc, docx etc from the template.
 
-schemas:
-  - template.json: !include template.json
-  - localizedTemplate.json: !include localizedTemplate.json
-  - raml-util/schemas/metadata.schema: !include raml-util/schemas/metadata.schema
-  - templatesCollection.json: !include templatesCollection.json
-  - errors: !include ./raml-util/schemas/errors.schema
-  - error.schema: !include ./raml-util/schemas/error.schema
-  - parameters.schema: !include ./raml-util/schemas/parameters.schema
+types:
+  template: !include template.json
+  localizedTemplate.json: !include localizedTemplate.json
+  templatesCollection: !include templatesCollection.json
+  templateProcessingRequest: !include templateProcessingRequest.json
+  templateProcessingResult: !include templateProcessingResult.json
+  errors: !include raml-util/schemas/errors.schema
 
 traits:
-  - pageable: !include ./raml-util/traits/pageable.raml
-  - queryable:
+  pageable: !include ./raml-util/traits/pageable.raml
+  queryable:
       queryParameters:
         query:
           description: "A query string to filter templates based on matching criteria in fields."
           required: false
           type: string
-  - validate: !include ./raml-util/traits/validation.raml
+  validate: !include ./raml-util/traits/validation.raml
 
-/template:
+/templates:
   post:
     is: [validate]
     description: Add a new template
     body:
       application/json:
-        schema: template.json
+        type: template
     responses:
       201:
         body:
           application/json:
-            schema: template.json
+            type: template
       400:
         description: "Bad request"
         body:
@@ -60,7 +59,7 @@ traits:
       200:
         body:
           application/json:
-            schema: templatesCollection.json
+            type: templatesCollection
       400:
         description: "Bad request"
         body:
@@ -78,7 +77,7 @@ traits:
         200:
           body:
             application/json:
-              schema: template.json
+              type: template
         404:
           description: "Template not found"
           body:
@@ -93,12 +92,12 @@ traits:
       description: Modify a template
       body:
         application/json:
-         schema: template.json
+         type: template
       responses:
         200:
           body:
             application/json:
-              schema: template.json
+              type: template
         404:
           description: "Template not found"
           body:
@@ -125,3 +124,27 @@ traits:
           body:
             text/plain:
               example: "Internal server error"
+/template-request:
+  post:
+    description: process specified template using given context
+    body:
+      application/json:
+        type: templateProcessingRequest
+    responses:
+      200:
+        body:
+          application/json:
+            type: templateProcessingResult
+      400:
+        body:
+          text/plain:
+            example: "Bad request"
+      422:
+        description: "Unprocessable Entity"
+        body:
+          application/json:
+            type: errors
+      500:
+        body:
+          text/plain:
+            example: "Internal server error"

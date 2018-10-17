@@ -11,7 +11,7 @@
       "type": "string",
       "description": "Template description"
     },
-    "outputFormat": {
+    "outputFormats": {
       "type": "array",
       "items": {
         "type": "string"
@@ -37,7 +37,7 @@
   "required": [
     "templateResolver",
     "localizedTemplates",
-    "outputFormat",
+    "outputFormats",
     "description"
   ]
 }

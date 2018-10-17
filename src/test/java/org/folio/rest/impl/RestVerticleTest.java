@@ -15,6 +15,7 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
+import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
 import org.junit.After;
@@ -26,6 +27,8 @@ import java.io.IOException;
 
 @RunWith(VertxUnitRunner.class)
 public class RestVerticleTest {
+
+  private static final String TEMPLATES_TABLE_NAME = "template";
 
   private Vertx vertx;
   private final Logger logger = LoggerFactory.getLogger("TemplateEngineTest");
@@ -50,13 +53,14 @@ public class RestVerticleTest {
 
   private JsonObject templateObject = new JsonObject()
     .put("description", "template for change password")
-    .put("outputFormat", outputFormat)
+    .put("outputFormats", outputFormat)
     .put("templateResolver", "mustache")
     .put("localizedTemplates", templates);
 
-  private static final String TEMPLATE_RESOLVER = "freemarker";
+  private static final String NEW_TEMPLATE_DESCRIPTION = "New description";
+
   private JsonObject templateObject2 = templateObject
-    .put("templateResolver", TEMPLATE_RESOLVER);
+    .put("description", NEW_TEMPLATE_DESCRIPTION);
 
   @Before
   public void setUp(TestContext context) throws IOException {
@@ -65,7 +69,7 @@ public class RestVerticleTest {
     TenantClient tenantClient = new TenantClient("localhost", port, "diku", "diku");
     vertx = Vertx.vertx();
     okapiUrl = "http://localhost:" + port;
-    templateUrl = okapiUrl + "/template";
+    templateUrl = okapiUrl + "/templates";
 
     DeploymentOptions options = new DeploymentOptions().setConfig(
       new JsonObject()
@@ -81,11 +85,21 @@ public class RestVerticleTest {
     }
     vertx.deployVerticle(RestVerticle.class.getName(), options, res -> {
       try {
-        tenantClient.post(null, res2 -> {
+        tenantClient.postTenant(null, res2 -> {
           async.complete();
         });
       } catch (Exception e) {
         e.printStackTrace();
+      }
+    });
+    clearTemplatesTable(context);
+
+
+  }
+  private void clearTemplatesTable(TestContext context) {
+    PostgresClient.getInstance(vertx, "diku").delete(TEMPLATES_TABLE_NAME, new Criterion(), event -> {
+      if (event.failed()) {
+        context.fail(event.cause());
       }
     });
   }
@@ -123,11 +137,11 @@ public class RestVerticleTest {
         // test put request and updating template ad database
       })).compose(w -> doPutById(context, idF[0], templateObject2, h -> {
         context.assertEquals(h.getCode(), 200);
-        context.assertEquals(h.getJson().getString("templateResolver"), TEMPLATE_RESOLVER);
+        context.assertEquals(h.getJson().getString("description"), NEW_TEMPLATE_DESCRIPTION);
         // test get request and getting single template by id
       })).compose(w -> doGetById(context, idF[0], h -> {
         context.assertEquals(h.getCode(), 200);
-        context.assertEquals(h.getJson().getString("templateResolver"), TEMPLATE_RESOLVER);
+        context.assertEquals(h.getJson().getString("description"), NEW_TEMPLATE_DESCRIPTION);
         // test delete request and deleting entity from datbase
       })).compose(w -> doDeleteById(context, idF[0], h -> {
         context.assertEquals(h.getCode(), 204);

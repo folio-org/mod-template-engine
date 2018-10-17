@@ -8,28 +8,33 @@
       "handlers": [
         {
           "methods": ["GET"],
-          "pathPattern": "/template",
+          "pathPattern": "/templates",
           "permissionsRequired": ["templates.collection.get"]
         },
         {
           "methods": ["POST"],
-          "pathPattern": "/template",
+          "pathPattern": "/templates",
           "permissionsRequired": ["templates.item.post"]
         },
         {
           "methods": ["GET"],
-          "pathPattern": "/template/{templateId}",
+          "pathPattern": "/templates/{templateId}",
           "permissionsRequired": ["templates.item.get"]
         },
         {
           "methods": ["PUT"],
-          "pathPattern": "/template/{templateId}",
+          "pathPattern": "/templates/{templateId}",
           "permissionsRequired": ["templates.item.put"]
         },
         {
           "methods": ["DELETE"],
-          "pathPattern": "/template/{templateId}",
+          "pathPattern": "/templates/{templateId}",
           "permissionsRequired": ["templates.item.delete"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/template-request",
+          "permissionsRequired": ["template-request.post"]
         }
       ]
     },
@@ -74,6 +79,11 @@
       "description": "Delete tag"
     },
     {
+      "permissionName": "template-request.post",
+      "displayName": "Template request",
+      "description": "Request for template compilation"
+    },
+    {
       "permissionName": "templates.all",
       "displayName": "Templates module - all permissions",
       "description": "Entire set of permissions needed to use the Templates module",
@@ -82,7 +92,8 @@
         "templates.item.get",
         "templates.item.post",
         "templates.item.put",
-        "templates.item.delete"
+        "templates.item.delete",
+        "template-request.post"
       ],
       "visible": false
     }

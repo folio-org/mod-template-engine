@@ -1,0 +1,13 @@
+{
+  "templateId":"8c352e07-308b-4cd2-b4e3-4a15096cd943",
+  "lang": "en",
+  "outputFormat": "txt",
+  "context": {
+    "user": {
+      "name": "Alex"
+    },
+    "item": {
+      "name": "My Item"
+    }
+  }
+}

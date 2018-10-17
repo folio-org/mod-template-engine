@@ -14,11 +14,12 @@ about format, size and date. Supports localization of templates.
 
 | METHOD                             | DESCRIPTION                                        |
 |------------------------------------|----------------------------------------------------|
-| POST /template                     | Create new template in storage                     |
-| GET /template/{templateId}         | Get template from storage by id                    |
-| PUT /template/{templateId}         | Update template in storage                         |
-| DELETE /template/{templateId}      | Delete template from storage                       |
-| GET /template?query={custom_query} | Get list of templates from storage by custom query |
+| POST /templates                     | Create new template in storage                     |
+| GET /templates/{templateId}         | Get template from storage by id                    |
+| PUT /templates/{templateId}         | Update template in storage                         |
+| DELETE /templates/{templateId}      | Delete template from storage                       |
+| GET /templates?query={custom_query} | Get list of templates from storage by custom query |
+| POST /template-request              | Process specified template using context           |
 
 
 # Additional information
