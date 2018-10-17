@@ -126,6 +126,7 @@ traits:
               example: "Internal server error"
 /template-request:
   post:
+    is: [validate]
     description: process specified template using given context
     body:
       application/json:
@@ -139,11 +140,6 @@ traits:
         body:
           text/plain:
             example: "Bad request"
-      422:
-        description: "Unprocessable Entity"
-        body:
-          application/json:
-            type: errors
       500:
         body:
           text/plain:
