@@ -6,7 +6,7 @@ import io.vertx.core.Handler;
 
 /**
  * Abstract class for handling requests asynchronously.
- * Method execute() is en entry point for execution.
+ * Method run() is en entry point for execution.
  * Subclasses override handle() and handleException(Throwable e) callbacks.
  */
 public abstract class AbstractRequestHandler {
