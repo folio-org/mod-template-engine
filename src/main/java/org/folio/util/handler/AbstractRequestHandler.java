@@ -6,7 +6,7 @@ import io.vertx.core.Handler;
 
 /**
  * Abstract class for handling requests asynchronously.
- * Method run() is en entry point for execution.
+ * Method execute() is en entry point for execution.
  * Subclasses override handle() and handleException(Throwable e) callbacks.
  */
 public abstract class AbstractRequestHandler {
@@ -50,20 +50,20 @@ public abstract class AbstractRequestHandler {
   }
 
   /**
-   * Runs given runnable in try/catch block and calls handleException in case of exception
+   * Executes given command in try/catch block and calls handleException in case of exception
    *
-   * @param runnable runnable
+   * @param command command
    */
-  protected void catchException(ThrowingRunnable runnable) {
+  protected void catchException(ThrowingCommand command) {
     try {
-      runnable.run();
+      command.execute();
     } catch (Exception e) {
       handleException(e);
     }
   }
 
   @FunctionalInterface
-  public interface ThrowingRunnable<T extends Exception> {
-    void run() throws T;
+  public interface ThrowingCommand<T extends Exception> {
+    void execute() throws T;
   }
 }
