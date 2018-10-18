@@ -23,11 +23,12 @@
       "description": "Template engine name"
     },
     "localizedTemplates": {
-      "type": "array",
+      "type": "object",
       "description": "List of localized templates",
-      "items": {
+      "additionalProperties": {
         "type": "object",
-        "$ref" : "localizedTemplate.json"
+        "description": "Template content",
+        "$ref": "templateContent.json"
       }
     },
     "metadata": {

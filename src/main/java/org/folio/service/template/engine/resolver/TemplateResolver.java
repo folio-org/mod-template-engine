@@ -18,10 +18,10 @@ public interface TemplateResolver {
 
   /**
    * Processes template with given context and returns result to result handler in requested output format
-   * @param template template
+   * @param templateContent templateContent
    * @param context context
    * @param outputFormat output format
    * @param resultHandler result handler
    */
-  void processTemplate(String template, JsonObject context, String outputFormat, Handler<AsyncResult<String>> resultHandler);
+  void processTemplate(JsonObject templateContent, JsonObject context, String outputFormat, Handler<AsyncResult<JsonObject>> resultHandler);
 }

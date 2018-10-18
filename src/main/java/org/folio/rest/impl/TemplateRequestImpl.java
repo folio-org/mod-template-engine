@@ -8,7 +8,6 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import org.folio.rest.jaxrs.model.LocalizedTemplate;
 import org.folio.rest.jaxrs.model.Template;
 import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.jaxrs.model.TemplateProcessingResult;
@@ -21,7 +20,6 @@ import org.folio.util.handler.AbstractRequestHandler;
 
 import javax.ws.rs.core.Response;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TemplateRequestImpl implements TemplateRequest {
 
@@ -111,9 +109,10 @@ public class TemplateRequestImpl implements TemplateRequest {
         return false;
       }
 
-      Map<String, String> localizedTemplatesMap = template.getLocalizedTemplates().stream()
-        .collect(Collectors.toMap(LocalizedTemplate::getLang, LocalizedTemplate::getTemplate));
-      if (!localizedTemplatesMap.containsKey(templateRequest.getLang())) {
+      boolean templateSupportsGivenLanguage =
+        template.getLocalizedTemplates().getAdditionalProperties()
+          .containsKey(templateRequest.getLang());
+      if (!templateSupportsGivenLanguage) {
         String message = String.format("Requested template does not have localized template for language '%s'",
           templateRequest.getLang());
         asyncResultHandler.handle(Future.succeededFuture(PostTemplateRequestResponse.respond400WithTextPlain(message)));

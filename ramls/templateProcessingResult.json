@@ -8,8 +8,9 @@
       "description": "Source template id"
     },
     "result": {
-      "type": "string",
-      "description": "Template processing output"
+      "type": "object",
+      "description": "Template processing output",
+      "$ref": "templateContent.json"
     },
     "meta": {
       "type": "object",

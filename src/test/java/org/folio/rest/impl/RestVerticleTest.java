@@ -40,16 +40,16 @@ public class RestVerticleTest {
     .add("html");
 
   private JsonObject template1 = new JsonObject()
-    .put("lang", "en")
-    .put("template", "Hello ${context.user.name}");
+    .put("header", "Hello message for ${context.user.name}")
+    .put("body", "Hello ${context.user.name}");
 
   private JsonObject template2 = new JsonObject()
-    .put("lang", "de")
-    .put("template", "Hallo ${context.user.name}");
+    .put("header", "Hello message for ${context.user.name}")
+    .put("body", "Hallo ${context.user.name}");
 
-  private JsonArray templates = new JsonArray()
-    .add(template1)
-    .add(template2);
+  private JsonObject templates = new JsonObject()
+    .put("en", template1)
+    .put("de", template2);
 
   private JsonObject templateObject = new JsonObject()
     .put("description", "template for change password")

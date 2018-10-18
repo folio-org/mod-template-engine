@@ -14,7 +14,8 @@ import org.apache.http.HttpStatus;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.Context;
-import org.folio.rest.jaxrs.model.LocalizedTemplate;
+import org.folio.rest.jaxrs.model.LocalizedTemplates;
+import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.jaxrs.model.Template;
 import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.persist.Criteria.Criterion;
@@ -189,11 +190,12 @@ public class TemplateRequestTest {
         .withLang(EN_LANG)
         .withOutputFormat(TXT_OUTPUT_FORMAT)
         .withContext(new Context()
-            .withAdditionalProperty("user",
-              new JsonObject()
-                .put("name", "Username")));
+          .withAdditionalProperty("user",
+            new JsonObject()
+              .put("name", "Username")));
 
-    String expectedResult = "Hello Username";
+    String expectedHeader = "Hello message for Username";
+    String expectedBody = "Hello Username";
 
     RestAssured.given()
       .spec(spec)
@@ -203,9 +205,10 @@ public class TemplateRequestTest {
       .then()
       .statusCode(HttpStatus.SC_OK)
       .body("templateId", Matchers.is(templateId))
-      .body("result", Matchers.is(expectedResult))
+      .body("result.header", Matchers.is(expectedHeader))
+      .body("result.body", Matchers.is(expectedBody))
       .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.size", Matchers.is(expectedResult.length()))
+      .body("meta.size", Matchers.is(expectedBody.length()))
       .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
   }
 
@@ -230,13 +233,15 @@ public class TemplateRequestTest {
       .withDescription("Template for password change")
       .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
       .withTemplateResolver("mustache")
-      .withLocalizedTemplates(Arrays.asList(
-        new LocalizedTemplate()
-          .withLang(EN_LANG)
-          .withTemplate("Hello {{user.name}}"),
-        new LocalizedTemplate()
-          .withLang("de")
-          .withTemplate("Hallo {{user.name}}")
-      ));
+      .withLocalizedTemplates(
+        new LocalizedTemplates()
+          .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Hello message for {{user.name}}")
+              .withBody("Hello {{user.name}}"))
+          .withAdditionalProperty("de",
+            new LocalizedTemplatesProperty()
+              .withHeader("Hallo message for {{user.name}}")
+              .withBody("Hallo {{user.name}}")));
   }
 }

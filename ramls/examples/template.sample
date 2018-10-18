@@ -1,21 +1,21 @@
 {
   "id": "1",
   "description": "template for change password",
-  "outputFormat": [
+  "outputFormats": [
     "text",
     "html"
   ],
   "templateResolver": "mustache",
-  "templates": [
-    {
-      "lang": "en",
-      "template": "Hello ${context.user.name}"
+  "localizedTemplates": {
+    "en": {
+      "header": "Hello message for {{user.name}}",
+      "body": "Hello {{user.name}}"
     },
-    {
-      "lang": "de",
-      "template": "Hallo ${context.user.name}"
+    "de": {
+      "header": "Hello message for {{user.name}}",
+      "body": "Hallo {{user.name}}"
     }
-  ],
+  },
   "metadata": {
     "date": "21.11.2010"
   }

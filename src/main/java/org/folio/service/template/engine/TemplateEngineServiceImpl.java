@@ -7,8 +7,9 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
-import org.folio.rest.jaxrs.model.LocalizedTemplate;
+import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.jaxrs.model.Meta;
+import org.folio.rest.jaxrs.model.Result;
 import org.folio.rest.jaxrs.model.Template;
 import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.jaxrs.model.TemplateProcessingResult;
@@ -54,31 +55,32 @@ public class TemplateEngineServiceImpl implements TemplateEngineService {
 
     @Override
     protected void handle() {
-      LocalizedTemplate localizedTemplate =
-        template.getLocalizedTemplates().stream()
-          .filter(t -> t.getLang().equals(templateRequest.getLang()))
-          .findFirst()
-          .orElseThrow(() -> new IllegalArgumentException(
-            String.format("Localized template for lang '%s' does not exist", templateRequest.getLang())));
+      LocalizedTemplatesProperty templateContent = template.getLocalizedTemplates().getAdditionalProperties()
+        .get(templateRequest.getLang());
+      if (templateContent == null) {
+        String message = String.format("Localized template for lang '%s' does not exist", templateRequest.getLang());
+        asyncResultHandler.handle(Future.failedFuture(message));
+        return;
+      }
 
       String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
       TemplateResolver templateResolverProxy = TemplateResolver.createProxy(vertx, templateResolverAddress);
-
       templateResolverProxy.processTemplate(
-        localizedTemplate.getTemplate(),
+        JsonObject.mapFrom(templateContent),
         JsonObject.mapFrom(templateRequest.getContext()),
         templateRequest.getOutputFormat(),
         wrapWithFailureHandler(this::handleTemplateResolverResponse));
     }
 
-    private void handleTemplateResolverResponse(String result) {
+    private void handleTemplateResolverResponse(JsonObject processedContent) {
+      Result processedTemplate = processedContent.mapTo(Result.class);
       Meta resultMetaInfo = new Meta()
-        .withSize(result.length())
+        .withSize(processedTemplate.getBody().length())
         .withDateCreate(new Date())
         .withLang(templateRequest.getLang())
         .withOutputFormat(templateRequest.getOutputFormat());
       TemplateProcessingResult processingResult = new TemplateProcessingResult()
-        .withResult(result)
+        .withResult(processedTemplate)
         .withMeta(resultMetaInfo)
         .withTemplateId(templateRequest.getTemplateId());
       asyncResultHandler.handle(Future.succeededFuture(JsonObject.mapFrom(processingResult)));
