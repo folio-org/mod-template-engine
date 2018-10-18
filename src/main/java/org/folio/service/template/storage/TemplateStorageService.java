@@ -17,5 +17,11 @@ public interface TemplateStorageService {
     return new TemplateStorageServiceVertxEBProxy(vertx, address);
   }
 
+  /**
+   * Searches template by given templateId. Returns null if no template found
+   * @param tenantId tenant id
+   * @param templateId template id
+   * @param resultHandler result handler
+   */
   void getTemplateById(String tenantId, String templateId, Handler<AsyncResult<JsonObject>> resultHandler);
 }

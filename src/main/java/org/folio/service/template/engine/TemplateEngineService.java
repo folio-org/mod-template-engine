@@ -18,5 +18,13 @@ public interface TemplateEngineService {
     return new TemplateEngineServiceVertxEBProxy(vertx, address);
   }
 
-  void processTemplate(JsonObject template, JsonObject templateProcessingRequestJson, Handler<AsyncResult<JsonObject>> asyncResultHandler);
+  /**
+   * Processes given templateJson ({@link org.folio.rest.jaxrs.model.Template})
+   * using information from templateProcessingRequestJson ({@link org.folio.rest.jaxrs.model.TemplateProcessingRequest})
+   * and forms result as {@link org.folio.rest.jaxrs.model.TemplateProcessingResult}
+   * @param templateJson given template to process
+   * @param templateProcessingRequestJson processing request info
+   * @param asyncResultHandler result handler
+   */
+  void processTemplate(JsonObject templateJson, JsonObject templateProcessingRequestJson, Handler<AsyncResult<JsonObject>> asyncResultHandler);
 }
