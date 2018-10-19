@@ -3,23 +3,23 @@
     {
       "id": "1",
       "description": "template for change password",
-      "templateResolver": "mustache",
-      "outputFormat":[
+      "outputFormats": [
         "text",
         "html"
       ],
-      "templates":[
-        {
-          "lang":"en",
-          "template":"Hello ${context.user.name}"
+      "templateResolver": "mustache",
+      "localizedTemplates": {
+        "en": {
+          "header": "Hello message for {{user.name}}",
+          "body": "Hello {{user.name}}"
         },
-        {
-          "lang": "de",
-          "template": "Hallo ${context.user.name}"
+        "de": {
+          "header": "Hello message for {{user.name}}",
+          "body": "Hallo {{user.name}}"
         }
-      ],
+      },
       "metadata": {
-        "date":"21.11.2010"
+        "date": "21.11.2010"
       }
     }
   ],
