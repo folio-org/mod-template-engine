@@ -21,7 +21,62 @@ about format, size and date. Supports localization of templates.
 | GET /templates?query={custom_query} | Get list of templates from storage by custom query |
 | POST /template-request              | Process specified template using context           |
 
-
+Example of template record:
+```
+{
+     "id": "96cba796-2acc-4500-8277-26bde511dce7",
+     "description": "Template for password change",
+     "outputFormats": [
+       "txt",
+       "html"
+     ],
+     "templateResolver": "mustache",
+     "localizedTemplates": {
+       "de": {
+         "header": "Hallo message for {{user.name}}",
+         "body": "Hallo {{user.name}}"
+       },
+       "en": {
+         "header": "Hello message for {{user.name}}",
+         "body": "Hello {{user.name}}"
+       }
+     }
+   }
+```
+ **POST /template-request :**
+```
+  {
+    "templateId":"96cba796-2acc-4500-8277-26bde511dce7",
+    "lang": "en",
+    "outputFormat": "txt",
+    "context": {
+      "user": {
+        "name": "Alex"
+      },
+      "item": {
+        "name": "My Item"
+      }
+    }
+  }
+```
+**Response :**
+```
+{
+    "templateId": "96cba796-2acc-4500-8277-26bde511dce7",
+    "result": {
+        "header": "Hello message for Alex",
+        "body": "Hello Alex"
+    },
+    "meta": {
+        "size": 10,
+        "dateCreate": "2018-10-22T15:26:10.560+0000",
+        "lang": "en",
+        "outputFormat": "txt"
+    }
+}
+```
+ 
+ 
 # Additional information
 
 The [raml-module-builder](https://github.com/folio-org/raml-module-builder) framework.

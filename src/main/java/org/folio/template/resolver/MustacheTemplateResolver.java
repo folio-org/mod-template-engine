@@ -1,4 +1,4 @@
-package org.folio.service.template.engine.resolver;
+package org.folio.template.resolver;
 
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
@@ -28,7 +28,7 @@ public class MustacheTemplateResolver implements TemplateResolver {
     try {
       for (Map.Entry<String, Object> property : templateContent) {
         if (property.getValue() instanceof String) {
-          String processedPropertyValue = processTemplateProperty((String) property.getValue(), context);
+          String processedPropertyValue = processTemplateProperty(property.getValue().toString(), context);
           result.put(property.getKey(), processedPropertyValue);
         }
       }
@@ -38,8 +38,8 @@ public class MustacheTemplateResolver implements TemplateResolver {
     }
   }
 
-  private String processTemplateProperty(String templatePropery, JsonObject context) {
-    Mustache mustache = mustacheFactory.compile(new StringReader(templatePropery), null);
+  private String processTemplateProperty(String templateProperty, JsonObject context) {
+    Mustache mustache = mustacheFactory.compile(new StringReader(templateProperty), null);
     StringWriter writer = new StringWriter();
     mustache.run(writer, Collections.singletonList(context.mapTo(Context.class).getAdditionalProperties()));
 
