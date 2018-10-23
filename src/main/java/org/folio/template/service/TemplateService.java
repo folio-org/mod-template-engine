@@ -43,7 +43,7 @@ public interface TemplateService {
    * Updates template with given id
    *
    * @param template template to update
-   * @return true if update succeeded
+   * @return future with true is succeeded
    */
   Future<Boolean> updateTemplate(Template template);
 
@@ -51,14 +51,14 @@ public interface TemplateService {
    * Deletes template by id
    *
    * @param id template id
-   * @return true if deleted successfully
+   * @return future with true is succeeded
    */
   Future<Boolean> deleteTemplate(String id);
 
   /**
    * Gets template specified by id and process it with given context
    *
-   * @param templateRequest template processing request.
+   * @param templateRequest template processing request
    * @return template processing response
    */
   Future<TemplateProcessingResult> processTemplate(TemplateProcessingRequest templateRequest);

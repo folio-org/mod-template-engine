@@ -38,7 +38,7 @@ public interface TemplateDao {
   Future<String> addTemplate(Template template);
 
   /**
-   * Updates template in database. Updates template with
+   * Updates template in database
    *
    * @param template template to update
    * @return future with true is succeeded
