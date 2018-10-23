@@ -13,15 +13,53 @@ import java.util.Optional;
  */
 public interface TemplateService {
 
+  /**
+   * Searches for templates
+   *
+   * @param query  CQL query
+   * @param offset offset
+   * @param limit  limit
+   * @return future with list of templates
+   */
   Future<List<Template>> getTemplates(String query, int offset, int limit);
 
+  /**
+   * Searches for template by id
+   *
+   * @param id template id
+   * @return future with optional template
+   */
   Future<Optional<Template>> getTemplateById(String id);
 
+  /**
+   * Saves template with generated id
+   *
+   * @param template template to save
+   * @return future with generated id
+   */
   Future<String> addTemplate(Template template);
 
+  /**
+   * Updates template with given id
+   *
+   * @param template template to update
+   * @return true if update succeeded
+   */
   Future<Boolean> updateTemplate(Template template);
 
+  /**
+   * Deletes template by id
+   *
+   * @param id template id
+   * @return true if deleted successfully
+   */
   Future<Boolean> deleteTemplate(String id);
 
+  /**
+   * Gets template specified by id and process it with given context
+   *
+   * @param templateRequest template processing request.
+   * @return template processing response
+   */
   Future<TemplateProcessingResult> processTemplate(TemplateProcessingRequest templateRequest);
 }

@@ -39,10 +39,17 @@ public interface TemplateDao {
 
   /**
    * Updates template in database. Updates template with
+   *
    * @param template template to update
-   * @return
+   * @return future with true is succeeded
    */
   Future<Boolean> updateTemplate(Template template);
 
+  /**
+   * Deletes template from database
+   *
+   * @param id id of template to delete
+   * @return future with true is succeeded
+   */
   Future<Boolean> deleteTemplate(String id);
 }
