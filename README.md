@@ -43,7 +43,7 @@ Example of template record:
      }
    }
 ```
- **POST /template-request :**
+**POST /template-request :**
 ```
   {
     "templateId":"96cba796-2acc-4500-8277-26bde511dce7",

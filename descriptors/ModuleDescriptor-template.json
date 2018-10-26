@@ -3,7 +3,7 @@
   "name": "Template engine module",
   "provides": [
     {
-      "id": "${artifactId}",
+      "id": "template-engine",
       "version": "1.0",
       "handlers": [
         {

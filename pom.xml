@@ -22,7 +22,7 @@
     <raml-module-builder.version>21.0.4</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <postgres.driver.version>9.4.1212</postgres.driver.version>
-    <vertx-version>3.5.3</vertx-version>
+    <vertx-version>3.5.4</vertx-version>
   </properties>
 
 
@@ -361,31 +361,25 @@
         </executions>
       </plugin>
 
-      <!-- replace the baseuri and the protocol in the ramls that are in the
-        apidocs directory so that they can at least be used to check via the html
-        api console on IE -->
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>1.8</version>
         <executions>
           <execution>
+            <!-- Replace the baseUri in the RAMLs that have been copied to
+            apidocs directory so that they can be used via the local html api console. -->
             <phase>prepare-package</phase>
-            <configuration>
-              <tasks>
-                <replace token="baseUri: http://github.com/org/folio/lsp-apis"
-                     value="baseUri: http://localhost:${http.port}/apis"
-                     dir="${basedir}/target/classes/apidocs/raml">
-                  <include name="**/*.raml" />
-                </replace>
-                <replace token="protocols: [ HTTPS ]" value="protocols: [ HTTP ]"
-                     dir="${basedir}/target/classes/apidocs/raml">
-                  <include name="**/*.raml" />
-                </replace>
-              </tasks>
-            </configuration>
             <goals>
               <goal>run</goal>
             </goals>
+            <configuration>
+              <target>
+                <replaceregexp match="baseUri:.+$" replace="baseUri: http://localhost:{http.port}" byline="true">
+                  <fileset dir="${basedir}/target/classes/apidocs/raml" includes="**/*.raml"/>
+                </replaceregexp>
+              </target>
+            </configuration>
           </execution>
         </executions>
       </plugin>
