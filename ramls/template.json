@@ -11,7 +11,7 @@
       "type": "string",
       "description": "Template description"
     },
-    "outputFormat": {
+    "outputFormats": {
       "type": "array",
       "items": {
         "type": "string"
@@ -23,10 +23,12 @@
       "description": "Template engine name"
     },
     "localizedTemplates": {
-      "type": "array",
-      "items": {
+      "type": "object",
+      "description": "List of localized templates",
+      "additionalProperties": {
         "type": "object",
-        "$ref" : "localizedTemplate.json"
+        "description": "Template content",
+        "$ref": "templateContent.json"
       }
     },
     "metadata": {
@@ -37,7 +39,7 @@
   "required": [
     "templateResolver",
     "localizedTemplates",
-    "outputFormat",
+    "outputFormats",
     "description"
   ]
 }

@@ -5,6 +5,7 @@
   "properties": {
     "templates": {
       "type": "array",
+      "description": "List of templates",
       "items": {
         "type": "object",
         "$ref": "template.json"

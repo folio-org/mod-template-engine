@@ -1,0 +1,13 @@
+{
+  "templateId": "8c352e07-308b-4cd2-b4e3-4a15096cd943",
+  "result": {
+    "header": "Hello message for Alex",
+    "body": "Hello Alex"
+  },
+  "meta": {
+    "size": 10,
+    "dateCreate": "2018-10-16T15:27:02.442+0000",
+    "lang": "en",
+    "outputFormat": "txt"
+  }
+}
