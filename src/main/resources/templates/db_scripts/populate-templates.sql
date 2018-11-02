@@ -3,7 +3,6 @@ INSERT INTO template (_id, jsonb) VALUES
  "id": "0ff6678f-53cd-4a32-9937-504c28f14077",
  "description": "Template for password changed email",
  "outputFormats": [
-   "txt",
    "html"
  ],
  "templateResolver": "mustache",
