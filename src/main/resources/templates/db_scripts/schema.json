@@ -17,7 +17,8 @@
           "fieldName": "id",
           "tOps": "ADD"
         }
-      ]
+      ],
+      "customSnippetPath": "populate-templates.sql"
     }
   ]
 }
