@@ -8,6 +8,6 @@
     "size": 10,
     "dateCreate": "2018-10-16T15:27:02.442+0000",
     "lang": "en",
-    "outputFormat": "txt"
+    "outputFormat": "text/plain"
   }
 }

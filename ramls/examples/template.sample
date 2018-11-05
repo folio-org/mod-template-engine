@@ -2,8 +2,8 @@
   "id": "1",
   "description": "template for change password",
   "outputFormats": [
-    "text",
-    "html"
+    "text/plain",
+    "text/html"
   ],
   "templateResolver": "mustache",
   "localizedTemplates": {

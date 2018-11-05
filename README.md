@@ -27,8 +27,8 @@ Example of template record:
      "id": "96cba796-2acc-4500-8277-26bde511dce7",
      "description": "Template for password change",
      "outputFormats": [
-       "txt",
-       "html"
+       "text/plain",
+       "text/html"
      ],
      "templateResolver": "mustache",
      "localizedTemplates": {
@@ -48,7 +48,7 @@ Example of template record:
   {
     "templateId":"96cba796-2acc-4500-8277-26bde511dce7",
     "lang": "en",
-    "outputFormat": "txt",
+    "outputFormat": "text/plain",
     "context": {
       "user": {
         "name": "Alex"
@@ -71,7 +71,7 @@ Example of template record:
         "size": 10,
         "dateCreate": "2018-10-22T15:26:10.560+0000",
         "lang": "en",
-        "outputFormat": "txt"
+        "outputFormat": "text/plain"
     }
 }
 ```
