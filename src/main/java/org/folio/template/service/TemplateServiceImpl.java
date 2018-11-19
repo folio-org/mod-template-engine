@@ -84,9 +84,13 @@ public class TemplateServiceImpl implements TemplateService {
         Future<JsonObject> future = Future.future();
         String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
         TemplateResolver templateResolverProxy = TemplateResolver.createProxy(vertx, templateResolverAddress);
+        JsonObject contextObject =
+          Optional.ofNullable(templateRequest.getContext())
+            .map(JsonObject::mapFrom)
+            .orElse(new JsonObject());
         templateResolverProxy.processTemplate(
           JsonObject.mapFrom(templateContent),
-          JsonObject.mapFrom(templateRequest.getContext()),
+          contextObject,
           templateRequest.getOutputFormat(), future.completer());
 
         return future.map(processedContent -> {
