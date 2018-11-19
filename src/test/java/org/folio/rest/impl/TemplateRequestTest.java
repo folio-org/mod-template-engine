@@ -180,7 +180,7 @@ public class TemplateRequestTest {
   }
 
   @Test
-  public void shouldRetunExpectedResponseWhenRequestIsValid() {
+  public void shouldReturnExpectedResponseWhenRequestIsValid() {
     Template template = createTemplate();
     String templateId = postTemplate(template);
 
@@ -209,6 +209,34 @@ public class TemplateRequestTest {
       .body("result.body", Matchers.is(expectedBody))
       .body("meta.lang", Matchers.is(EN_LANG))
       .body("meta.size", Matchers.is(expectedBody.length()))
+      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+  }
+
+  @Test
+  public void shouldReturnOkStatusWhenContextIsNotSpecified() {
+    Template template = createTemplate();
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(TXT_OUTPUT_FORMAT);
+
+    String expectedHeaderSubstring = "Hello message for";
+    String expectedBodySubstring = "Hello";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.header", Matchers.containsString(expectedHeaderSubstring))
+      .body("result.body", Matchers.containsString(expectedBodySubstring))
+      .body("meta.lang", Matchers.is(EN_LANG))
       .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
   }
 

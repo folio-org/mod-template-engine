@@ -13,6 +13,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 public class MustacheTemplateResolver implements TemplateResolver {
 
@@ -41,8 +42,11 @@ public class MustacheTemplateResolver implements TemplateResolver {
   private String processTemplateProperty(String templateProperty, JsonObject context) {
     Mustache mustache = mustacheFactory.compile(new StringReader(templateProperty), null);
     StringWriter writer = new StringWriter();
-    mustache.run(writer, Collections.singletonList(context.mapTo(Context.class).getAdditionalProperties()));
-
+    Map<String, Object> contextMap = Optional.of(context)
+      .map(jsonObject -> jsonObject.mapTo(Context.class))
+      .map(Context::getAdditionalProperties)
+      .orElse(null);
+    mustache.run(writer, Collections.singletonList(contextMap));
     return writer.toString();
   }
 }
