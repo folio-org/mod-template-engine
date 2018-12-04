@@ -2,6 +2,7 @@
  * Endpoint for processing templates **POST /template-request**  was implemented.
  * Mustache template resolver was registered with name 'mustache'.
  * Template's field 'templateResolver' is validated to match one of the registered template resolvers.
+ 
 ## 2018-08-30 v1.0.0-SNAPSHOT
 The module provide storing of templates and access to them through REST API.
 Templates support internationalization and store a set of templates texts for each language.
@@ -16,5 +17,6 @@ CRUD API for templates was added:
 | PUT /template/{templateId}         | Update template in storage                         |
 | DELETE /template/{templateId}      | Delete template from storage                       |
 | GET /template?query={custom_query} | Get list of templates from storage by custom query |
+
 ## 2018-08-30 v0.0.1
  * Initial module setup

@@ -1,6 +1,7 @@
 {
   "id": "${artifactId}-${version}",
   "name": "Template engine module",
+  "requires": [],
   "provides": [
     {
       "id": "template-engine",
