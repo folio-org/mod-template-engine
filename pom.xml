@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>mod-template-engine</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <licenses>
@@ -35,7 +35,6 @@
   </repositories>
 
   <dependencies>
-
     <dependency>
       <groupId>org.folio</groupId>
       <artifactId>domain-models-runtime</artifactId>
@@ -376,7 +375,7 @@
             <configuration>
               <target>
                 <replaceregexp match="baseUri:.+$" replace="baseUri: http://localhost:{http.port}" byline="true">
-                  <fileset dir="${basedir}/target/classes/apidocs/raml" includes="**/*.raml"/>
+                  <fileset dir="${basedir}/target/classes/apidocs/raml" includes="**/*.raml" />
                 </replaceregexp>
               </target>
             </configuration>
@@ -440,8 +439,7 @@
             </goals>
             <configuration>
               <transformers>
-                <transformer
-                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                   <manifestEntries>
                     <Main-Class>org.folio.rest.RestLauncher</Main-Class>
                     <Main-Verticle>org.folio.rest.RestVerticle</Main-Verticle>
@@ -497,5 +495,12 @@
       <layout>default</layout>
     </snapshotRepository>
   </distributionManagement>
+
+  <scm>
+    <url>https://github.com/folio-org/${project.artifactId}</url>
+    <connection>scm:git:git://github.com/folio-org/${project.artifactId}.git</connection>
+    <developerConnection>scm:git:git@github.com:folio-org/${project.artifactId}.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
 
 </project>
