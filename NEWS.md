@@ -1,4 +1,7 @@
 ## 2018-10-17 v1.0.1-SNAPSHOT
+ * Fix security vulnerabilities reported in jackson-databind (MODTEMPENG-10)
+
+## 2018-10-17 v1.0.1-SNAPSHOT
  * Endpoint for processing templates **POST /template-request**  was implemented.
  * Mustache template resolver was registered with name 'mustache'.
  * Template's field 'templateResolver' is validated to match one of the registered template resolvers.
