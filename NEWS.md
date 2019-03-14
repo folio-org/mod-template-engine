@@ -1,4 +1,4 @@
-## 2018-10-17 v1.0.1-SNAPSHOT
+## 2019-03-14 v1.2.0
  * Fix security vulnerabilities reported in jackson-databind (MODTEMPENG-10)
 
 ## 2018-10-17 v1.0.1-SNAPSHOT
