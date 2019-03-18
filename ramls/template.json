@@ -39,7 +39,6 @@
   "required": [
     "templateResolver",
     "localizedTemplates",
-    "outputFormats",
-    "description"
+    "outputFormats"
   ]
 }
