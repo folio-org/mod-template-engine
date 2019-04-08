@@ -6,11 +6,17 @@
   "properties": {
     "header": {
       "type": "string",
+      "pattern": "\\S+.*",
       "description": "Template for header"
     },
     "body": {
       "type": "string",
+      "pattern": "\\S+.*",
       "description": "Template for body"
     }
-  }
+  },
+  "required": [
+    "header",
+    "body"
+  ]
 }
