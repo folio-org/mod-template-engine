@@ -1,3 +1,7 @@
+## 2019-05-06 v1.3.0
+ * Make description field on patron notice template optional (MODTEMPENG-11)
+ * Make header and body of template required  (MODTEMPENG-13)
+
 ## 2019-03-14 v1.2.0
  * Fix security vulnerabilities reported in jackson-databind (MODTEMPENG-10)
 
