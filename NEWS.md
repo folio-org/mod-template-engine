@@ -1,3 +1,8 @@
+## 2019-06-11 v1.4.0
+ * Initial module metadata (FOLIO-2003)
+ * Fix security vulnerabilities reported in jackson-databind
+ * Add links to README additional info (FOLIO-473)
+
 ## 2019-05-06 v1.3.0
  * Make description field on patron notice template optional (MODTEMPENG-11)
  * Make header and body of template required  (MODTEMPENG-13)
