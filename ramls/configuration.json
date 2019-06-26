@@ -4,31 +4,40 @@
   "properties": {
     "id": {
       "type": "string",
+      "description": "Configuration id",
       "pattern": "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$"
     },
     "module": {
-      "type": "string"
+      "type": "string",
+      "description": "Module name"
     },
     "configName": {
-      "type": "string"
+      "type": "string",
+      "description": "Config name"
     },
     "code": {
-      "type": "string"
+      "type": "string",
+      "description": "Configuration code"
     },
     "description": {
-      "type": "string"
+      "type": "string",
+      "description": "Configuration record description"
     },
     "default": {
-      "type": "boolean"
+      "type": "boolean",
+      "description": "Value is default"
     },
     "enabled": {
-      "type": "boolean"
+      "type": "boolean",
+      "description": "Configuration is enabled"
     },
     "value": {
-      "type": "string"
+      "type": "string",
+      "description": "Configuration value"
     },
     "userId": {
-      "type": "string"
+      "type": "string",
+      "description": "User id"
     },
     "metadata": {
       "$ref": "raml-util/schemas/metadata.schema",

@@ -4,6 +4,7 @@
   "properties": {
     "configs": {
       "id": "configurationData",
+      "description": "Array of configuration records",
       "type": "array",
       "items": {
         "type": "object",
@@ -11,7 +12,8 @@
       }
     },
     "totalRecords": {
-      "type": "integer"
+      "type": "integer",
+      "description": "Total number of records"
     },
     "resultInfo": {
       "$ref": "raml-util/schemas/resultInfo.schema",
