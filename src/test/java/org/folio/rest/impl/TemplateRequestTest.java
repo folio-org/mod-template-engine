@@ -46,7 +46,7 @@ public class TemplateRequestTest {
 
   private static final String OKAPI_HEADER_URL = "x-okapi-url";
 
-  private static final String TENANT = "testtenant";
+  private static final String TENANT = "diku";
   private static final String DUMMY_TOKEN = "dummy-token";
   private static final String LOCALHOST = "http://localhost";
 
