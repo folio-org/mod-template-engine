@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "description": "Collection of configuration records",
+  "properties": {
+    "configs": {
+      "id": "configurationData",
+      "description": "Array of configuration records",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "$ref": "configuration.json"
+      }
+    },
+    "totalRecords": {
+      "type": "integer",
+      "description": "Total number of records"
+    },
+    "resultInfo": {
+      "$ref": "raml-util/schemas/resultInfo.schema",
+      "readonly": true
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "configs",
+    "totalRecords"
+  ]
+}

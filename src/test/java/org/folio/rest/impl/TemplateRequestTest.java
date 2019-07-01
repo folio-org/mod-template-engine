@@ -1,9 +1,12 @@
 package org.folio.rest.impl;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.builder.RequestSpecBuilder;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.specification.RequestSpecification;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -13,6 +16,8 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.apache.http.HttpStatus;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
+import org.folio.rest.jaxrs.model.Config;
+import org.folio.rest.jaxrs.model.Configurations;
 import org.folio.rest.jaxrs.model.Context;
 import org.folio.rest.jaxrs.model.LocalizedTemplates;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
@@ -28,13 +33,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Collections;
+
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static io.vertx.core.json.JsonObject.mapFrom;
 
 @RunWith(VertxUnitRunner.class)
 public class TemplateRequestTest {
 
+  private static final String OKAPI_HEADER_URL = "x-okapi-url";
+
   private static final String TENANT = "diku";
+  private static final String DUMMY_TOKEN = "dummy-token";
+  private static final String LOCALHOST = "http://localhost";
+
   private static final String TEMPLATE_PATH = "/templates";
   private static final String TEMPLATE_REQUEST_PATH = "/template-request";
+  private static final String CONFIG_REQUEST_PATH = "/configurations/entries";
+
 
   private static final String TEMPLATES_TABLE_NAME = "template";
 
@@ -42,14 +61,22 @@ public class TemplateRequestTest {
   public static final String EN_LANG = "en";
 
   private static Vertx vertx;
-  private static int port;
-  private static RequestSpecification spec;
+  private static String moduleUrl;
+
+  @org.junit.Rule
+  public WireMockRule mockServer = new WireMockRule(
+    WireMockConfiguration.wireMockConfig()
+      .dynamicPort()
+      .notifier(new ConsoleNotifier(true)));
+
+  private RequestSpecification spec;
 
   @BeforeClass
   public static void setUpClass(final TestContext context) throws Exception {
     Async async = context.async();
     vertx = Vertx.vertx();
-    port = NetworkUtils.nextFreePort();
+    int port = NetworkUtils.nextFreePort();
+    moduleUrl = LOCALHOST + ':' + port;
 
     String useExternalDatabase = System.getProperty(
       "org.folio.password.validator.test.database",
@@ -76,7 +103,7 @@ public class TemplateRequestTest {
         throw new Exception(message);
     }
 
-    TenantClient tenantClient = new TenantClient("localhost", port, "diku", "dummy-token");
+    TenantClient tenantClient = new TenantClient(LOCALHOST + ':' + port, TENANT, DUMMY_TOKEN);
     DeploymentOptions restVerticleDeploymentOptions = new DeploymentOptions().setConfig(new JsonObject().put("http.port", port));
     vertx.deployVerticle(RestVerticle.class.getName(), restVerticleDeploymentOptions, res -> {
       try {
@@ -87,16 +114,18 @@ public class TemplateRequestTest {
         e.printStackTrace();
       }
     });
-
-    spec = new RequestSpecBuilder()
-      .setContentType(ContentType.JSON)
-      .setBaseUri("http://localhost:" + port)
-      .addHeader(RestVerticle.OKAPI_HEADER_TENANT, TENANT)
-      .build();
   }
 
   @Before
   public void setUp(TestContext context) {
+    spec = new RequestSpecBuilder()
+      .setContentType(ContentType.JSON)
+      .setBaseUri(moduleUrl)
+      .addHeader(RestVerticle.OKAPI_HEADER_TENANT, TENANT)
+      .addHeader(RestVerticle.OKAPI_HEADER_TOKEN, DUMMY_TOKEN)
+      .addHeader(OKAPI_HEADER_URL, LOCALHOST + ':' + mockServer.port())
+      .build();
+    mockConfigModule();
     clearTemplatesTable(context);
   }
 
@@ -240,6 +269,104 @@ public class TemplateRequestTest {
       .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
   }
 
+  @Test
+  public void shouldLocalizeDatesAccordingToDefaultConfiguration() {
+    Template template = new Template()
+      .withDescription("Template with dates")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(
+        new LocalizedTemplates()
+          .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Request created on {{request.creationDate}}")
+              .withBody("Due date is {{loan.dueDate}}")));
+
+    String templateId = postTemplate(template);
+
+    String requestDate = "2019-06-10T18:32:31.000+0100";
+    String loanDueDate = "2019-06-18T14:04:33.205Z";
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(TXT_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("request",
+            new JsonObject()
+              .put("creationDate", requestDate))
+          .withAdditionalProperty("loan",
+            new JsonObject()
+              .put("dueDate", loanDueDate)));
+
+    String expectedHeader = "Request created on 6/10/19 5:32 PM";
+    String expectedBody = "Due date is 6/18/19 2:04 PM";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.header", Matchers.is(expectedHeader))
+      .body("result.body", Matchers.is(expectedBody))
+      .body("meta.lang", Matchers.is(EN_LANG))
+      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+  }
+
+  @Test
+  public void shouldLocalizeDatesAccordingToConfigurationSetup() {
+    Template template = new Template()
+      .withDescription("Template with dates")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(
+        new LocalizedTemplates()
+          .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Request created on {{request.creationDate}}")
+              .withBody("Due date is {{loan.dueDate}}")));
+
+    String templateId = postTemplate(template);
+
+    String requestDate = "2019-06-10T18:32:31.000+0100";
+    String loanDueDate = "2019-06-18T14:04:33.205Z";
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(TXT_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("request",
+            new JsonObject()
+              .put("creationDate", requestDate))
+          .withAdditionalProperty("loan",
+            new JsonObject()
+              .put("dueDate", loanDueDate)));
+
+    mockLocaleSettings("de-DE", "Europe/Berlin");
+
+    String expectedHeader = "Request created on 10.06.19 19:32";
+    String expectedBody = "Due date is 18.06.19 16:04";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.header", Matchers.is(expectedHeader))
+      .body("result.body", Matchers.is(expectedBody))
+      .body("meta.lang", Matchers.is(EN_LANG))
+      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+  }
+
   private String postTemplate(Template template) {
     return RestAssured.given()
       .spec(spec)
@@ -253,7 +380,7 @@ public class TemplateRequestTest {
   }
 
   private String toJson(Object object) {
-    return JsonObject.mapFrom(object).toString();
+    return mapFrom(object).toString();
   }
 
   private Template createTemplate() {
@@ -271,5 +398,25 @@ public class TemplateRequestTest {
             new LocalizedTemplatesProperty()
               .withHeader("Hallo message for {{user.name}}")
               .withBody("Hallo {{user.name}}")));
+  }
+
+  private void mockConfigModule() {
+    Configurations configurations =
+      new Configurations().withConfigs(Collections.emptyList()).withTotalRecords(0);
+    stubFor(get(urlPathEqualTo(CONFIG_REQUEST_PATH))
+      .willReturn(okJson(toJson(mapFrom(configurations)))));
+  }
+
+  private void mockLocaleSettings(String languageToken, String timezoneId) {
+    String localeConfigValue = new JsonObject()
+      .put("locale", languageToken)
+      .put("timezone", timezoneId).encode();
+
+    Config config = new Config().withValue(localeConfigValue);
+    Configurations configurations =
+      new Configurations().withConfigs(Collections.singletonList(config)).withTotalRecords(1);
+
+    stubFor(get(urlPathEqualTo(CONFIG_REQUEST_PATH))
+      .willReturn(okJson(toJson(configurations))));
   }
 }

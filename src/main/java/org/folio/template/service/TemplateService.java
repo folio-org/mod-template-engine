@@ -4,7 +4,9 @@ import io.vertx.core.Future;
 import org.folio.rest.jaxrs.model.Template;
 import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.jaxrs.model.TemplateProcessingResult;
+import org.folio.template.util.OkapiConnectionParams;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,7 +61,9 @@ public interface TemplateService {
    * Gets template specified by id and process it with given context
    *
    * @param templateRequest template processing request
+   * @param okapiConnectionParams okapi connection params
    * @return template processing response
    */
-  Future<TemplateProcessingResult> processTemplate(TemplateProcessingRequest templateRequest);
+  Future<TemplateProcessingResult> processTemplate(
+    TemplateProcessingRequest templateRequest, OkapiConnectionParams okapiConnectionParams) throws UnsupportedEncodingException;
 }

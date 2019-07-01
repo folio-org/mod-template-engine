@@ -1,5 +1,6 @@
 package org.folio.template.service;
 
+import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -9,9 +10,13 @@ import org.folio.rest.jaxrs.model.Result;
 import org.folio.rest.jaxrs.model.Template;
 import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.jaxrs.model.TemplateProcessingResult;
+import org.folio.template.client.ConfigurationClient;
+import org.folio.template.client.ConfigurationClientImpl;
+import org.folio.template.client.LocaleConfiguration;
 import org.folio.template.dao.TemplateDao;
 import org.folio.template.dao.TemplateDaoImpl;
 import org.folio.template.resolver.TemplateResolver;
+import org.folio.template.util.OkapiConnectionParams;
 import org.folio.template.util.TemplateEngineHelper;
 
 import javax.ws.rs.BadRequestException;
@@ -22,21 +27,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInJson;
+
 
 public class TemplateServiceImpl implements TemplateService {
 
   private Vertx vertx;
   private TemplateDao templateDao;
   private Map<String, String> templateResolverAddressesMap;
+  private ConfigurationClient configurationClient;
 
-  public TemplateServiceImpl(TemplateDao templateDao) {
-    this.templateDao = templateDao;
-  }
 
-  public TemplateServiceImpl(Vertx vertx, String tenantId) {
+  public TemplateServiceImpl(Vertx vertx, OkapiConnectionParams params) {
     this.vertx = vertx;
-    templateDao = new TemplateDaoImpl(vertx, tenantId);
-    templateResolverAddressesMap = vertx.sharedData().getLocalMap(TemplateEngineHelper.TEMPLATE_RESOLVERS_LOCAL_MAP);
+    this.templateDao = new TemplateDaoImpl(vertx, params.getTenant());
+    this.templateResolverAddressesMap = vertx.sharedData().getLocalMap(TemplateEngineHelper.TEMPLATE_RESOLVERS_LOCAL_MAP);
+    this.configurationClient = new ConfigurationClientImpl(vertx);
   }
 
   public Future<List<Template>> getTemplates(String query, int offset, int limit) {
@@ -72,22 +78,34 @@ public class TemplateServiceImpl implements TemplateService {
   }
 
   @Override
-  public Future<TemplateProcessingResult> processTemplate(TemplateProcessingRequest templateRequest) {
-    return getTemplateById(templateRequest.getTemplateId())
+  public Future<TemplateProcessingResult> processTemplate(
+    TemplateProcessingRequest templateRequest, OkapiConnectionParams okapiConnectionParams) {
+
+    Future<Template> templateByIdFuture = getTemplateById(templateRequest.getTemplateId())
       .map(optionalTemplate -> optionalTemplate.orElseThrow(() ->
-        new BadRequestException(String.format("Template with id %s does not exist", templateRequest.getTemplateId()))))
-      .compose(template -> {
+        new BadRequestException(String.format("Template with id %s does not exist", templateRequest.getTemplateId()))));
+
+    Future<LocaleConfiguration> localeConfigurationFuture = configurationClient.lookupLocaleConfig(okapiConnectionParams);
+
+    return CompositeFuture.all(templateByIdFuture, localeConfigurationFuture)
+      .compose(compositeFuture -> {
+        Template template = compositeFuture.resultAt(0);
         validateTemplateProcessingRequest(templateRequest, template);
 
         LocalizedTemplatesProperty templateContent = template.getLocalizedTemplates().getAdditionalProperties()
           .get(templateRequest.getLang());
-        Future<JsonObject> future = Future.future();
-        String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
-        TemplateResolver templateResolverProxy = TemplateResolver.createProxy(vertx, templateResolverAddress);
         JsonObject contextObject =
           Optional.ofNullable(templateRequest.getContext())
             .map(JsonObject::mapFrom)
             .orElse(new JsonObject());
+
+        LocaleConfiguration config = compositeFuture.resultAt(1);
+        formatDatesInJson(contextObject, config.getLanguageTag(), config.getTimeZoneId());
+
+        String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
+        TemplateResolver templateResolverProxy = TemplateResolver.createProxy(vertx, templateResolverAddress);
+
+        Future<JsonObject> future = Future.future();
         templateResolverProxy.processTemplate(
           JsonObject.mapFrom(templateContent),
           contextObject,
