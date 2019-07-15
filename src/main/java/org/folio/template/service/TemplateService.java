@@ -55,7 +55,7 @@ public interface TemplateService {
    * @param id template id
    * @return future with true is succeeded
    */
-  Future<Boolean> deleteTemplate(String id);
+  Future<Boolean> deleteTemplate(String id, OkapiConnectionParams params);
 
   /**
    * Gets template specified by id and process it with given context

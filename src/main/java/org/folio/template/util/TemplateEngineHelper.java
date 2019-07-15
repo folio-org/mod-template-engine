@@ -5,6 +5,7 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.apache.http.HttpStatus;
 import org.folio.rest.tools.utils.ValidationHelper;
+import org.folio.template.InUseTemplateException;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
@@ -27,12 +28,21 @@ public final class TemplateEngineHelper {
         .entity(throwable.getMessage())
         .build();
     }
+
     if (throwable instanceof NotFoundException) {
       return Response.status(HttpStatus.SC_NOT_FOUND)
         .type(MediaType.TEXT_PLAIN)
         .entity(throwable.getMessage())
         .build();
     }
+
+    if (throwable instanceof InUseTemplateException) {
+      return Response.status(400)
+        .type(MediaType.TEXT_PLAIN_TYPE)
+        .entity("Cannot delete the template which is currently in use")
+        .build();
+    }
+
     Future<Response> validationFuture = Future.future();
     ValidationHelper.handleError(throwable, validationFuture.completer());
     if (validationFuture.isComplete()) {

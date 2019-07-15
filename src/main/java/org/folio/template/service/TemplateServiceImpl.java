@@ -1,15 +1,26 @@
 package org.folio.template.service;
 
-import io.vertx.core.CompositeFuture;
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
+import static io.vertx.core.Future.failedFuture;
+import static java.lang.String.format;
+import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInJson;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.NotFoundException;
+
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.jaxrs.model.Meta;
 import org.folio.rest.jaxrs.model.Result;
 import org.folio.rest.jaxrs.model.Template;
 import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.jaxrs.model.TemplateProcessingResult;
+import org.folio.template.InUseTemplateException;
+import org.folio.template.client.CirculationStorageClient;
 import org.folio.template.client.ConfigurationClient;
 import org.folio.template.client.ConfigurationClientImpl;
 import org.folio.template.client.LocaleConfiguration;
@@ -19,15 +30,10 @@ import org.folio.template.resolver.TemplateResolver;
 import org.folio.template.util.OkapiConnectionParams;
 import org.folio.template.util.TemplateEngineHelper;
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInJson;
+import io.vertx.core.CompositeFuture;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
 
 public class TemplateServiceImpl implements TemplateService {
@@ -36,6 +42,7 @@ public class TemplateServiceImpl implements TemplateService {
   private TemplateDao templateDao;
   private Map<String, String> templateResolverAddressesMap;
   private ConfigurationClient configurationClient;
+  private CirculationStorageClient circulationStorageClient;
 
 
   public TemplateServiceImpl(Vertx vertx, OkapiConnectionParams params) {
@@ -43,6 +50,7 @@ public class TemplateServiceImpl implements TemplateService {
     this.templateDao = new TemplateDaoImpl(vertx, params.getTenant());
     this.templateResolverAddressesMap = vertx.sharedData().getLocalMap(TemplateEngineHelper.TEMPLATE_RESOLVERS_LOCAL_MAP);
     this.configurationClient = new ConfigurationClientImpl(vertx);
+    circulationStorageClient = new CirculationStorageClient(vertx);
   }
 
   public Future<List<Template>> getTemplates(String query, int offset, int limit) {
@@ -57,7 +65,9 @@ public class TemplateServiceImpl implements TemplateService {
   @Override
   public Future<String> addTemplate(Template template) {
     validateTemplate(template);
-    template.setId(UUID.randomUUID().toString());
+    if (template.getId() == null) {
+      template.setId(UUID.randomUUID().toString());
+    }
     return templateDao.addTemplate(template);
   }
 
@@ -67,14 +77,21 @@ public class TemplateServiceImpl implements TemplateService {
     return getTemplateById(template.getId())
       .compose(optionalTemplate -> optionalTemplate
         .map(t -> templateDao.updateTemplate(template))
-        .orElse(Future.failedFuture(new NotFoundException(
+        .orElse(failedFuture(new NotFoundException(
           String.format("Template with id '%s' not found", template.getId()))))
       );
   }
 
   @Override
-  public Future<Boolean> deleteTemplate(String id) {
-    return templateDao.deleteTemplate(id);
+  public Future<Boolean> deleteTemplate(String id, OkapiConnectionParams params) {
+
+    String query = format("loanNotices=/@templateId %1$s " +
+      "OR requestNotices=/@templateId %1$s " +
+      "OR requestNotices=/@templateId %1$s", id);
+
+    return circulationStorageClient.findPatronNoticePolicies(query, 0, params)
+      .compose(policies -> policies.getInteger("totalRecords") == 0 ?
+        templateDao.deleteTemplate(id) : failedFuture(new InUseTemplateException()));
   }
 
   @Override
