@@ -39,7 +39,7 @@ public final class TemplateEngineHelper {
     if (throwable instanceof InUseTemplateException) {
       return Response.status(400)
         .type(MediaType.TEXT_PLAIN_TYPE)
-        .entity("Cannot delete the template which is currently in use")
+        .entity("Cannot delete template which is currently in use")
         .build();
     }
 
