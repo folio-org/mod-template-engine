@@ -87,7 +87,7 @@ public class TemplateServiceImpl implements TemplateService {
 
     String query = format("loanNotices=/@templateId %1$s " +
       "OR requestNotices=/@templateId %1$s " +
-      "OR requestNotices=/@templateId %1$s", id);
+      "OR feeFineNotices=/@templateId %1$s", id);
 
     return circulationStorageClient.findPatronNoticePolicies(query, 0, params)
       .compose(policies -> policies.getInteger("totalRecords") == 0 ?
