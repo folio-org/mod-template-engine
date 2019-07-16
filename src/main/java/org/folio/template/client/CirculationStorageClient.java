@@ -1,11 +1,16 @@
 package org.folio.template.client;
 
 
+import static io.vertx.core.Future.failedFuture;
+import static io.vertx.core.Future.succeededFuture;
+import static java.lang.String.format;
+
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import org.folio.rest.RestVerticle;
 import org.folio.template.util.OkapiConnectionParams;
+import org.folio.template.util.OkapiModuleClientException;
 
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
@@ -33,6 +38,9 @@ public class CirculationStorageClient {
       .putHeader(RestVerticle.OKAPI_HEADER_TOKEN, params.getToken())
       .send(future.completer());
 
-    return future.map(resp -> resp.body().toJsonObject());
+    return future.compose(resp -> resp.statusCode() == 200 ?
+      succeededFuture(resp.body().toJsonObject()) :
+      failedFuture(new OkapiModuleClientException(format(
+        "Error getting patron notice policies. Status: %d, body: %s", resp.statusCode(), resp.body()))));
   }
 }
