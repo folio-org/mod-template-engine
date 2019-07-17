@@ -121,9 +121,9 @@ class TemplateDeletionTest {
 
   private static void setupStub() {
 
-    String query = "loanNotices=/@templateId %1$s " +
-      "OR requestNotices=/@templateId %1$s " +
-      "OR feeFineNotices=/@templateId %1$s";
+    String query = "loanNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
+      "OR requestNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
+      "OR feeFineNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\"";
 
     wireMockServer.stubFor(
       get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))

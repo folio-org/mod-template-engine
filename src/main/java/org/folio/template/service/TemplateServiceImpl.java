@@ -85,9 +85,9 @@ public class TemplateServiceImpl implements TemplateService {
   @Override
   public Future<Boolean> deleteTemplate(String id, OkapiConnectionParams params) {
 
-    String query = format("loanNotices=/@templateId %1$s " +
-      "OR requestNotices=/@templateId %1$s " +
-      "OR feeFineNotices=/@templateId %1$s", id);
+    String query = format("loanNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
+      "OR requestNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
+      "OR feeFineNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\"", id);
 
     return circulationStorageClient.findPatronNoticePolicies(query, 0, params)
       .compose(policies -> policies.getInteger("totalRecords") == 0 ?
