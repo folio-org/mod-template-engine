@@ -5,12 +5,17 @@
     {
       "id": "configuration",
       "version": "2.0"
+    },
+    {
+      "id": "patron-notice-policy-storage",
+      "version": "0.8"
     }
+
   ],
   "provides": [
     {
       "id": "template-engine",
-      "version": "2.0",
+      "version": "2.1",
       "handlers": [
         {
           "methods": ["GET"],
@@ -35,7 +40,9 @@
         {
           "methods": ["DELETE"],
           "pathPattern": "/templates/{templateId}",
-          "permissionsRequired": ["templates.item.delete"]
+          "permissionsRequired": ["templates.item.delete"],
+          "modulePermissions": ["circulation-storage.patron-notice-policies.collection.get"]
+
         },
         {
           "methods": ["POST"],

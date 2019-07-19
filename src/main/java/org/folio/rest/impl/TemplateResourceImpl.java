@@ -110,21 +110,15 @@ public class TemplateResourceImpl implements Templates {
                                           Map<String, String> okapiHeaders,
                                           Handler<AsyncResult<Response>> asyncResultHandler,
                                           Context vertxContext) {
-    vertxContext.runOnContext(v -> {
-      try {
-        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), new OkapiConnectionParams(okapiHeaders));
-        templateService.deleteTemplate(templateId).map(deleted -> deleted ?
-          DeleteTemplatesByTemplateIdResponse.respond204WithTextPlain(
-            String.format("Template with id: %s deleted", templateId)) :
-          buildTemplateNotFound(templateId)
-        )
-          .otherwise(TemplateEngineHelper::mapExceptionToResponse)
-          .setHandler(asyncResultHandler);
-      } catch (Exception e) {
-        asyncResultHandler.handle(Future.succeededFuture(
-          TemplateEngineHelper.mapExceptionToResponse(e)));
-      }
-    });
+
+    OkapiConnectionParams params = new OkapiConnectionParams(okapiHeaders);
+    TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), params);
+    templateService.deleteTemplate(templateId, params).map(deleted -> deleted ?
+      DeleteTemplatesByTemplateIdResponse.respond204WithTextPlain(
+        String.format("Template with id: %s deleted", templateId)) :
+      buildTemplateNotFound(templateId))
+      .otherwise(TemplateEngineHelper::mapExceptionToResponse)
+      .setHandler(asyncResultHandler);
   }
 
   private Response buildTemplateNotFound(String templateId) {
