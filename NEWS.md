@@ -1,3 +1,8 @@
+## 2019-07-23 v1.5.0
+ * Fix security vulnerabilities reported in jackson-databind
+ * Localize dates from context at the time of template processing (MODTEMPENG-18)
+ * Forbid in use templates deletion (MODTEMGENG-14)
+
 ## 2019-06-11 v1.4.0
  * Initial module metadata (FOLIO-2003)
  * Fix security vulnerabilities reported in jackson-databind
