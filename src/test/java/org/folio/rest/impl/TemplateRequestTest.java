@@ -9,6 +9,7 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -367,6 +368,46 @@ public class TemplateRequestTest {
       .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
   }
 
+  @Test
+  public void canProcessTemplateWithArrayInContext() {
+    String templateId = postTemplate(createTemplateWithMultipleItems());
+
+    JsonObject object1 = new JsonObject()
+      .put("item", new JsonObject()
+        .put("title", "Age of TV heroes"))
+      .put("loan", new JsonObject()
+        .put("dueDate", "07/30/2019 10:00")
+        .put("numberOfRenewalsRemaining", "3"));
+
+    JsonObject object2 = new JsonObject()
+      .put("item", new JsonObject()
+        .put("title", "Interesting Times"))
+      .put("loan", new JsonObject()
+        .put("dueDate", "08/30/2019 23:59")
+        .put("numberOfRenewalsRemaining", "unlimited"));
+
+    Context context = new Context()
+      .withAdditionalProperty("user", new JsonObject().put("name", "Username"))
+      .withAdditionalProperty("loans", new JsonArray()
+        .add(object1)
+        .add(object2));
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(TXT_OUTPUT_FORMAT)
+        .withContext(context);
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK);
+  }
+
   private String postTemplate(Template template) {
     return RestAssured.given()
       .spec(spec)
@@ -398,6 +439,22 @@ public class TemplateRequestTest {
             new LocalizedTemplatesProperty()
               .withHeader("Hallo message for {{user.name}}")
               .withBody("Hallo {{user.name}}")));
+  }
+
+  private Template createTemplateWithMultipleItems() {
+    return new Template()
+      .withDescription("Check out template")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(
+        new LocalizedTemplates()
+          .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Check out message for {{user.name}}")
+              .withBody("You have checked out the following item(s):" +
+                "{{#loans}}" +
+                "Title: {{item.title}}, Due date: {{loan.dueDate}}, Renewal remaining {{loan.numberOfRenewalsRemaining}};" +
+                "{{/loans}}")));
   }
 
   private void mockConfigModule() {
