@@ -11,7 +11,6 @@ import org.folio.rest.jaxrs.model.Context;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -46,7 +45,7 @@ public class MustacheTemplateResolver implements TemplateResolver {
       .map(jsonObject -> jsonObject.mapTo(Context.class))
       .map(Context::getAdditionalProperties)
       .orElse(null);
-    mustache.run(writer, Collections.singletonList(contextMap));
+    mustache.execute(writer, contextMap);
     return writer.toString();
   }
 }

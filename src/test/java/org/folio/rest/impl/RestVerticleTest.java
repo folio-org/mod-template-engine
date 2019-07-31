@@ -1,5 +1,9 @@
 package org.folio.rest.impl;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
@@ -25,11 +29,14 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+
 @RunWith(VertxUnitRunner.class)
 public class RestVerticleTest {
 
   private static final String TEMPLATES_TABLE_NAME = "template";
 
+  private int mockServerPort;
   private Vertx vertx;
   private final Logger logger = LoggerFactory.getLogger("TemplateEngineTest");
   private static String templateUrl;
@@ -64,16 +71,26 @@ public class RestVerticleTest {
 
   @Before
   public void setUp(TestContext context) throws IOException {
+    int okapiPort = NetworkUtils.nextFreePort();
+    mockServerPort = NetworkUtils.nextFreePort();
+
+    WireMockServer wireMockServer = new WireMockServer(mockServerPort);
+    wireMockServer.start();
+    wireMockServer.stubFor(
+      get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))
+        .willReturn(okJson(new JsonObject()
+          .put("patronNoticePolicies", new JsonArray())
+          .put("totalRecords", 0).encode())));
+
     Async async = context.async();
-    int port = NetworkUtils.nextFreePort();
-    TenantClient tenantClient = new TenantClient("localhost", port, "diku", "diku");
+    TenantClient tenantClient = new TenantClient("localhost", okapiPort, "diku", "diku");
     vertx = Vertx.vertx();
-    okapiUrl = "http://localhost:" + port;
+    okapiUrl = "http://localhost:" + okapiPort;
     templateUrl = okapiUrl + "/templates";
 
     DeploymentOptions options = new DeploymentOptions().setConfig(
       new JsonObject()
-        .put("http.port", port)
+        .put("http.port", okapiPort)
     );
     try {
       PostgresClient.setIsEmbedded(true);
@@ -188,7 +205,9 @@ public class RestVerticleTest {
 
   private Future<ApiTestHelper.WrappedResponse> doDeleteById(TestContext context, String id, Handler<ApiTestHelper.WrappedResponse> handler) {
     CaseInsensitiveHeaders headers = new CaseInsensitiveHeaders();
-    return ApiTestHelper.doRequest(vertx, templateUrl + "/" + id, HttpMethod.DELETE, buildDefHeaders(), null,
+    headers.add("X-Okapi-Token", "dummytoken");
+    headers.add("X-Okapi-Url", "http://localhost:" + mockServerPort);
+    return ApiTestHelper.doRequest(vertx, templateUrl + "/" + id, HttpMethod.DELETE, headers, null,
       204, "DELETE template", handler);
   }
 
