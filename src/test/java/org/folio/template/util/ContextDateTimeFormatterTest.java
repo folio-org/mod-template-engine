@@ -13,7 +13,6 @@ class ContextDateTimeFormatterTest {
 
   @Test
   void allTheDatesAreLocalizedInJsonObject() {
-
     String inputIsoDate = "2019-06-18T14:04:33.205Z";
     String expectedFormattedDate = "6/18/19 2:04 PM";
 
@@ -40,7 +39,6 @@ class ContextDateTimeFormatterTest {
           .add(new JsonObject()
             .put("dateInObjectInArray", expectedFormattedDate))
           .add(new JsonArray().add(expectedFormattedDate)));
-
 
     ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
 
