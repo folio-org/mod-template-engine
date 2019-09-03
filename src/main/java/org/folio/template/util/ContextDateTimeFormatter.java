@@ -1,5 +1,6 @@
 package org.folio.template.util;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 import java.time.ZoneId;
@@ -8,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
@@ -36,9 +38,31 @@ public class ContextDateTimeFormatter {
       }
       if (value.getClass() == JsonObject.class) {
         mapValuesInJson((JsonObject) entry.getValue(), mapper, classToMap);
+
+      } else if (value.getClass() == JsonArray.class) {
+        mapValuesInJsonArray((JsonArray) value, mapper, classToMap);
+
       } else if (value.getClass() == classToMap) {
         Object mappedValue = mapper.apply(classToMap.cast(value));
         json.put(entry.getKey(), mappedValue);
+      }
+    }
+  }
+
+  private static <T> void mapValuesInJsonArray(JsonArray array, Function<T, ?> mapper, Class<T> classToMap) {
+    List list = array.getList();
+    for (int i = 0; i < array.size(); i++) {
+
+      Object value = array.getValue(i);
+      if (value.getClass() == JsonObject.class) {
+        mapValuesInJson((JsonObject) value, mapper, classToMap);
+
+      } else if (value.getClass() == JsonArray.class) {
+        mapValuesInJsonArray((JsonArray) value, mapper, classToMap);
+
+      } else if (value.getClass() == classToMap) {
+        Object mappedValue = mapper.apply(classToMap.cast(value));
+        list.set(i, mappedValue);
       }
     }
   }

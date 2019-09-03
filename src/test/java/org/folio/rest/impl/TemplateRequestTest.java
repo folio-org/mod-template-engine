@@ -17,13 +17,7 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.apache.http.HttpStatus;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
-import org.folio.rest.jaxrs.model.Config;
-import org.folio.rest.jaxrs.model.Configurations;
-import org.folio.rest.jaxrs.model.Context;
-import org.folio.rest.jaxrs.model.LocalizedTemplates;
-import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
-import org.folio.rest.jaxrs.model.Template;
-import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
+import org.folio.rest.jaxrs.model.*;
 import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
@@ -36,10 +30,7 @@ import org.junit.runner.RunWith;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.vertx.core.json.JsonObject.mapFrom;
 
 @RunWith(VertxUnitRunner.class)
@@ -406,6 +397,51 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK);
+  }
+
+  @Test
+  public void shouldLocalizeDatesInContextWithArray() {
+    Template template = new Template()
+      .withDescription("Template with dates")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(
+        new LocalizedTemplates()
+          .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Template with dates")
+              .withBody("Dates are:{{#dates}} {{dateValue}};{{/dates}}")));
+
+    String templateId = postTemplate(template);
+
+    String firstDate = "2019-06-10T18:32:31.000+0100";
+    String secondDate = "2019-06-18T14:04:33.205Z";
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(TXT_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("dates",
+            new JsonArray()
+              .add(new JsonObject().put("dateValue", firstDate))
+              .add(new JsonObject().put("dateValue", secondDate))
+          ));
+
+    mockLocaleSettings("de-DE", "Europe/Berlin");
+
+    String expectedBody = "Dates are: 10.06.19 19:32; 18.06.19 16:04;";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.body", Matchers.is(expectedBody));
   }
 
   private String postTemplate(Template template) {
