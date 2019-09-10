@@ -1,3 +1,8 @@
+## 2019-09-10 v1.6.0
+ * Dates are not localized in context containing arrays (MODTEMGENG-23)
+ * Fix security vulnerabilities reported in jackson-databind (MODTEMPENG-22)
+ * Allow to process templates with array in context (MODTEMPENG-21)
+
 ## 2019-07-23 v1.5.0
  * Fix security vulnerabilities reported in jackson-databind
  * Localize dates from context at the time of template processing (MODTEMPENG-18)
