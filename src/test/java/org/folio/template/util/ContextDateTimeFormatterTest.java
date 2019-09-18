@@ -54,7 +54,6 @@ class ContextDateTimeFormatterTest {
     assertEquals(expectedJson, inputJson);
   }
 
-
   @ParameterizedTest
   @CsvSource(value = {
     "Asia/Hong_Kong | zh-CN | 2019/9/18 下午10:04",
