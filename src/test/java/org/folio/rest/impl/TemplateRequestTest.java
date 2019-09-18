@@ -1,8 +1,37 @@
 package org.folio.rest.impl;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static io.vertx.core.json.JsonObject.mapFrom;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.apache.http.HttpStatus;
+import org.folio.rest.RestVerticle;
+import org.folio.rest.client.TenantClient;
+import org.folio.rest.jaxrs.model.Config;
+import org.folio.rest.jaxrs.model.Configurations;
+import org.folio.rest.jaxrs.model.Context;
+import org.folio.rest.jaxrs.model.LocalizedTemplates;
+import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
+import org.folio.rest.jaxrs.model.Template;
+import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
+import org.folio.rest.persist.Criteria.Criterion;
+import org.folio.rest.persist.PostgresClient;
+import org.folio.rest.tools.utils.NetworkUtils;
+import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
+
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
@@ -14,24 +43,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.apache.http.HttpStatus;
-import org.folio.rest.RestVerticle;
-import org.folio.rest.client.TenantClient;
-import org.folio.rest.jaxrs.model.*;
-import org.folio.rest.persist.Criteria.Criterion;
-import org.folio.rest.persist.PostgresClient;
-import org.folio.rest.tools.utils.NetworkUtils;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.util.Arrays;
-import java.util.Collections;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static io.vertx.core.json.JsonObject.mapFrom;
 
 @RunWith(VertxUnitRunner.class)
 public class TemplateRequestTest {
@@ -292,8 +303,8 @@ public class TemplateRequestTest {
             new JsonObject()
               .put("dueDate", loanDueDate)));
 
-    String expectedHeader = "Request created on 6/10/19 5:32 PM";
-    String expectedBody = "Due date is 6/18/19 2:04 PM";
+    String expectedHeader = "Request created on 6/10/19, 5:32 PM";
+    String expectedBody = "Due date is 6/18/19, 2:04 PM";
 
     RestAssured.given()
       .spec(spec)
@@ -342,8 +353,8 @@ public class TemplateRequestTest {
 
     mockLocaleSettings("de-DE", "Europe/Berlin");
 
-    String expectedHeader = "Request created on 10.06.19 19:32";
-    String expectedBody = "Due date is 18.06.19 16:04";
+    String expectedHeader = "Request created on 10.06.19, 19:32";
+    String expectedBody = "Due date is 18.06.19, 16:04";
 
     RestAssured.given()
       .spec(spec)
@@ -431,7 +442,7 @@ public class TemplateRequestTest {
 
     mockLocaleSettings("de-DE", "Europe/Berlin");
 
-    String expectedBody = "Dates are: 10.06.19 19:32; 18.06.19 16:04;";
+    String expectedBody = "Dates are: 10.06.19, 19:32; 18.06.19, 16:04;";
 
     RestAssured.given()
       .spec(spec)
