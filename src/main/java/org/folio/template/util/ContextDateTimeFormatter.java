@@ -1,18 +1,19 @@
 package org.folio.template.util;
 
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
-import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Function;
+
+import com.ibm.icu.text.DateFormat;
+import com.ibm.icu.util.TimeZone;
+
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 public class ContextDateTimeFormatter {
 
@@ -68,17 +69,19 @@ public class ContextDateTimeFormatter {
   }
 
   private static Function<String, String> getDateMapper(String languageTag, String zoneId) {
-    return value -> localizeIfStringIsIsoDate(value, zoneId, languageTag);
+    TimeZone timeZone = TimeZone.getTimeZone(zoneId);
+    Locale locale = Locale.forLanguageTag(languageTag);
+    return value -> localizeIfStringIsIsoDate(value, timeZone, locale);
   }
 
-  private static String localizeIfStringIsIsoDate(String value, String zoneId, String languageTag) {
+  static String localizeIfStringIsIsoDate(String value, TimeZone timeZone, Locale locale) {
     try {
-      ZonedDateTime parsedDateTime = ZonedDateTime.parse(value, ISO_DATE_TIME_FORMATTER)
-        .withZoneSameInstant(ZoneId.of(zoneId));
-      DateTimeFormatter localizedFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-        .withLocale(Locale.forLanguageTag(languageTag));
+      ZonedDateTime parsedDateTime = ZonedDateTime.parse(value, ISO_DATE_TIME_FORMATTER);
+      DateFormat i18NDateFormatter =
+        DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+      i18NDateFormatter.setTimeZone(timeZone);
 
-      return parsedDateTime.format(localizedFormatter);
+      return i18NDateFormatter.format(parsedDateTime.toInstant().toEpochMilli());
     } catch (DateTimeParseException e) {
       //value is not date
       return value;
