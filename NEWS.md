@@ -1,3 +1,6 @@
+## 2019-09-20 v1.6.1
+ * American date format on Checkout receipt (MODTEMGENG-25)
+
 ## 2019-09-10 v1.6.0
  * Dates are not localized in context containing arrays (MODTEMGENG-23)
  * Fix security vulnerabilities reported in jackson-databind (MODTEMPENG-22)
