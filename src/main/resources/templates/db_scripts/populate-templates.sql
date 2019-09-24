@@ -37,7 +37,7 @@ INSERT INTO template (_id, jsonb) VALUES
  "localizedTemplates": {
    "en": {
      "header": "Reset your Folio account",
-     "body": "<p>{{user.personal.firstName}}</p><p>Your request to reset your password has been received.</p> <p>To reset your password, please <a href={{link}}>[*visit this link*]</a>.</p><p>NOTE: If you do not reset your password within {{expirationNumber}}{{^expirationNumber}}24{{/expirationNumber}} {{expirationUnitOfTime}}{{^expirationUnitOfTime}}hours{{/expirationUnitOfTime}} of the delivery of this email, the link will no longer operate. Please contact your FOLIO system administrator if you are unable to reset your password.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
+     "body": "<p>{{user.personal.firstName}}</p><p>Your request to reset your password has been received.</p> <p>To reset your password, please <a href={{link}}>visit this link</a>.</p><p>NOTE: If you do not reset your password within {{expirationNumber}}{{^expirationNumber}}24{{/expirationNumber}} {{expirationUnitOfTime}}{{^expirationUnitOfTime}}hours{{/expirationUnitOfTime}} of the delivery of this email, the link will no longer operate. Please contact your FOLIO system administrator if you are unable to reset your password.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
    }
  }
 }'),
