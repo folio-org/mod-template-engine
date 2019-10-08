@@ -21,7 +21,7 @@ import java.util.MissingResourceException;
 public class InitAPIs implements InitAPI {
 
   public void init(Vertx vertx, Context context, Handler<AsyncResult<Boolean>> resultHandler) {
-    context.put("httpClient", WebClient.create(vertx));
+    context.put("webClient", WebClient.create(vertx));
     URL u = InitAPIs.class.getClassLoader().getResource(TemplateDaoImpl.TEMPLATE_SCHEMA_PATH);
     if (u == null) {
       resultHandler.handle(Future.failedFuture(new MissingResourceException(TemplateDaoImpl.TEMPLATE_SCHEMA_PATH,

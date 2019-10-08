@@ -29,7 +29,7 @@ public class ConfigurationClientImpl implements ConfigurationClient {
   private String configRequestPath;
 
   public ConfigurationClientImpl(Vertx vertx) {
-    this.webClient = vertx.getOrCreateContext().get("httpClient");
+    this.webClient = vertx.getOrCreateContext().get("webClient");
     this.configRequestPath = System.getProperty("config.client.path", "/configurations/entries");
   }
 
