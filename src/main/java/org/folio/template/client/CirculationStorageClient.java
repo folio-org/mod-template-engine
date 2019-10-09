@@ -24,7 +24,7 @@ public class CirculationStorageClient {
   private WebClient webClient;
 
   public CirculationStorageClient(Vertx vertx) {
-    webClient = WebClient.create(vertx);
+    webClient = vertx.getOrCreateContext().get("webClient");
   }
 
   public Future<JsonObject> findPatronNoticePolicies(String query, int limit, OkapiConnectionParams params) {
