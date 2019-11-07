@@ -1,6 +1,6 @@
 package org.folio.template.util;
 
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.apache.http.HttpStatus;
@@ -14,9 +14,8 @@ import javax.ws.rs.core.Response;
 
 public final class TemplateEngineHelper {
 
-  private static final Logger LOG = LoggerFactory.getLogger("mod-template-engine");
-
   public static final String TEMPLATE_RESOLVERS_LOCAL_MAP = "template-resolvers.map";
+  private static final Logger LOG = LoggerFactory.getLogger("mod-template-engine");
 
   private TemplateEngineHelper() {
   }
@@ -43,10 +42,10 @@ public final class TemplateEngineHelper {
         .build();
     }
 
-    Future<Response> validationFuture = Future.future();
-    ValidationHelper.handleError(throwable, validationFuture.completer());
-    if (validationFuture.isComplete()) {
-      Response response = validationFuture.result();
+    Promise<Response> validationPromise = Promise.promise();
+    ValidationHelper.handleError(throwable, validationPromise);
+    if (validationPromise.future().isComplete()) {
+      Response response = validationPromise.future().result();
       if (response.getStatus() == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
         LOG.error(throwable.getMessage(), throwable);
       }

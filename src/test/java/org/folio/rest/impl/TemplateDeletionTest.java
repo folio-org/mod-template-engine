@@ -71,8 +71,11 @@ class TemplateDeletionTest {
     PostgresClient.getInstance(vertx).startEmbeddedPostgres();
     TenantClient tenantClient = new TenantClient("http://localhost:" + okapiPort, "test_tenant", "dummy-token", false);
 
-    vertx.deployVerticle(RestVerticle::new,
-      new DeploymentOptions().setConfig(new JsonObject().put("http.port", okapiPort)), deploy -> {
+    DeploymentOptions options = new DeploymentOptions().setConfig(
+      new JsonObject()
+        .put("http.port", okapiPort)
+    );
+    vertx.deployVerticle(RestVerticle::new, options, deploy -> {
       try {
         tenantClient.postTenant(null, post -> context.completeNow());
       } catch (Exception e) {
