@@ -52,12 +52,13 @@ public class ContextDateTimeFormatter {
                                           Class<T> classToMap) {
 
     for (Map.Entry<String, Object> entry : json) {
-      final String token = buildTokenForKey(parentToken, entry.getKey());
       final Object value = entry.getValue();
 
       if (value == null) {
         continue;
       }
+
+      final String token = buildTokenForKey(parentToken, entry.getKey());
 
       if (value.getClass() == JsonObject.class) {
         mapValuesInJson(token, (JsonObject) entry.getValue(), mapper, classToMap);
@@ -103,12 +104,10 @@ public class ContextDateTimeFormatter {
   }
 
   static String localizeIfStringIsIsoDate(Pair<String, String> tokenAndValue, TimeZone timeZone, Locale locale) {
-    final String key = tokenAndValue.getKey();
     final String value = tokenAndValue.getValue();
-
     try {
       ZonedDateTime parsedDateTime = ZonedDateTime.parse(value, ISO_DATE_TIME_FORMATTER);
-      int timeFormat = DATE_ONLY_TOKENS.contains(key) ? DateFormat.NONE : DateFormat.SHORT;
+      int timeFormat = DATE_ONLY_TOKENS.contains(tokenAndValue.getKey()) ? DateFormat.NONE : DateFormat.SHORT;
       DateFormat i18NDateFormatter =
         DateFormat.getDateTimeInstance(DateFormat.SHORT, timeFormat, locale);
       i18NDateFormatter.setTimeZone(timeZone);
