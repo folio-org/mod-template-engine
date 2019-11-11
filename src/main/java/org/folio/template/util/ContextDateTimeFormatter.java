@@ -16,7 +16,7 @@ import com.ibm.icu.util.TimeZone;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.drools.core.util.StringUtils;
 
 public class ContextDateTimeFormatter {
@@ -65,7 +65,7 @@ public class ContextDateTimeFormatter {
         mapValuesInJsonArray(token, (JsonArray) value, mapper, classToMap);
 
       } else if (value.getClass() == classToMap) {
-        Pair<String, T> tokenAndValue = new Pair<>(token, classToMap.cast(value));
+        Pair<String, T> tokenAndValue = Pair.of(token, classToMap.cast(value));
         Object mappedValue = mapper.apply(tokenAndValue);
         json.put(entry.getKey(), mappedValue);
       }
@@ -89,7 +89,7 @@ public class ContextDateTimeFormatter {
         mapValuesInJsonArray(token, (JsonArray) value, mapper, classToMap);
 
       } else if (value.getClass() == classToMap) {
-        Pair<String, T> tokenAndValue = new Pair<>(token, classToMap.cast(value));
+        Pair<String, T> tokenAndValue = Pair.of(token, classToMap.cast(value));
         Object mappedValue = mapper.apply(tokenAndValue);
         list.set(i, mappedValue);
       }
