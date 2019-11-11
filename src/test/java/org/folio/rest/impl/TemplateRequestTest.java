@@ -283,7 +283,7 @@ public class TemplateRequestTest {
           .withAdditionalProperty(EN_LANG,
             new LocalizedTemplatesProperty()
               .withHeader("Request created on {{request.creationDate}}")
-              .withBody("Due date is {{loan.dueDate}}")));
+              .withBody("Due date is {{loan.dueDateTime}}")));
 
     String templateId = postTemplate(template);
 
@@ -301,7 +301,7 @@ public class TemplateRequestTest {
               .put("creationDate", requestDate))
           .withAdditionalProperty("loan",
             new JsonObject()
-              .put("dueDate", loanDueDate)));
+              .put("dueDateTime", loanDueDate)));
 
     String expectedHeader = "Request created on 6/10/19, 5:32 PM";
     String expectedBody = "Due date is 6/18/19, 2:04 PM";
@@ -331,7 +331,7 @@ public class TemplateRequestTest {
           .withAdditionalProperty(EN_LANG,
             new LocalizedTemplatesProperty()
               .withHeader("Request created on {{request.creationDate}}")
-              .withBody("Due date is {{loan.dueDate}}")));
+              .withBody("Due date is {{loan.dueDateTime}}")));
 
     String templateId = postTemplate(template);
 
@@ -349,7 +349,7 @@ public class TemplateRequestTest {
               .put("creationDate", requestDate))
           .withAdditionalProperty("loan",
             new JsonObject()
-              .put("dueDate", loanDueDate)));
+              .put("dueDateTime", loanDueDate)));
 
     mockLocaleSettings("de-DE", "Europe/Berlin");
 
