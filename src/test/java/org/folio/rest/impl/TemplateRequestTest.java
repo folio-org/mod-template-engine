@@ -455,6 +455,51 @@ public class TemplateRequestTest {
       .body("result.body", Matchers.is(expectedBody));
   }
 
+  @Test
+  public void shouldRemoveTimeFromDatesBasedOnToken() {
+    Template template = new Template()
+      .withDescription("Template with dates")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates()
+        .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Request created on {{request.creationDate}}. Expiration date is {{request.requestExpirationDate}}")
+              .withBody("Due date is {{loan.dueDate}}. Due time is {{loan.dueDateTime}}")));
+
+    String templateId = postTemplate(template);
+
+    String requestCreationDate = "2019-06-10T18:32:31.000+0100";
+    String requestExpirationDate = "2019-06-15T18:32:31.000+0100";
+    String loanDueDate = "2019-06-18T14:04:33.205Z";
+
+    TemplateProcessingRequest templateRequest = new TemplateProcessingRequest()
+      .withTemplateId(templateId)
+      .withLang(EN_LANG)
+      .withOutputFormat(TXT_OUTPUT_FORMAT)
+      .withContext(new Context()
+        .withAdditionalProperty("request", new JsonObject().put("creationDate", requestCreationDate)
+          .put("requestExpirationDate", requestExpirationDate))
+        .withAdditionalProperty("loan", new JsonObject().put("dueDate", loanDueDate)
+          .put("dueDateTime", loanDueDate)));
+
+    String expectedHeader = "Request created on 6/10/19, 5:32 PM. Expiration date is 6/15/19";
+    String expectedBody = "Due date is 6/18/19. Due time is 6/18/19, 2:04 PM";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.header", Matchers.is(expectedHeader))
+      .body("result.body", Matchers.is(expectedBody))
+      .body("meta.lang", Matchers.is(EN_LANG))
+      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+  }
+
   private String postTemplate(Template template) {
     return RestAssured.given()
       .spec(spec)

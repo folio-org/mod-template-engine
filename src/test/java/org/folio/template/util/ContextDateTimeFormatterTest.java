@@ -55,6 +55,95 @@ class ContextDateTimeFormatterTest {
     assertEquals(expectedJson, inputJson);
   }
 
+  @Test
+  void datesAreLocalizedCorrectlyBasedOnToken() {
+    String inputDate = "2019-06-18T14:04:33.205Z";
+    String expectedLongDate = "6/18/19, 2:04 PM";
+    String expectedShortDate = "6/18/19";
+
+    JsonObject inputJson = new JsonObject()
+      .put("loan", new JsonObject()
+        .put("dueDate", inputDate)
+        .put("dueDateTime", inputDate)
+        .put("initialBorrowDate", inputDate)
+        .put("initialBorrowDateTime", inputDate)
+        .put("checkedInDate", inputDate)
+        .put("checkedInDateTime", inputDate))
+      .put("request", new JsonObject()
+        .put("requestExpirationDate", inputDate)
+        .put("requestExpirationDateTime", inputDate)
+        .put("holdShelfExpirationDate", inputDate)
+        .put("holdShelfExpirationDateTime", inputDate));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("loan", new JsonObject()
+        .put("dueDate", expectedShortDate)
+        .put("dueDateTime", expectedLongDate)
+        .put("initialBorrowDate", expectedShortDate)
+        .put("initialBorrowDateTime", expectedLongDate)
+        .put("checkedInDate", expectedShortDate)
+        .put("checkedInDateTime", expectedLongDate))
+      .put("request", new JsonObject()
+        .put("requestExpirationDate", expectedShortDate)
+        .put("requestExpirationDateTime", expectedLongDate)
+        .put("holdShelfExpirationDate", expectedShortDate)
+        .put("holdShelfExpirationDateTime", expectedLongDate));
+
+    ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    assertEquals(expectedJson, inputJson);
+  }
+
+  @Test
+  void nestedTokensAreFormattedCorrectly() {
+    String inputDate = "2019-06-18T14:04:33.205Z";
+    String expectedLongDate = "6/18/19, 2:04 PM";
+    String expectedShortDate = "6/18/19";
+
+    JsonObject inputJson = new JsonObject()
+      .put("loan", new JsonObject()
+        .put("dueDate", inputDate))
+      .put("loans", new JsonObject()
+        .put("loan", new JsonObject()
+          .put("dueDate", inputDate)));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("loan", new JsonObject()
+        .put("dueDate", expectedShortDate))
+      .put("loans", new JsonObject()
+        .put("loan", new JsonObject()
+          .put("dueDate", expectedLongDate)));
+
+    ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    assertEquals(expectedJson, inputJson);
+  }
+
+  @Test
+  void tokensWithinArraysAreFormattedCorrectly() {
+    String inputDate = "2019-06-18T14:04:33.205Z";
+    String expectedLongDate = "6/18/19, 2:04 PM";
+
+    JsonObject inputJson = new JsonObject()
+      .put("loan", new JsonArray()
+        .add(new JsonObject()
+          .put("dueDate", inputDate)))
+      .put("request", new JsonObject()
+        .put("requestExpirationDate", new JsonArray()
+          .add(inputDate)
+          .add(inputDate)));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("loan", new JsonArray()
+        .add(new JsonObject()
+          .put("dueDate", expectedLongDate)))
+      .put("request", new JsonObject()
+        .put("requestExpirationDate", new JsonArray()
+          .add(expectedLongDate)
+          .add(expectedLongDate)));
+
+    ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    assertEquals(expectedJson, inputJson);
+  }
+
   @ParameterizedTest
   @CsvSource(value = {
     "Asia/Hong_Kong | zh-CN | 2019/9/18 下午10:04",
