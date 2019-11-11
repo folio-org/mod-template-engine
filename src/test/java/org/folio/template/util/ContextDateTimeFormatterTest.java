@@ -5,7 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Locale;
 
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -65,7 +65,7 @@ class ContextDateTimeFormatterTest {
   }, delimiter = '|')
   void shouldFormatDateDependingOnLocaleAndTimeZone(String timeZoneId, String langTag, String expected) {
     String inputIsoDate = "2019-09-18T14:04:33.205Z";
-    Pair<String, String> keyAndValue = new Pair<>("inputDate", inputIsoDate);
+    Pair<String, String> keyAndValue = Pair.of("inputDate", inputIsoDate);
     String formattedDate = ContextDateTimeFormatter.localizeIfStringIsIsoDate(keyAndValue,
       TimeZone.getTimeZone(timeZoneId), Locale.forLanguageTag(langTag));
 
