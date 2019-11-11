@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.Locale;
 
+import javafx.util.Pair;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,19 +55,20 @@ class ContextDateTimeFormatterTest {
     assertEquals(expectedJson, inputJson);
   }
 
-//  @ParameterizedTest
-//  @CsvSource(value = {
-//    "Asia/Hong_Kong | zh-CN | 2019/9/18 下午10:04",
-//    "Europe/Copenhagen | da-DK | 18.09.2019 16.04",
-//    "Europe/London | en-GB | 18/09/2019, 15:04",
-//    "Europe/Stockholm | en-SE | 2019-09-18, 16:04",
-//    "America/New_York | en-US | 9/18/19, 10:04 AM",
-//  }, delimiter = '|')
-//  void shouldFormatDateDependingOnLocaleAndTimeZone(String timeZoneId, String langTag, String expected) {
-//    String inputIsoDate = "2019-09-18T14:04:33.205Z";
-//    String formattedDate = ContextDateTimeFormatter.localizeIfStringIsIsoDate(inputIsoDate,
-//      TimeZone.getTimeZone(timeZoneId), Locale.forLanguageTag(langTag));
-//
-//    assertThat(formattedDate, Matchers.is(expected));
-//  }
+  @ParameterizedTest
+  @CsvSource(value = {
+    "Asia/Hong_Kong | zh-CN | 2019/9/18 下午10:04",
+    "Europe/Copenhagen | da-DK | 18.09.2019 16.04",
+    "Europe/London | en-GB | 18/09/2019, 15:04",
+    "Europe/Stockholm | en-SE | 2019-09-18, 16:04",
+    "America/New_York | en-US | 9/18/19, 10:04 AM",
+  }, delimiter = '|')
+  void shouldFormatDateDependingOnLocaleAndTimeZone(String timeZoneId, String langTag, String expected) {
+    String inputIsoDate = "2019-09-18T14:04:33.205Z";
+    Pair<String, String> keyAndValue = new Pair<>("inputDate", inputIsoDate);
+    String formattedDate = ContextDateTimeFormatter.localizeIfStringIsIsoDate(keyAndValue,
+      TimeZone.getTimeZone(timeZoneId), Locale.forLanguageTag(langTag));
+
+    assertThat(formattedDate, Matchers.is(expected));
+  }
 }
