@@ -29,11 +29,11 @@ public class ContextDateTimeFormatter {
     .toFormatter();
 
   private static final List<String> DATE_ONLY_TOKENS = Collections.unmodifiableList(Arrays.asList(
-      "loan.dueDate",
-      "loan.initialBorrowDate",
-      "loan.checkedInDate",
-      "request.requestExpirationDate",
-      "request.holdShelfExpirationDate"
+          "loan.dueDate",
+          "loan.initialBorrowDate",
+          "loan.checkedInDate",
+          "request.requestExpirationDate",
+          "request.holdShelfExpirationDate"
   ));
 
   private static final String ARRAY_SUFFIX_FORMAT = "%s[%d]";
@@ -47,9 +47,9 @@ public class ContextDateTimeFormatter {
   }
 
   private static <T> void mapValuesInJson(String parentToken,
-      JsonObject json,
-      Function<Pair<String, T>, ?> mapper,
-      Class<T> classToMap) {
+                                          JsonObject json,
+                                          Function<Pair<String, T>, ?> mapper,
+                                          Class<T> classToMap) {
 
     for (Map.Entry<String, Object> entry : json) {
       Object value = entry.getValue();
@@ -73,15 +73,13 @@ public class ContextDateTimeFormatter {
   }
 
   private static <T> void mapValuesInJsonArray(String parentToken,
-      JsonArray array,
-      Function<Pair<String, T>, ?> mapper,
-      Class<T> classToMap) {
-
+                                               JsonArray array,
+                                               Function<Pair<String, T>, ?> mapper,
+                                               Class<T> classToMap) {
     List list = array.getList();
     for (int i = 0; i < array.size(); i++) {
       final String token = String.format(ARRAY_SUFFIX_FORMAT, parentToken, i);
       Object value = array.getValue(i);
-
       if (value.getClass() == JsonObject.class) {
         mapValuesInJson(token, (JsonObject) value, mapper, classToMap);
 
@@ -125,4 +123,5 @@ public class ContextDateTimeFormatter {
     }
     return builder.append(key).toString();
   }
+
 }
