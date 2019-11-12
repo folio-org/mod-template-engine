@@ -52,14 +52,12 @@ public class ContextDateTimeFormatter {
                                           Class<T> classToMap) {
 
     for (Map.Entry<String, Object> entry : json) {
-      final Object value = entry.getValue();
-
+      Object value = entry.getValue();
       if (value == null) {
         continue;
       }
 
       final String token = buildTokenForKey(parentToken, entry.getKey());
-
       if (value.getClass() == JsonObject.class) {
         mapValuesInJson(token, (JsonObject) entry.getValue(), mapper, classToMap);
 
@@ -81,8 +79,7 @@ public class ContextDateTimeFormatter {
     List list = array.getList();
     for (int i = 0; i < array.size(); i++) {
       final String token = String.format(ARRAY_SUFFIX_FORMAT, parentToken, i);
-      final Object value = array.getValue(i);
-
+      Object value = array.getValue(i);
       if (value.getClass() == JsonObject.class) {
         mapValuesInJson(token, (JsonObject) value, mapper, classToMap);
 
