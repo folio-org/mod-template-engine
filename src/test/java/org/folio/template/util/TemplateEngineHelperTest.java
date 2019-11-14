@@ -16,7 +16,6 @@ class TemplateEngineHelperTest {
       .put("loan", new JsonObject()
         .put("dueDate", inputDate)
         .put("enrichableDate", inputDate)
-        .put("existingDateTime", inputDate)
         .put("existingDate", inputDate)
         .put("existingDateTime", "unchanged"));
 
@@ -25,7 +24,6 @@ class TemplateEngineHelperTest {
       .put("loan", new JsonObject()
         .put("dueDate", inputDate)
         .put("enrichableDate", inputDate)
-        .put("existingDateTime", inputDate)
         .put("existingDate", inputDate)
         .put("existingDateTime", "unchanged")
         .put("dueDateTime", inputDate)
