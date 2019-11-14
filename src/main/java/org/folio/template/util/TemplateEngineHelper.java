@@ -5,6 +5,7 @@ import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.folio.rest.tools.parser.JsonPathParser;
 import org.folio.rest.tools.utils.ValidationHelper;
@@ -70,9 +71,15 @@ public final class TemplateEngineHelper {
     Map<String, Object> contextMap = JsonFlattener.flattenAsMap(context.encode());
     JsonPathParser parser = new JsonPathParser(context);
     contextMap.keySet().stream()
-      .filter(k -> k.endsWith(DATE_SUFFIX))
-      .filter(k -> !contextMap.containsKey(k + TIME_SUFFIX))
-      .forEach(k -> parser.setValueAt(k + TIME_SUFFIX, contextMap.get(k)));
+      .filter(key -> objectIsNonBlankString(contextMap.get(key)))
+      .filter(key -> key.endsWith(DATE_SUFFIX))
+      .filter(key -> !contextMap.containsKey(key + TIME_SUFFIX))
+      .forEach(key -> parser.setValueAt(key + TIME_SUFFIX, contextMap.get(key)));
+  }
+
+  private static boolean objectIsNonBlankString(Object obj) {
+    return obj instanceof String
+        && StringUtils.isNoneBlank((String) obj);
   }
 
 }

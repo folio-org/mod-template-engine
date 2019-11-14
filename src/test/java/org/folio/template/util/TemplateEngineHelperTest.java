@@ -13,6 +13,9 @@ class TemplateEngineHelperTest {
 
     JsonObject inputJson = new JsonObject()
       .put("rootDate", inputDate)
+      .put("emptyDate", "")
+      .put("blankDate", "   ")
+      .putNull("nullDate")
       .put("loan", new JsonObject()
         .put("dueDate", inputDate)
         .put("enrichableDate", inputDate)
@@ -21,6 +24,9 @@ class TemplateEngineHelperTest {
 
     JsonObject expectedJson = new JsonObject()
       .put("rootDate", inputDate)
+      .put("emptyDate", "")
+      .put("blankDate", "   ")
+      .putNull("nullDate")
       .put("loan", new JsonObject()
         .put("dueDate", inputDate)
         .put("enrichableDate", inputDate)
