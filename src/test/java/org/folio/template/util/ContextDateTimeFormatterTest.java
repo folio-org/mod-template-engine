@@ -85,14 +85,14 @@ class ContextDateTimeFormatterTest {
     String expectedShortDate = "6/18/19";
 
     JsonObject inputJson = new JsonObject()
-        .put("loan", new JsonObject()
-            .put("dueDate", validDate)
-            .put("dueDateTime", invalidDate));
+      .put("loan", new JsonObject()
+        .put("dueDate", validDate)
+        .put("dueDateTime", invalidDate));
 
     JsonObject expectedJson = new JsonObject()
-        .put("loan", new JsonObject()
-            .put("dueDate", expectedShortDate)
-            .put("dueDateTime", invalidDate));
+      .put("loan", new JsonObject()
+        .put("dueDate", expectedShortDate)
+        .put("dueDateTime", invalidDate));
 
     ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
     assertEquals(expectedJson, inputJson);
