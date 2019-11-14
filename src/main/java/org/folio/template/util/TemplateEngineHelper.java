@@ -1,9 +1,12 @@
 package org.folio.template.util;
 
+import com.github.wnameless.json.flattener.JsonFlattener;
 import io.vertx.core.Future;
+import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.apache.http.HttpStatus;
+import org.folio.rest.tools.parser.JsonPathParser;
 import org.folio.rest.tools.utils.ValidationHelper;
 import org.folio.template.InUseTemplateException;
 
@@ -11,10 +14,14 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Map;
 
 public final class TemplateEngineHelper {
 
   private static final Logger LOG = LoggerFactory.getLogger("mod-template-engine");
+
+  private static final String DATE_SUFFIX = "Date";
+  private static final String TIME_SUFFIX = "Time";
 
   public static final String TEMPLATE_RESOLVERS_LOCAL_MAP = "template-resolvers.map";
 
@@ -57,6 +64,15 @@ public final class TemplateEngineHelper {
       .type(MediaType.TEXT_PLAIN)
       .entity(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())
       .build();
+  }
+
+  public static void enrichContextWithDateTimes(JsonObject context) {
+    Map<String, Object> contextMap = JsonFlattener.flattenAsMap(context.encode());
+    JsonPathParser parser = new JsonPathParser(context);
+    contextMap.keySet().stream()
+      .filter(k -> k.endsWith(DATE_SUFFIX))
+      .filter(k -> !contextMap.containsKey(k + TIME_SUFFIX))
+      .forEach(k -> parser.setValueAt(k + TIME_SUFFIX, contextMap.get(k)));
   }
 
 }

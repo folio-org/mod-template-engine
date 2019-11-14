@@ -3,15 +3,10 @@ package org.folio.template.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.Locale;
-
-import org.apache.commons.lang3.tuple.Pair;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import com.ibm.icu.util.TimeZone;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -50,7 +45,7 @@ class ContextDateTimeFormatterTest {
             .put("arrayDateTime", expectedFormattedDate))
           .add(new JsonArray().add(inputIsoDate)));
 
-    ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
     assertEquals(expectedJson, inputJson);
   }
 
@@ -74,7 +69,7 @@ class ContextDateTimeFormatterTest {
         .put("dueDateTime", expectedLongDate)
         .put("dateWithInvalidToken", inputDate));
 
-    ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
     assertEquals(expectedJson, inputJson);
   }
 
@@ -94,7 +89,7 @@ class ContextDateTimeFormatterTest {
         .put("dueDate", expectedShortDate)
         .put("dueDateTime", invalidDate));
 
-    ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
     assertEquals(expectedJson, inputJson);
   }
 
@@ -119,7 +114,7 @@ class ContextDateTimeFormatterTest {
         .put("requestExpirationDateTime", new JsonArray()
           .add(inputDate)));
 
-    ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
     assertEquals(expectedJson, inputJson);
   }
 
@@ -133,10 +128,9 @@ class ContextDateTimeFormatterTest {
   }, delimiter = '|')
   void shouldFormatDateDependingOnLocaleAndTimeZone(String timeZoneId, String langTag, String expected) {
     String inputIsoDate = "2019-09-18T14:04:33.205Z";
-    Pair<String, String> keyAndValue = Pair.of("inputDateTime", inputIsoDate);
-    String formattedDate = ContextDateTimeFormatter.localizeIfStringIsIsoDate(keyAndValue,
-      TimeZone.getTimeZone(timeZoneId), Locale.forLanguageTag(langTag));
-
-    assertThat(formattedDate, Matchers.is(expected));
+    JsonObject context = new JsonObject().put("inputDateTime", inputIsoDate);
+    ContextDateTimeFormatter.formatDatesInContext(context, langTag, timeZoneId);
+    String formattedDateTime = context.getString("inputDateTime");
+    assertThat(formattedDateTime, Matchers.is(expected));
   }
 }

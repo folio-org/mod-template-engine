@@ -2,7 +2,8 @@ package org.folio.template.service;
 
 import static io.vertx.core.Future.failedFuture;
 import static java.lang.String.format;
-import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInJson;
+import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInContext;
+import static org.folio.template.util.TemplateEngineHelper.enrichContextWithDateTimes;
 
 import java.util.Date;
 import java.util.List;
@@ -117,7 +118,9 @@ public class TemplateServiceImpl implements TemplateService {
             .orElse(new JsonObject());
 
         LocaleConfiguration config = compositeFuture.resultAt(1);
-        formatDatesInJson(contextObject, config.getLanguageTag(), config.getTimeZoneId());
+
+        enrichContextWithDateTimes(contextObject);
+        formatDatesInContext(contextObject, config.getLanguageTag(), config.getTimeZoneId());
 
         String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
         TemplateResolver templateResolverProxy = TemplateResolver.createProxy(vertx, templateResolverAddress);

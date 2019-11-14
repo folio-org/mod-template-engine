@@ -547,6 +547,56 @@ public class TemplateRequestTest {
       .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
   }
 
+  @Test
+  public void shouldEnrichContextAndFormatDatesCorrectly() {
+    Template template = new Template()
+      .withDescription("Template with dates")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates()
+        .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Request expiration date: {{request.requestExpirationDate}}. "
+                  + "Request expiration time: {{request.requestExpirationDateTime}}.")
+              .withBody("Loan due date: {{loan.dueDate}}. Loan due time: {{loan.dueDateTime}}. "
+                  + "Loan checked in date: {{loan.checkedInDate}}. Loan checked in time: {{loan.checkedInDateTime}}")));
+
+    String templateId = postTemplate(template);
+
+    String requestDate = "2019-06-10T18:32:31.000Z";
+    String loanDate1 = "2019-07-15T18:32:31.000Z";
+    String loanDate2 = "2019-11-11T11:11:11.111Z";
+
+    TemplateProcessingRequest templateRequest = new TemplateProcessingRequest()
+      .withTemplateId(templateId)
+      .withLang(EN_LANG)
+      .withOutputFormat(TXT_OUTPUT_FORMAT)
+      .withContext(new Context()
+        .withAdditionalProperty("request", new JsonObject()
+          .put("requestExpirationDate", requestDate))
+        .withAdditionalProperty("loan", new JsonObject()
+          .put("dueDate", loanDate1)
+          .put("checkedInDate", loanDate1)
+          .put("checkedInDateTime", loanDate2)));
+
+    String expectedHeader = "Request expiration date: 6/10/19. Request expiration time: 6/10/19, 6:32 PM.";
+    String expectedBody = "Loan due date: 7/15/19. Loan due time: 7/15/19, 6:32 PM. " +
+        "Loan checked in date: 7/15/19. Loan checked in time: 11/11/19, 11:11 AM";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.header", Matchers.is(expectedHeader))
+      .body("result.body", Matchers.is(expectedBody))
+      .body("meta.lang", Matchers.is(EN_LANG))
+      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+  }
+
   private String postTemplate(Template template) {
     return RestAssured.given()
       .spec(spec)
