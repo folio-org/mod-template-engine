@@ -282,7 +282,7 @@ public class TemplateRequestTest {
         new LocalizedTemplates()
           .withAdditionalProperty(EN_LANG,
             new LocalizedTemplatesProperty()
-              .withHeader("Request created on {{request.creationDate}}")
+              .withHeader("Request created on {{request.creationDateTime}}")
               .withBody("Due date is {{loan.dueDate}}")));
 
     String templateId = postTemplate(template);
@@ -298,13 +298,13 @@ public class TemplateRequestTest {
         .withContext(new Context()
           .withAdditionalProperty("request",
             new JsonObject()
-              .put("creationDate", requestDate))
+              .put("creationDateTime", requestDate))
           .withAdditionalProperty("loan",
             new JsonObject()
               .put("dueDate", loanDueDate)));
 
     String expectedHeader = "Request created on 6/10/19, 5:32 PM";
-    String expectedBody = "Due date is 6/18/19, 2:04 PM";
+    String expectedBody = "Due date is 6/18/19";
 
     RestAssured.given()
       .spec(spec)
@@ -331,7 +331,7 @@ public class TemplateRequestTest {
           .withAdditionalProperty(EN_LANG,
             new LocalizedTemplatesProperty()
               .withHeader("Request created on {{request.creationDate}}")
-              .withBody("Due date is {{loan.dueDate}}")));
+              .withBody("Due date is {{loan.dueDateTime}}")));
 
     String templateId = postTemplate(template);
 
@@ -349,11 +349,11 @@ public class TemplateRequestTest {
               .put("creationDate", requestDate))
           .withAdditionalProperty("loan",
             new JsonObject()
-              .put("dueDate", loanDueDate)));
+              .put("dueDateTime", loanDueDate)));
 
     mockLocaleSettings("de-DE", "Europe/Berlin");
 
-    String expectedHeader = "Request created on 10.06.19, 19:32";
+    String expectedHeader = "Request created on 10.06.19";
     String expectedBody = "Due date is 18.06.19, 16:04";
 
     RestAssured.given()
@@ -421,7 +421,7 @@ public class TemplateRequestTest {
           .withAdditionalProperty(EN_LANG,
             new LocalizedTemplatesProperty()
               .withHeader("Template with dates")
-              .withBody("Dates are:{{#dates}} {{dateValue}};{{/dates}}")));
+              .withBody("Dates are:{{#dates}} {{testDateTime}};{{/dates}}")));
 
     String templateId = postTemplate(template);
 
@@ -436,8 +436,8 @@ public class TemplateRequestTest {
         .withContext(new Context()
           .withAdditionalProperty("dates",
             new JsonArray()
-              .add(new JsonObject().put("dateValue", firstDate))
-              .add(new JsonObject().put("dateValue", secondDate))
+              .add(new JsonObject().put("testDateTime", firstDate))
+              .add(new JsonObject().put("testDateTime", secondDate))
           ));
 
     mockLocaleSettings("de-DE", "Europe/Berlin");
@@ -453,6 +453,148 @@ public class TemplateRequestTest {
       .statusCode(HttpStatus.SC_OK)
       .body("templateId", Matchers.is(templateId))
       .body("result.body", Matchers.is(expectedBody));
+  }
+
+  @Test
+  public void shouldRemoveTimeFromDatesBasedOnToken() {
+    Template template = new Template()
+      .withDescription("Template with dates")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates()
+        .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Request created on {{request.creationDateTime}}. Expiration date is {{request.requestExpirationDate}}")
+              .withBody("Due date is {{loan.dueDate}}. Due time is {{loan.dueDateTime}}")));
+
+    String templateId = postTemplate(template);
+
+    String requestCreationDate = "2019-06-10T18:32:31.000+0100";
+    String requestExpirationDate = "2019-06-15T18:32:31.000+0100";
+    String loanDueDate = "2019-06-18T14:04:33.205Z";
+
+    TemplateProcessingRequest templateRequest = new TemplateProcessingRequest()
+      .withTemplateId(templateId)
+      .withLang(EN_LANG)
+      .withOutputFormat(TXT_OUTPUT_FORMAT)
+      .withContext(new Context()
+        .withAdditionalProperty("request", new JsonObject().put("creationDateTime", requestCreationDate)
+          .put("requestExpirationDate", requestExpirationDate))
+        .withAdditionalProperty("loan", new JsonObject().put("dueDate", loanDueDate)
+          .put("dueDateTime", loanDueDate)));
+
+    String expectedHeader = "Request created on 6/10/19, 5:32 PM. Expiration date is 6/15/19";
+    String expectedBody = "Due date is 6/18/19. Due time is 6/18/19, 2:04 PM";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.header", Matchers.is(expectedHeader))
+      .body("result.body", Matchers.is(expectedBody))
+      .body("meta.lang", Matchers.is(EN_LANG))
+      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+  }
+
+  @Test
+  public void dateRemainsUnchangedIfDateTokenContainsInvalidValue() {
+    Template template = new Template()
+      .withDescription("Template with dates")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+          new LocalizedTemplatesProperty()
+            .withHeader("Request created on {{request.creationDateTime}}. Expiration date is {{request.requestExpirationDate}}")
+            .withBody("Due date is {{loan.dueDate}}. Due time is {{loan.dueDateTime}}")));
+
+    String templateId = postTemplate(template);
+
+    String invalidRequestCreationDate = "2019-06-10T18:32:31";
+    String invalidRequestExpirationDate = "2019-06-15";
+    String invalidLoanDueDate = "18.06.19";
+    String validLoanDueDate = "2019-06-18T14:04:33.205Z";
+
+    TemplateProcessingRequest templateRequest = new TemplateProcessingRequest()
+      .withTemplateId(templateId)
+      .withLang(EN_LANG)
+      .withOutputFormat(TXT_OUTPUT_FORMAT)
+      .withContext(new Context()
+        .withAdditionalProperty("request", new JsonObject()
+          .put("creationDateTime", invalidRequestCreationDate)
+          .put("requestExpirationDate", invalidRequestExpirationDate))
+        .withAdditionalProperty("loan", new JsonObject()
+          .put("dueDate", invalidLoanDueDate)
+          .put("dueDateTime", validLoanDueDate)));
+
+    String expectedHeader = "Request created on 2019-06-10T18:32:31. Expiration date is 2019-06-15";
+    String expectedBody = "Due date is 18.06.19. Due time is 6/18/19, 2:04 PM";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.header", Matchers.is(expectedHeader))
+      .body("result.body", Matchers.is(expectedBody))
+      .body("meta.lang", Matchers.is(EN_LANG))
+      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+  }
+
+  @Test
+  public void shouldEnrichContextAndFormatDatesCorrectly() {
+    Template template = new Template()
+      .withDescription("Template with dates")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates()
+        .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Request expiration date: {{request.requestExpirationDate}}. "
+                  + "Request expiration time: {{request.requestExpirationDateTime}}.")
+              .withBody("Loan due date: {{loan.dueDate}}. Loan due time: {{loan.dueDateTime}}. "
+                  + "Loan checked in date: {{loan.checkedInDate}}. Loan checked in time: {{loan.checkedInDateTime}}")));
+
+    String templateId = postTemplate(template);
+
+    String requestDate = "2019-06-10T18:32:31.000Z";
+    String loanDate1 = "2019-07-15T18:32:31.000Z";
+    String loanDate2 = "2019-11-11T11:11:11.111Z";
+
+    TemplateProcessingRequest templateRequest = new TemplateProcessingRequest()
+      .withTemplateId(templateId)
+      .withLang(EN_LANG)
+      .withOutputFormat(TXT_OUTPUT_FORMAT)
+      .withContext(new Context()
+        .withAdditionalProperty("request", new JsonObject()
+          .put("requestExpirationDate", requestDate))
+        .withAdditionalProperty("loan", new JsonObject()
+          .put("dueDate", loanDate1)
+          .put("checkedInDate", loanDate1)
+          .put("checkedInDateTime", loanDate2)));
+
+    String expectedHeader = "Request expiration date: 6/10/19. Request expiration time: 6/10/19, 6:32 PM.";
+    String expectedBody = "Loan due date: 7/15/19. Loan due time: 7/15/19, 6:32 PM. " +
+        "Loan checked in date: 7/15/19. Loan checked in time: 11/11/19, 11:11 AM";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.header", Matchers.is(expectedHeader))
+      .body("result.body", Matchers.is(expectedBody))
+      .body("meta.lang", Matchers.is(EN_LANG))
+      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
   }
 
   private String postTemplate(Template template) {

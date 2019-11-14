@@ -3,14 +3,10 @@ package org.folio.template.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.Locale;
-
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import com.ibm.icu.util.TimeZone;
 
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
@@ -26,31 +22,99 @@ class ContextDateTimeFormatterTest {
     String expectedFormattedDate = "6/18/19, 2:04 PM";
 
     JsonObject inputJson = new JsonObject()
-      .put("dateInRoot", inputIsoDate)
-      .put("subObject", new JsonObject().put("dateInSubObject", inputIsoDate))
+      .put("rootDateTime", inputIsoDate)
+      .put("subObject", new JsonObject().put("subObjectDateTime", inputIsoDate))
       .put("notADateString", "some string")
       .put("nullValue", (String) null)
       .put("arrayInRoot",
         new JsonArray()
           .add(inputIsoDate)
           .add(new JsonObject()
-            .put("dateInObjectInArray", inputIsoDate))
+            .put("arrayDateTime", inputIsoDate))
           .add(new JsonArray().add(inputIsoDate)));
 
     JsonObject expectedJson = new JsonObject()
-      .put("dateInRoot", expectedFormattedDate)
-      .put("subObject", new JsonObject().put("dateInSubObject", expectedFormattedDate))
+      .put("rootDateTime", expectedFormattedDate)
+      .put("subObject", new JsonObject().put("subObjectDateTime", expectedFormattedDate))
       .put("notADateString", "some string")
       .put("nullValue", (String) null)
       .put("arrayInRoot",
         new JsonArray()
-          .add(expectedFormattedDate)
+          .add(inputIsoDate)
           .add(new JsonObject()
-            .put("dateInObjectInArray", expectedFormattedDate))
-          .add(new JsonArray().add(expectedFormattedDate)));
+            .put("arrayDateTime", expectedFormattedDate))
+          .add(new JsonArray().add(inputIsoDate)));
 
-    ContextDateTimeFormatter.formatDatesInJson(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    assertEquals(expectedJson, inputJson);
+  }
 
+  @Test
+  void datesAreLocalizedCorrectlyBasedOnToken() {
+    String inputDate = "2019-06-18T14:04:33.205Z";
+    String expectedLongDate = "6/18/19, 2:04 PM";
+    String expectedShortDate = "6/18/19";
+
+    JsonObject inputJson = new JsonObject()
+      .put("dateWithInvalidToken", inputDate)
+      .put("loan", new JsonObject()
+        .put("dueDate", inputDate)
+        .put("dueDateTime", inputDate)
+        .put("dateWithInvalidToken", inputDate));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("dateWithInvalidToken", inputDate)
+      .put("loan", new JsonObject()
+        .put("dueDate", expectedShortDate)
+        .put("dueDateTime", expectedLongDate)
+        .put("dateWithInvalidToken", inputDate));
+
+    ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    assertEquals(expectedJson, inputJson);
+  }
+
+  @Test
+  void valueRemainsUnchangedIfDateTokenContainsInvalidDate() {
+    String validDate = "2019-06-18T14:04:33.205Z";
+    String invalidDate = "2019-06-18T14:04:33";
+    String expectedShortDate = "6/18/19";
+
+    JsonObject inputJson = new JsonObject()
+      .put("loan", new JsonObject()
+        .put("dueDate", validDate)
+        .put("dueDateTime", invalidDate));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("loan", new JsonObject()
+        .put("dueDate", expectedShortDate)
+        .put("dueDateTime", invalidDate));
+
+    ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    assertEquals(expectedJson, inputJson);
+  }
+
+  @Test
+  void datesInArraysAreFormattedCorrectly() {
+    String inputDate = "2019-06-18T14:04:33.205Z";
+    String expectedLongDate = "6/18/19, 2:04 PM";
+
+    JsonObject inputJson = new JsonObject()
+      .put("loan", new JsonArray()
+        .add(new JsonObject()
+          .put("dueDateTime", inputDate)))
+      .put("request", new JsonObject()
+        .put("requestExpirationDateTime", new JsonArray()
+          .add(inputDate)));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("loan", new JsonArray()
+        .add(new JsonObject()
+          .put("dueDateTime", expectedLongDate)))
+      .put("request", new JsonObject()
+        .put("requestExpirationDateTime", new JsonArray()
+          .add(inputDate)));
+
+    ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
     assertEquals(expectedJson, inputJson);
   }
 
@@ -64,9 +128,9 @@ class ContextDateTimeFormatterTest {
   }, delimiter = '|')
   void shouldFormatDateDependingOnLocaleAndTimeZone(String timeZoneId, String langTag, String expected) {
     String inputIsoDate = "2019-09-18T14:04:33.205Z";
-    String formattedDate = ContextDateTimeFormatter.localizeIfStringIsIsoDate(inputIsoDate,
-      TimeZone.getTimeZone(timeZoneId), Locale.forLanguageTag(langTag));
-
-    assertThat(formattedDate, Matchers.is(expected));
+    JsonObject context = new JsonObject().put("inputDateTime", inputIsoDate);
+    ContextDateTimeFormatter.formatDatesInContext(context, langTag, timeZoneId);
+    String formattedDateTime = context.getString("inputDateTime");
+    assertThat(formattedDateTime, Matchers.is(expected));
   }
 }

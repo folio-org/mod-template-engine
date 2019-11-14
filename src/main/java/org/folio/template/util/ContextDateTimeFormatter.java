@@ -4,18 +4,22 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Optional;
 
+import com.github.wnameless.json.flattener.JsonFlattener;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.util.TimeZone;
 
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+import org.folio.rest.tools.parser.JsonPathParser;
 
 public class ContextDateTimeFormatter {
+
+  private static final Logger LOG = LoggerFactory.getLogger("mod-template-engine");
 
   private static final DateTimeFormatter ISO_DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
     .append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
@@ -24,67 +28,45 @@ public class ContextDateTimeFormatter {
     .optionalStart().appendOffset("+HH", "Z").optionalEnd()
     .toFormatter();
 
+  private static final String DATE_SUFFIX = "Date";
+  private static final String DATE_TIME_SUFFIX = "DateTime";
+
   private ContextDateTimeFormatter() {
   }
 
-  public static void formatDatesInJson(JsonObject json, String languageTag, String zoneId) {
-    mapValuesInJson(json, getDateMapper(languageTag, zoneId), String.class);
-  }
-
-  private static <T> void mapValuesInJson(JsonObject json, Function<T, ?> mapper, Class<T> classToMap) {
-    for (Map.Entry<String, Object> entry : json) {
-      Object value = entry.getValue();
-      if (value == null) {
-        continue;
-      }
-      if (value.getClass() == JsonObject.class) {
-        mapValuesInJson((JsonObject) entry.getValue(), mapper, classToMap);
-
-      } else if (value.getClass() == JsonArray.class) {
-        mapValuesInJsonArray((JsonArray) value, mapper, classToMap);
-
-      } else if (value.getClass() == classToMap) {
-        Object mappedValue = mapper.apply(classToMap.cast(value));
-        json.put(entry.getKey(), mappedValue);
-      }
-    }
-  }
-
-  private static <T> void mapValuesInJsonArray(JsonArray array, Function<T, ?> mapper, Class<T> classToMap) {
-    List list = array.getList();
-    for (int i = 0; i < array.size(); i++) {
-
-      Object value = array.getValue(i);
-      if (value.getClass() == JsonObject.class) {
-        mapValuesInJson((JsonObject) value, mapper, classToMap);
-
-      } else if (value.getClass() == JsonArray.class) {
-        mapValuesInJsonArray((JsonArray) value, mapper, classToMap);
-
-      } else if (value.getClass() == classToMap) {
-        Object mappedValue = mapper.apply(classToMap.cast(value));
-        list.set(i, mappedValue);
-      }
-    }
-  }
-
-  private static Function<String, String> getDateMapper(String languageTag, String zoneId) {
+  public static void formatDatesInContext(JsonObject context, String languageTag, String zoneId) {
     TimeZone timeZone = TimeZone.getTimeZone(zoneId);
     Locale locale = Locale.forLanguageTag(languageTag);
-    return value -> localizeIfStringIsIsoDate(value, timeZone, locale);
-  }
 
-  static String localizeIfStringIsIsoDate(String value, TimeZone timeZone, Locale locale) {
-    try {
-      ZonedDateTime parsedDateTime = ZonedDateTime.parse(value, ISO_DATE_TIME_FORMATTER);
-      DateFormat i18NDateFormatter =
-        DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-      i18NDateFormatter.setTimeZone(timeZone);
+    Map<String, Object> contextMap = JsonFlattener.flattenAsMap(context.encode());
+    JsonPathParser parser = new JsonPathParser(context);
 
-      return i18NDateFormatter.format(parsedDateTime.toInstant().toEpochMilli());
-    } catch (DateTimeParseException e) {
-      //value is not date
-      return value;
+    for (Map.Entry<String, Object> entry : contextMap.entrySet()) {
+      String token = entry.getKey();
+      Optional<Integer> timeFormat = getTimeFormatForToken(token);
+      if (timeFormat.isPresent()) {
+        try {
+          ZonedDateTime parsedDateTime = ZonedDateTime.parse((String) entry.getValue(), ISO_DATE_TIME_FORMATTER);
+          DateFormat i18NDateFormatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, timeFormat.get(), locale);
+          i18NDateFormatter.setTimeZone(timeZone);
+          String formattedDate = i18NDateFormatter.format(parsedDateTime.toInstant().toEpochMilli());
+          parser.setValueAt(token, formattedDate);
+        } catch (DateTimeParseException e) {
+          // value is not a valid date
+          LOG.error(e.getMessage(), e);
+        }
+      }
     }
   }
+
+  private static Optional<Integer> getTimeFormatForToken(String token) {
+    Integer timeFormat = null;
+    if (token.endsWith(DATE_SUFFIX)) {
+      timeFormat = DateFormat.NONE;
+    } else if (token.endsWith(DATE_TIME_SUFFIX)) {
+      timeFormat = DateFormat.SHORT;
+    }
+    return Optional.ofNullable(timeFormat);
+  }
+
 }
