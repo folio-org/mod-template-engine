@@ -89,21 +89,18 @@ public class ContextDateTimeFormatter {
   static String localizeIfStringIsIsoDate(Pair<String, String> keyAndValue, TimeZone timeZone, Locale locale) {
     String value = keyAndValue.getValue();
     Optional<Integer> timeFormat = getTimeFormatForToken(keyAndValue.getKey());
-    if (!timeFormat.isPresent()) {
-      return value;
+    if (timeFormat.isPresent()) {
+      try {
+        ZonedDateTime parsedDateTime = ZonedDateTime.parse(value, ISO_DATE_TIME_FORMATTER);
+        DateFormat i18NDateFormatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, timeFormat.get(), locale);
+        i18NDateFormatter.setTimeZone(timeZone);
+        return i18NDateFormatter.format(parsedDateTime.toInstant().toEpochMilli());
+      } catch (DateTimeParseException e) {
+        //value is not a valid date
+        LOG.error(e.getMessage(), e);
+      }
     }
-
-    try {
-      ZonedDateTime parsedDateTime = ZonedDateTime.parse(value, ISO_DATE_TIME_FORMATTER);
-      DateFormat i18NDateFormatter =
-        DateFormat.getDateTimeInstance(DateFormat.SHORT, timeFormat.get(), locale);
-      i18NDateFormatter.setTimeZone(timeZone);
-      return i18NDateFormatter.format(parsedDateTime.toInstant().toEpochMilli());
-    } catch (DateTimeParseException e) {
-      //value is not a valid date
-      LOG.error(e.getMessage(), e);
-      return value;
-    }
+    return value;
   }
 
   private static Optional<Integer> getTimeFormatForToken(String token) {
