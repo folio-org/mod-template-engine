@@ -23,6 +23,7 @@ import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
 import org.hamcrest.Matchers;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -60,8 +61,8 @@ public class TemplateRequestTest {
 
   private static final String TEMPLATES_TABLE_NAME = "template";
 
-  public static final String TXT_OUTPUT_FORMAT = "txt";
-  public static final String EN_LANG = "en";
+  private static final String TXT_OUTPUT_FORMAT = "txt";
+  private static final String EN_LANG = "en";
 
   private static Vertx vertx;
   private static String moduleUrl;
@@ -96,7 +97,6 @@ public class TemplateRequestTest {
         PostgresClient.setConfigFilePath(postgresConfigPath);
         break;
       case "embedded":
-        PostgresClient.setIsEmbedded(true);
         PostgresClient.getInstance(vertx).startEmbeddedPostgres();
         break;
       default:
@@ -130,6 +130,11 @@ public class TemplateRequestTest {
       .build();
     mockConfigModule();
     clearTemplatesTable(context);
+  }
+
+  @AfterClass
+  public static void tearDown(TestContext context) {
+    PostgresClient.stopEmbeddedPostgres();
   }
 
   private void clearTemplatesTable(TestContext context) {

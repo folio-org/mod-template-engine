@@ -2,6 +2,7 @@ package org.folio.template.client;
 
 
 import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
@@ -47,7 +48,7 @@ public class ConfigurationClientImpl implements ConfigurationClient {
 
   private Future<Configurations> lookupConfigByQuery(String query, int offset, int limit, OkapiConnectionParams params) {
 
-    Future<HttpResponse<Buffer>> future = Future.future();
+    Promise<HttpResponse<Buffer>> promise = Promise.promise();
     String requestUrl = params.getOkapiUrl() + configRequestPath;
     webClient.getAbs(requestUrl)
       .addQueryParam("query", query)
@@ -56,9 +57,9 @@ public class ConfigurationClientImpl implements ConfigurationClient {
       .putHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
       .putHeader(RestVerticle.OKAPI_HEADER_TENANT, params.getTenant())
       .putHeader(RestVerticle.OKAPI_HEADER_TOKEN, params.getToken())
-      .send(future.completer());
+      .send(promise);
 
-    return future.map(response -> {
+    return promise.future().map(response -> {
       if (response.statusCode() != HttpStatus.HTTP_OK.toInt()) {
         String logMessage =
           String.format("Error getting config by module name. Status: %d, body: %s", response.statusCode(), response.body());

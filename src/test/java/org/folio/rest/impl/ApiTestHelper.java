@@ -2,6 +2,7 @@ package org.folio.rest.impl;
 
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.HttpClient;
@@ -60,8 +61,7 @@ public class ApiTestHelper {
   public static Future<WrappedResponse> doRequest(Vertx vertx, String url,
                                                   HttpMethod method, CaseInsensitiveHeaders headers, String payload,
                                                   Integer expectedCode, String explanation, Handler<WrappedResponse> handler) {
-    Future<WrappedResponse> future = Future.future();
-    boolean addPayLoad = false;
+    Promise<WrappedResponse> promise = Promise.promise();
     HttpClient client = vertx.createHttpClient();
     HttpClientRequest request = client.requestAbs(method, url);
     //Add standard headers
@@ -76,7 +76,7 @@ public class ApiTestHelper {
       }
     }
     //standard exception handler
-    request.exceptionHandler(future::fail);
+    request.exceptionHandler(promise::fail);
     request.handler(req -> {
       req.bodyHandler(buf -> {
         String explainString = "(no explanation)";
@@ -84,14 +84,14 @@ public class ApiTestHelper {
           explainString = explanation;
         }
         if (expectedCode != null && expectedCode != req.statusCode()) {
-          future.fail(method.toString() + " to " + url + " failed. Expected status code "
+          promise.fail(method.toString() + " to " + url + " failed. Expected status code "
             + expectedCode + ", got status code " + req.statusCode() + ": "
             + buf.toString() + " | " + explainString);
         } else {
           System.out.println("Got status code " + req.statusCode() + " with payload of: " + buf.toString() + " | " + explainString);
           WrappedResponse wr = new WrappedResponse(explanation, req.statusCode(), buf.toString(), req);
           handler.handle(wr);
-          future.complete(wr);
+          promise.complete(wr);
         }
       });
     });
@@ -102,6 +102,6 @@ public class ApiTestHelper {
     } else {
       request.end();
     }
-    return future;
+    return promise.future();
   }
 }

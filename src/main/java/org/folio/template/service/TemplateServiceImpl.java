@@ -1,9 +1,5 @@
 package org.folio.template.service;
 
-import static io.vertx.core.Future.failedFuture;
-import static java.lang.String.format;
-import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInJson;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +9,7 @@ import java.util.UUID;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
+import io.vertx.core.Promise;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.jaxrs.model.Meta;
 import org.folio.rest.jaxrs.model.Result;
@@ -27,6 +24,7 @@ import org.folio.template.client.LocaleConfiguration;
 import org.folio.template.dao.TemplateDao;
 import org.folio.template.dao.TemplateDaoImpl;
 import org.folio.template.resolver.TemplateResolver;
+import org.folio.template.util.ContextDateTimeFormatter;
 import org.folio.template.util.OkapiConnectionParams;
 import org.folio.template.util.TemplateEngineHelper;
 
@@ -77,7 +75,7 @@ public class TemplateServiceImpl implements TemplateService {
     return getTemplateById(template.getId())
       .compose(optionalTemplate -> optionalTemplate
         .map(t -> templateDao.updateTemplate(template))
-        .orElse(failedFuture(new NotFoundException(
+        .orElse(Future.failedFuture(new NotFoundException(
           String.format("Template with id '%s' not found", template.getId()))))
       );
   }
@@ -85,13 +83,13 @@ public class TemplateServiceImpl implements TemplateService {
   @Override
   public Future<Boolean> deleteTemplate(String id, OkapiConnectionParams params) {
 
-    String query = format("loanNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
+    String query = String.format("loanNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
       "OR requestNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
       "OR feeFineNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\"", id);
 
     return circulationStorageClient.findPatronNoticePolicies(query, 0, params)
       .compose(policies -> policies.getInteger("totalRecords") == 0 ?
-        templateDao.deleteTemplate(id) : failedFuture(new InUseTemplateException()));
+        templateDao.deleteTemplate(id) : Future.failedFuture(new InUseTemplateException()));
   }
 
   @Override
@@ -117,18 +115,18 @@ public class TemplateServiceImpl implements TemplateService {
             .orElse(new JsonObject());
 
         LocaleConfiguration config = compositeFuture.resultAt(1);
-        formatDatesInJson(contextObject, config.getLanguageTag(), config.getTimeZoneId());
+        ContextDateTimeFormatter.formatDatesInJson(contextObject, config.getLanguageTag(), config.getTimeZoneId());
 
         String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
         TemplateResolver templateResolverProxy = TemplateResolver.createProxy(vertx, templateResolverAddress);
 
-        Future<JsonObject> future = Future.future();
+        Promise<JsonObject> promise = Promise.promise();
         templateResolverProxy.processTemplate(
           JsonObject.mapFrom(templateContent),
           contextObject,
-          templateRequest.getOutputFormat(), future.completer());
+          templateRequest.getOutputFormat(), promise);
 
-        return future.map(processedContent -> {
+        return promise.future().map(processedContent -> {
           Result processedTemplate = processedContent.mapTo(Result.class);
           Meta resultMetaInfo = new Meta()
             .withSize(processedTemplate.getBody().length())

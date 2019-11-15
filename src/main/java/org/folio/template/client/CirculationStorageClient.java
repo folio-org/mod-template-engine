@@ -1,13 +1,10 @@
 package org.folio.template.client;
 
 
-import static io.vertx.core.Future.failedFuture;
-import static io.vertx.core.Future.succeededFuture;
-import static java.lang.String.format;
-
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import io.vertx.core.Promise;
 import org.folio.rest.RestVerticle;
 import org.folio.template.util.OkapiConnectionParams;
 import org.folio.template.util.OkapiModuleClientException;
@@ -28,7 +25,7 @@ public class CirculationStorageClient {
   }
 
   public Future<JsonObject> findPatronNoticePolicies(String query, int limit, OkapiConnectionParams params) {
-    Future<HttpResponse<Buffer>> future = Future.future();
+    Promise<HttpResponse<Buffer>> promise = Promise.promise();
 
     webClient.getAbs(params.getOkapiUrl() + "/patron-notice-policy-storage/patron-notice-policies")
       .addQueryParam("query", query)
@@ -36,11 +33,11 @@ public class CirculationStorageClient {
       .putHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON)
       .putHeader(RestVerticle.OKAPI_HEADER_TENANT, params.getTenant())
       .putHeader(RestVerticle.OKAPI_HEADER_TOKEN, params.getToken())
-      .send(future.completer());
+      .send(promise);
 
-    return future.compose(resp -> resp.statusCode() == 200 ?
-      succeededFuture(resp.body().toJsonObject()) :
-      failedFuture(new OkapiModuleClientException(format(
+    return promise.future().compose(resp -> resp.statusCode() == 200 ?
+      Future.succeededFuture(resp.body().toJsonObject()) :
+      Future.failedFuture(new OkapiModuleClientException(String.format(
         "Error getting patron notice policies. Status: %d, body: %s", resp.statusCode(), resp.body()))));
   }
 }

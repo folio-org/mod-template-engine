@@ -1,10 +1,9 @@
 package org.folio.template.util;
 
 
-import java.util.Map;
+import org.folio.rest.RestVerticle;
 
-import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
-import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
+import java.util.Map;
 
 /**
  * Wrapper class for Okapi connection params
@@ -25,8 +24,8 @@ public class OkapiConnectionParams {
 
   public OkapiConnectionParams(Map<String, String> okapiHeaders) {
     this.okapiUrl = okapiHeaders.get(OKAPI_HEADER_URL);
-    this.tenant = okapiHeaders.get(OKAPI_HEADER_TENANT);
-    this.token = okapiHeaders.get(OKAPI_HEADER_TOKEN);
+    this.tenant = okapiHeaders.get(RestVerticle.OKAPI_HEADER_TENANT);
+    this.token = okapiHeaders.get(RestVerticle.OKAPI_HEADER_TOKEN);
   }
 
   public String getOkapiUrl() {
