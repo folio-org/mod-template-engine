@@ -14,6 +14,7 @@ import java.util.UUID;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
+import io.vertx.core.Promise;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.jaxrs.model.Meta;
 import org.folio.rest.jaxrs.model.Result;
@@ -125,13 +126,13 @@ public class TemplateServiceImpl implements TemplateService {
         String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
         TemplateResolver templateResolverProxy = TemplateResolver.createProxy(vertx, templateResolverAddress);
 
-        Future<JsonObject> future = Future.future();
+        Promise<JsonObject> promise = Promise.promise();
         templateResolverProxy.processTemplate(
           JsonObject.mapFrom(templateContent),
           contextObject,
-          templateRequest.getOutputFormat(), future.completer());
+          templateRequest.getOutputFormat(), promise);
 
-        return future.map(processedContent -> {
+        return promise.future().map(processedContent -> {
           Result processedTemplate = processedContent.mapTo(Result.class);
           Meta resultMetaInfo = new Meta()
             .withSize(processedTemplate.getBody().length())

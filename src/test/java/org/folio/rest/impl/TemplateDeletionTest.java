@@ -11,8 +11,11 @@ import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
 
 import java.io.IOException;
 
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
+import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -35,6 +38,7 @@ import io.vertx.junit5.VertxTestContext;
 @ExtendWith(VertxExtension.class)
 class TemplateDeletionTest {
 
+  private static final Logger logger = LoggerFactory.getLogger(TemplateDeletionTest.class);
   private static JsonObject unusedTemplate = new JsonObject()
     .put("id", "c9c7d02f-873a-4608-98e7-5e2df69a4a4f")
     .put("templateResolver", "mustache")
@@ -49,12 +53,14 @@ class TemplateDeletionTest {
 
   private static WireMockServer wireMockServer;
   private static RequestSpecification spec;
+  private static String okapiUrl;
 
   @BeforeAll
   static void beforeAll(Vertx vertx, VertxTestContext context) throws IOException {
 
     int okapiPort = NetworkUtils.nextFreePort();
     int mockServerPort = NetworkUtils.nextFreePort();
+    okapiUrl = "http://localhost:" + okapiPort;
 
     wireMockServer = new WireMockServer(mockServerPort);
     wireMockServer.start();
@@ -62,20 +68,21 @@ class TemplateDeletionTest {
 
     spec = new RequestSpecBuilder()
       .setContentType(ContentType.JSON)
-      .setBaseUri("http://localhost:" + okapiPort)
+      .setBaseUri(okapiUrl)
       .addHeader(OKAPI_HEADER_TENANT, "test_tenant")
-      .addHeader(OKAPI_HEADER_TOKEN, "dummy-token")
       .addHeader("X-Okapi-Url", "http://localhost:" + mockServerPort)
       .build();
 
     PostgresClient.getInstance(vertx).startEmbeddedPostgres();
-    TenantClient tenantClient = new TenantClient("http://localhost:" + okapiPort, "test_tenant", "dummy-token", false);
+    TenantClient tenantClient = new TenantClient(okapiUrl, "test_tenant", null, false);
 
     vertx.deployVerticle(RestVerticle::new,
       new DeploymentOptions().setConfig(new JsonObject().put("http.port", okapiPort)), deploy -> {
       try {
-        tenantClient.postTenant(null, post -> context.completeNow());
+        TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
+        tenantClient.postTenant(t, post -> context.completeNow());
       } catch (Exception e) {
+        logger.error(e.getMessage());
         context.failNow(e);
       }
     });

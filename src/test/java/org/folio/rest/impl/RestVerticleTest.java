@@ -19,6 +19,7 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
+import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
@@ -70,7 +71,7 @@ public class RestVerticleTest {
     .put("description", NEW_TEMPLATE_DESCRIPTION);
 
   @Before
-  public void setUp(TestContext context) throws IOException {
+  public void setUp(TestContext context) {
     int okapiPort = NetworkUtils.nextFreePort();
     mockServerPort = NetworkUtils.nextFreePort();
 
@@ -83,30 +84,30 @@ public class RestVerticleTest {
           .put("totalRecords", 0).encode())));
 
     Async async = context.async();
-    TenantClient tenantClient = new TenantClient("localhost", okapiPort, "diku", "diku");
-    vertx = Vertx.vertx();
     okapiUrl = "http://localhost:" + okapiPort;
     templateUrl = okapiUrl + "/templates";
+    TenantClient tenantClient = new TenantClient(okapiUrl, "diku", null);
+    vertx = Vertx.vertx();
 
     DeploymentOptions options = new DeploymentOptions().setConfig(
       new JsonObject()
         .put("http.port", okapiPort)
     );
     try {
-      PostgresClient.setIsEmbedded(true);
       PostgresClient.getInstance(vertx).startEmbeddedPostgres();
     } catch (Exception e) {
-      e.printStackTrace();
+      logger.error(e.getMessage());
       context.fail(e);
       return;
     }
     vertx.deployVerticle(RestVerticle.class.getName(), options, res -> {
       try {
-        tenantClient.postTenant(null, res2 -> {
+        TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
+        tenantClient.postTenant(t, res2 -> {
           async.complete();
         });
       } catch (Exception e) {
-        e.printStackTrace();
+        logger.error(e.getMessage());
       }
     });
     clearTemplatesTable(context);

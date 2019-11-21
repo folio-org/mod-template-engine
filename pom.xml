@@ -14,18 +14,14 @@
   </licenses>
 
   <properties>
-    <aspectj.version>1.9.1</aspectj.version>
-    <module_name>mod-template-engine</module_name>
+    <aspectj.version>1.9.4</aspectj.version>
     <http.port>8081</http.port>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <ramlfiles_util_path>${basedir}/raml-util</ramlfiles_util_path>
-    <raml-module-builder.version>23.12.0</raml-module-builder.version>
+    <raml-module-builder.version>29.0.1</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <postgres.driver.version>9.4.1212</postgres.driver.version>
-    <vertx-version>3.5.4</vertx-version>
-    <jackson.version>2.10.1</jackson.version>
+    <vertx-version>3.8.1</vertx-version>
   </properties>
-
 
   <repositories>
     <repository>
@@ -142,19 +138,6 @@
     </dependency>
 
   </dependencies>
-
-  <!-- Overriding versions coming from RMB -->
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>com.fasterxml.jackson</groupId>
-        <artifactId>jackson-bom</artifactId>
-        <version>${jackson.version}</version>
-        <scope>import</scope>
-        <type>pom</type>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
   <build>
     <resources>
@@ -515,14 +498,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.22.1</version>
-        <configuration>
-          <!-- update to version 3.0.0 and remove useSystemClassLoader
-               https://issues.folio.org/browse/FOLIO-1609
-               https://issues.apache.org/jira/browse/SUREFIRE-1588
-          -->
-          <useSystemClassLoader>false</useSystemClassLoader>
-        </configuration>
+        <version>3.0.0-M3</version>
       </plugin>
     </plugins>
   </build>

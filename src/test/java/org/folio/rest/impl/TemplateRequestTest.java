@@ -9,16 +9,12 @@ import static io.vertx.core.json.JsonObject.mapFrom;
 import java.util.Arrays;
 import java.util.Collections;
 
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.apache.http.HttpStatus;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
-import org.folio.rest.jaxrs.model.Config;
-import org.folio.rest.jaxrs.model.Configurations;
-import org.folio.rest.jaxrs.model.Context;
-import org.folio.rest.jaxrs.model.LocalizedTemplates;
-import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
-import org.folio.rest.jaxrs.model.Template;
-import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
+import org.folio.rest.jaxrs.model.*;
 import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
@@ -47,10 +43,10 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 @RunWith(VertxUnitRunner.class)
 public class TemplateRequestTest {
 
+  private static final Logger logger = LoggerFactory.getLogger(TemplateRequestTest.class);
   private static final String OKAPI_HEADER_URL = "x-okapi-url";
 
   private static final String TENANT = "diku";
-  private static final String DUMMY_TOKEN = "dummy-token";
   private static final String LOCALHOST = "http://localhost";
 
   private static final String TEMPLATE_PATH = "/templates";
@@ -106,15 +102,14 @@ public class TemplateRequestTest {
         throw new Exception(message);
     }
 
-    TenantClient tenantClient = new TenantClient(LOCALHOST + ':' + port, TENANT, DUMMY_TOKEN);
+    TenantClient tenantClient = new TenantClient(moduleUrl, TENANT, null);
     DeploymentOptions restVerticleDeploymentOptions = new DeploymentOptions().setConfig(new JsonObject().put("http.port", port));
     vertx.deployVerticle(RestVerticle.class.getName(), restVerticleDeploymentOptions, res -> {
       try {
-        tenantClient.postTenant(null, res2 -> {
-          async.complete();
-        });
+        TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
+        tenantClient.postTenant(t, res2 -> async.complete());
       } catch (Exception e) {
-        e.printStackTrace();
+        logger.error(e.getMessage());
       }
     });
   }
@@ -125,7 +120,6 @@ public class TemplateRequestTest {
       .setContentType(ContentType.JSON)
       .setBaseUri(moduleUrl)
       .addHeader(RestVerticle.OKAPI_HEADER_TENANT, TENANT)
-      .addHeader(RestVerticle.OKAPI_HEADER_TOKEN, DUMMY_TOKEN)
       .addHeader(OKAPI_HEADER_URL, LOCALHOST + ':' + mockServer.port())
       .build();
     mockConfigModule();
