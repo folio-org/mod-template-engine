@@ -47,6 +47,7 @@ public class TemplateRequestTest {
   private static final String OKAPI_HEADER_URL = "x-okapi-url";
 
   private static final String TENANT = "diku";
+  private static final String TOKEN = "diku_token";
   private static final String LOCALHOST = "http://localhost";
 
   private static final String TEMPLATE_PATH = "/templates";
@@ -56,8 +57,8 @@ public class TemplateRequestTest {
 
   private static final String TEMPLATES_TABLE_NAME = "template";
 
-  public static final String TXT_OUTPUT_FORMAT = "txt";
-  public static final String EN_LANG = "en";
+  private static final String TXT_OUTPUT_FORMAT = "txt";
+  private static final String EN_LANG = "en";
 
   private static Vertx vertx;
   private static String moduleUrl;
@@ -92,7 +93,6 @@ public class TemplateRequestTest {
         PostgresClient.setConfigFilePath(postgresConfigPath);
         break;
       case "embedded":
-        PostgresClient.setIsEmbedded(true);
         PostgresClient.getInstance(vertx).startEmbeddedPostgres();
         break;
       default:
@@ -120,6 +120,7 @@ public class TemplateRequestTest {
       .setContentType(ContentType.JSON)
       .setBaseUri(moduleUrl)
       .addHeader(RestVerticle.OKAPI_HEADER_TENANT, TENANT)
+      .addHeader(RestVerticle.OKAPI_HEADER_TOKEN, TOKEN)
       .addHeader(OKAPI_HEADER_URL, LOCALHOST + ':' + mockServer.port())
       .build();
     mockConfigModule();

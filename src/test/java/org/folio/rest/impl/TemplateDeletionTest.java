@@ -70,11 +70,12 @@ class TemplateDeletionTest {
       .setContentType(ContentType.JSON)
       .setBaseUri(okapiUrl)
       .addHeader(OKAPI_HEADER_TENANT, "test_tenant")
+      .addHeader("X-Okapi-Token", "test_token")
       .addHeader("X-Okapi-Url", "http://localhost:" + mockServerPort)
       .build();
 
     PostgresClient.getInstance(vertx).startEmbeddedPostgres();
-    TenantClient tenantClient = new TenantClient(okapiUrl, "test_tenant", null, false);
+    TenantClient tenantClient = new TenantClient(okapiUrl, "test_tenant", null);
 
     vertx.deployVerticle(RestVerticle::new,
       new DeploymentOptions().setConfig(new JsonObject().put("http.port", okapiPort)), deploy -> {

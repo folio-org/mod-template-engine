@@ -45,18 +45,7 @@ public class TemplateDaoImpl implements TemplateDao {
 
   @Override
   public Future<Optional<Template>> getTemplateById(String id) {
-    Promise<Results<Template>> promise = Promise.promise();
-    try {
-      Criteria idCrit = new Criteria();
-      idCrit.addField(TEMPLATES_ID_FIELD);
-      idCrit.setOperation("=");
-      idCrit.setVal(id);
-      pgClient.get(TEMPLATES_TABLE, Template.class, new Criterion(idCrit), true, promise);
-    } catch (Exception e) {
-      promise.fail(e);
-    }
-    return promise.future()
-      .map(Results::getResults)
+    return getTemplates("id==" + id, 0, 1)
       .map(templates -> templates.isEmpty() ? Optional.empty() : Optional.of(templates.get(0)));
   }
 
