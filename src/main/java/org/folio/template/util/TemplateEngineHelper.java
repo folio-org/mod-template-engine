@@ -1,7 +1,6 @@
 package org.folio.template.util;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
-import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
