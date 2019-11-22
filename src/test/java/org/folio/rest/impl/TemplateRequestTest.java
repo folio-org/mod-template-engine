@@ -75,29 +75,7 @@ public class TemplateRequestTest {
     int port = NetworkUtils.nextFreePort();
     moduleUrl = LOCALHOST + ':' + port;
 
-    String useExternalDatabase = System.getProperty(
-      "org.folio.password.validator.test.database",
-      "embedded");
-
-    switch (useExternalDatabase) {
-      case "environment":
-        System.out.println("Using environment settings");
-        break;
-      case "external":
-        String postgresConfigPath = System.getProperty(
-          "org.folio.password.validator.test.config",
-          "/postgres-conf-local.json");
-        PostgresClient.setConfigFilePath(postgresConfigPath);
-        break;
-      case "embedded":
-        PostgresClient.getInstance(vertx).startEmbeddedPostgres();
-        break;
-      default:
-        String message = "No understood database choice made." +
-          "Please set org.folio.password.validator.test.database" +
-          "to 'external', 'environment' or 'embedded'";
-        throw new Exception(message);
-    }
+    PostgresClient.getInstance(vertx).startEmbeddedPostgres();
 
     TenantClient tenantClient = new TenantClient(moduleUrl, TENANT, null);
     DeploymentOptions restVerticleDeploymentOptions = new DeploymentOptions().setConfig(new JsonObject().put("http.port", port));
