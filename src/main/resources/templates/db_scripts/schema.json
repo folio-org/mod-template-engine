@@ -3,7 +3,6 @@
     {
       "tableName": "template",
       "withMetadata": true,
-      "withAuditing": false,
       "customSnippetPath": "populate-templates.sql"
     }
   ]

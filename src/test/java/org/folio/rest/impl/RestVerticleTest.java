@@ -100,7 +100,7 @@ public class RestVerticleTest {
           async.complete();
         });
       } catch (Exception e) {
-        logger.error(e.getMessage());
+        context.fail(e);
       }
     });
   }

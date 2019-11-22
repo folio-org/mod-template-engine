@@ -9,8 +9,6 @@ import static io.vertx.core.json.JsonObject.mapFrom;
 import java.util.Arrays;
 import java.util.Collections;
 
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import org.apache.http.HttpStatus;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
@@ -43,7 +41,6 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 @RunWith(VertxUnitRunner.class)
 public class TemplateRequestTest {
 
-  private static final Logger logger = LoggerFactory.getLogger(TemplateRequestTest.class);
   private static final String OKAPI_HEADER_URL = "x-okapi-url";
 
   private static final String TENANT = "diku";
@@ -109,7 +106,7 @@ public class TemplateRequestTest {
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
         tenantClient.postTenant(t, res2 -> async.complete());
       } catch (Exception e) {
-        logger.error(e.getMessage());
+        context.fail(e);
       }
     });
   }
@@ -163,7 +160,7 @@ public class TemplateRequestTest {
       .when()
       .post(TEMPLATE_REQUEST_PATH)
       .then()
-      .statusCode(HttpStatus.SC_BAD_REQUEST);
+      .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
   }
 
   @Test

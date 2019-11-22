@@ -6,8 +6,6 @@ import io.vertx.core.Vertx;
 import io.vertx.ext.sql.UpdateResult;
 import org.folio.cql2pgjson.exception.FieldException;
 import org.folio.rest.jaxrs.model.Template;
-import org.folio.rest.persist.Criteria.Criteria;
-import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.Criteria.Limit;
 import org.folio.rest.persist.Criteria.Offset;
 import org.folio.rest.persist.PostgresClient;
@@ -22,12 +20,15 @@ public class TemplateDaoImpl implements TemplateDao {
 
   public static final String TEMPLATE_SCHEMA_PATH = "ramls/template.json";
   private static final String TEMPLATES_TABLE = "template";
-  private static final String TEMPLATES_ID_FIELD = "'id'";
 
   private PostgresClient pgClient;
 
   public TemplateDaoImpl(Vertx vertx, String tenantId) {
     pgClient = PostgresClient.getInstance(vertx, tenantId);
+  }
+
+  public TemplateDaoImpl(PostgresClient postgresClient) {
+    pgClient = postgresClient;
   }
 
   @Override
@@ -45,8 +46,9 @@ public class TemplateDaoImpl implements TemplateDao {
 
   @Override
   public Future<Optional<Template>> getTemplateById(String id) {
-    return getTemplates("id==" + id, 0, 1)
-      .map(templates -> templates.isEmpty() ? Optional.empty() : Optional.of(templates.get(0)));
+    Promise<Template> promise = Promise.promise();
+    pgClient.getById(TEMPLATES_TABLE, id, Template.class, promise);
+    return promise.future().map(Optional::ofNullable);
   }
 
   @Override
@@ -59,15 +61,7 @@ public class TemplateDaoImpl implements TemplateDao {
   @Override
   public Future<Boolean> updateTemplate(Template template) {
     Promise<UpdateResult> promise = Promise.promise();
-    try {
-      Criteria idCrit = new Criteria();
-      idCrit.addField(TEMPLATES_ID_FIELD);
-      idCrit.setOperation("=");
-      idCrit.setVal(template.getId());
-      pgClient.update(TEMPLATES_TABLE, template, new Criterion(idCrit), true, promise);
-    } catch (Exception e) {
-      promise.fail(e);
-    }
+    pgClient.update(TEMPLATES_TABLE, template, template.getId(), promise);
     return promise.future().map(updateResult -> updateResult.getUpdated() == 1);
   }
 
