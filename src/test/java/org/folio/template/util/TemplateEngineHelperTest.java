@@ -64,7 +64,6 @@ class TemplateEngineHelperTest {
 
     response = TemplateEngineHelper.mapExceptionToResponse(new NullPointerException());
     assertEquals(response.getStatus(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
-    assertEquals(response.getMediaType().toString(), MediaType.TEXT_PLAIN);
   }
 
 }
