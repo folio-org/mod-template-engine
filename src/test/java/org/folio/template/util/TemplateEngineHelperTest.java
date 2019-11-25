@@ -50,20 +50,20 @@ class TemplateEngineHelperTest {
   @Test
   void mapToExceptionTest() {
     Response response = TemplateEngineHelper.mapExceptionToResponse(new BadRequestException());
-    assertEquals(response.getStatus(), HttpStatus.SC_BAD_REQUEST);
-    assertEquals(response.getMediaType().toString(), MediaType.TEXT_PLAIN);
+    assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
+    assertEquals(MediaType.TEXT_PLAIN, response.getMediaType().toString());
 
     response = TemplateEngineHelper.mapExceptionToResponse(new NotFoundException());
-    assertEquals(response.getStatus(), HttpStatus.SC_NOT_FOUND);
-    assertEquals(response.getMediaType().toString(), MediaType.TEXT_PLAIN);
+    assertEquals(HttpStatus.SC_NOT_FOUND, response.getStatus());
+    assertEquals(MediaType.TEXT_PLAIN, response.getMediaType().toString());
 
     response = TemplateEngineHelper.mapExceptionToResponse(new InUseTemplateException());
-    assertEquals(response.getStatus(), HttpStatus.SC_BAD_REQUEST);
-    assertEquals(response.getMediaType(), MediaType.TEXT_PLAIN_TYPE);
-    assertEquals(response.getEntity(), "Cannot delete template which is currently in use");
+    assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatus());
+    assertEquals(MediaType.TEXT_PLAIN_TYPE, response.getMediaType());
+    assertEquals("Cannot delete template which is currently in use", response.getEntity());
 
     response = TemplateEngineHelper.mapExceptionToResponse(new NullPointerException());
-    assertEquals(response.getStatus(), HttpStatus.SC_INTERNAL_SERVER_ERROR);
+    assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatus());
   }
 
 }
