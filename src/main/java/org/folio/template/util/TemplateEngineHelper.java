@@ -1,7 +1,7 @@
 package org.folio.template.util;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
-import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
@@ -45,16 +45,16 @@ public final class TemplateEngineHelper {
     }
 
     if (throwable instanceof InUseTemplateException) {
-      return Response.status(400)
+      return Response.status(HttpStatus.SC_BAD_REQUEST)
         .type(MediaType.TEXT_PLAIN_TYPE)
         .entity("Cannot delete template which is currently in use")
         .build();
     }
 
-    Future<Response> validationFuture = Future.future();
-    ValidationHelper.handleError(throwable, validationFuture.completer());
-    if (validationFuture.isComplete()) {
-      Response response = validationFuture.result();
+    Promise<Response> promise = Promise.promise();
+    ValidationHelper.handleError(throwable, promise);
+    if (promise.future().isComplete()) {
+      Response response = promise.future().result();
       if (response.getStatus() == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
         LOG.error(throwable.getMessage(), throwable);
       }

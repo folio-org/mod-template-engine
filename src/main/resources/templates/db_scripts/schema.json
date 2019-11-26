@@ -3,21 +3,6 @@
     {
       "tableName": "template",
       "withMetadata": true,
-      "pkColumnName": "_id",
-      "generateId": false,
-      "withAuditing": false,
-      "uniqueIndex": [
-        {
-          "fieldName": "id",
-          "tOps": "ADD"
-        }
-      ],
-      "index": [
-        {
-          "fieldName": "id",
-          "tOps": "ADD"
-        }
-      ],
       "customSnippetPath": "populate-templates.sql"
     }
   ]

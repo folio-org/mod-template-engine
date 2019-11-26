@@ -19,15 +19,12 @@ import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
+import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.persist.Criteria.Criterion;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
-
-import java.io.IOException;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 
@@ -36,11 +33,12 @@ public class RestVerticleTest {
 
   private static final String TEMPLATES_TABLE_NAME = "template";
 
-  private int mockServerPort;
-  private Vertx vertx;
-  private final Logger logger = LoggerFactory.getLogger("TemplateEngineTest");
+  private static int mockServerPort;
+  private static Vertx vertx;
+  private static final Logger logger = LoggerFactory.getLogger("TemplateEngineTest");
   private static String templateUrl;
   private static String okapiUrl;
+  private static WireMockServer wireMockServer;
 
   private JsonArray outputFormat = new JsonArray()
     .add("text")
@@ -69,12 +67,12 @@ public class RestVerticleTest {
   private JsonObject templateObject2 = templateObject
     .put("description", NEW_TEMPLATE_DESCRIPTION);
 
-  @Before
-  public void setUp(TestContext context) throws IOException {
-    int okapiPort = NetworkUtils.nextFreePort();
+  @BeforeClass
+  public static void setUpClass(final TestContext context) throws Exception {
     mockServerPort = NetworkUtils.nextFreePort();
+    int okapiPort = NetworkUtils.nextFreePort();
 
-    WireMockServer wireMockServer = new WireMockServer(mockServerPort);
+    wireMockServer = new WireMockServer(mockServerPort);
     wireMockServer.start();
     wireMockServer.stubFor(
       get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))
@@ -83,36 +81,35 @@ public class RestVerticleTest {
           .put("totalRecords", 0).encode())));
 
     Async async = context.async();
-    TenantClient tenantClient = new TenantClient("localhost", okapiPort, "diku", "diku");
-    vertx = Vertx.vertx();
     okapiUrl = "http://localhost:" + okapiPort;
     templateUrl = okapiUrl + "/templates";
+    TenantClient tenantClient = new TenantClient(okapiUrl, "diku", null);
+    vertx = Vertx.vertx();
+
+    PostgresClient.getInstance(vertx).startEmbeddedPostgres();
 
     DeploymentOptions options = new DeploymentOptions().setConfig(
       new JsonObject()
         .put("http.port", okapiPort)
     );
-    try {
-      PostgresClient.setIsEmbedded(true);
-      PostgresClient.getInstance(vertx).startEmbeddedPostgres();
-    } catch (Exception e) {
-      e.printStackTrace();
-      context.fail(e);
-      return;
-    }
+
     vertx.deployVerticle(RestVerticle.class.getName(), options, res -> {
       try {
-        tenantClient.postTenant(null, res2 -> {
+        TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
+        tenantClient.postTenant(t, res2 -> {
           async.complete();
         });
       } catch (Exception e) {
-        e.printStackTrace();
+        context.fail(e);
       }
     });
-    clearTemplatesTable(context);
-
-
   }
+
+  @Before
+  public void setUp(TestContext context) {
+    clearTemplatesTable(context);
+  }
+
   private void clearTemplatesTable(TestContext context) {
     PostgresClient.getInstance(vertx, "diku").delete(TEMPLATES_TABLE_NAME, new Criterion(), event -> {
       if (event.failed()) {
@@ -121,10 +118,14 @@ public class RestVerticleTest {
     });
   }
 
-  @After
-  public void tearDown(TestContext context) {
-    PostgresClient.stopEmbeddedPostgres();
-    vertx.close(context.asyncAssertSuccess());
+  @AfterClass
+  public static void tearDown(TestContext context) {
+    Async async = context.async();
+    vertx.close(context.asyncAssertSuccess(res -> {
+      PostgresClient.stopEmbeddedPostgres();
+      wireMockServer.stop();
+      async.complete();
+    }));
   }
 
   @Test
@@ -213,7 +214,6 @@ public class RestVerticleTest {
 
   private CaseInsensitiveHeaders buildDefHeaders() {
     CaseInsensitiveHeaders headers = new CaseInsensitiveHeaders();
-    headers.add("X-Okapi-Token", "dummytoken");
     headers.add("X-Okapi-Url", okapiUrl);
     return headers;
   }
