@@ -4,6 +4,8 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import org.apache.http.HttpStatus;
 import org.folio.rest.jaxrs.model.Template;
 import org.folio.rest.jaxrs.model.TemplatesCollection;
@@ -17,10 +19,13 @@ import javax.validation.constraints.NotNull;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import java.util.Collection;
 import java.util.Map;
 
 public class TemplateResourceImpl implements Templates {
 
+  private static Logger logger = LoggerFactory.getLogger(TemplateResourceImpl.logger.getClass());
 
   @Override
   public void postTemplates(Template entity, Map<String, String> okapiHeaders,
@@ -28,6 +33,10 @@ public class TemplateResourceImpl implements Templates {
     vertxContext.runOnContext(v -> {
       try {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), new OkapiConnectionParams(okapiHeaders));
+        Collection<String> values = okapiHeaders.values();
+        for(String s : values) {
+          logger.error("Header: " + okapiHeaders.get(s));
+        }
         templateService.addTemplate(entity)
           .map((Response) PostTemplatesResponse.respond201WithApplicationJson(entity))
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
@@ -47,6 +56,10 @@ public class TemplateResourceImpl implements Templates {
     vertxContext.runOnContext(v -> {
       try {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), new OkapiConnectionParams(okapiHeaders));
+        Collection<String> values = okapiHeaders.values();
+        for(String s : values) {
+          logger.error("Header: " + okapiHeaders.get(s));
+        }
         templateService.getTemplates(query, offset, limit)
           .map(templates -> new TemplatesCollection()
             .withTemplates(templates)
@@ -68,6 +81,10 @@ public class TemplateResourceImpl implements Templates {
     vertxContext.runOnContext(v -> {
       try {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), new OkapiConnectionParams(okapiHeaders));
+        Collection<String> values = okapiHeaders.values();
+        for(String s : values) {
+          logger.error("Header: " + okapiHeaders.get(s));
+        }
         templateService.getTemplateById(templateId)
           .map(optionalTemplate -> optionalTemplate.orElseThrow(() ->
             new NotFoundException(String.format("Template with id '%s' not found", templateId))))
@@ -90,6 +107,10 @@ public class TemplateResourceImpl implements Templates {
     vertxContext.runOnContext(v -> {
       try {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), new OkapiConnectionParams(okapiHeaders));
+        Collection<String> values = okapiHeaders.values();
+        for(String s : values) {
+          logger.error("Header: " + okapiHeaders.get(s));
+        }
         entity.setId(templateId);
         templateService.updateTemplate(entity)
           .map(updated -> updated ?
