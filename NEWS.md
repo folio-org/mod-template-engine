@@ -1,3 +1,13 @@
+## 2019-12-03 v1.7.0
+ * Fix American date format on checkout receipt (MODTEMPENG-25)
+ * Entire Reset password URL is not hyperlinked (MODTEMPENG-27)
+ * Fix memory leak related to WebClient objects (MODTEMPENG-29)
+ * Tenant data is not purged when tenant interface is called with the DELETE (MODTEMPENG-30)
+ * Fix security vulnerabilities reported in jackson-databind (MODTEMPENG-31)
+ * Update tokens to only show date (MODTEMPENG-33)
+ * Use JVM features to manage container memory (MODTEMPENG-35)
+ * Update RMB version (MODTEMPENG-36)
+
 ## 2019-09-10 v1.6.0
  * Dates are not localized in context containing arrays (MODTEMGENG-23)
  * Fix security vulnerabilities reported in jackson-databind (MODTEMPENG-22)
