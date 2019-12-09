@@ -3,6 +3,7 @@ package org.folio.template.service;
 import static io.vertx.core.Future.failedFuture;
 import static java.lang.String.format;
 import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInContext;
+import static org.folio.template.util.TemplateEngineHelper.enrichContextWithBarcodeImageTokens;
 import static org.folio.template.util.TemplateEngineHelper.enrichContextWithDateTimes;
 
 import java.util.Date;
@@ -15,6 +16,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
 import io.vertx.core.Promise;
+import org.folio.rest.jaxrs.model.Attachment;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.jaxrs.model.Meta;
 import org.folio.rest.jaxrs.model.Result;
@@ -121,6 +123,8 @@ public class TemplateServiceImpl implements TemplateService {
         LocaleConfiguration config = compositeFuture.resultAt(1);
 
         enrichContextWithDateTimes(contextObject);
+        final List<Attachment> attachments = enrichContextWithBarcodeImageTokens(contextObject);
+
         formatDatesInContext(contextObject, config.getLanguageTag(), config.getTimeZoneId());
 
         String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
@@ -133,7 +137,9 @@ public class TemplateServiceImpl implements TemplateService {
           templateRequest.getOutputFormat(), promise);
 
         return promise.future().map(processedContent -> {
-          Result processedTemplate = processedContent.mapTo(Result.class);
+          Result processedTemplate = processedContent
+            .mapTo(Result.class)
+            .withAttachments(attachments);
           Meta resultMetaInfo = new Meta()
             .withSize(processedTemplate.getBody().length())
             .withDateCreate(new Date())

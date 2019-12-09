@@ -55,6 +55,7 @@ public class TemplateRequestTest {
   private static final String TEMPLATES_TABLE_NAME = "template";
 
   private static final String TXT_OUTPUT_FORMAT = "txt";
+  private static final String HTML_OUTPUT_FORMAT = "html";
   private static final String EN_LANG = "en";
 
   private static Vertx vertx;
@@ -246,7 +247,7 @@ public class TemplateRequestTest {
   public void shouldLocalizeDatesAccordingToDefaultConfiguration() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()
@@ -294,7 +295,7 @@ public class TemplateRequestTest {
   public void shouldLocalizeDatesAccordingToConfigurationSetup() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()
@@ -384,7 +385,7 @@ public class TemplateRequestTest {
   public void shouldLocalizeDatesInContextWithArray() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()
@@ -429,7 +430,7 @@ public class TemplateRequestTest {
   public void shouldRemoveTimeFromDatesBasedOnToken() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates()
         .withAdditionalProperty(EN_LANG,
@@ -474,7 +475,7 @@ public class TemplateRequestTest {
   public void dateRemainsUnchangedIfDateTokenContainsInvalidValue() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
           new LocalizedTemplatesProperty()
@@ -521,7 +522,7 @@ public class TemplateRequestTest {
   public void shouldEnrichContextAndFormatDatesCorrectly() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates()
         .withAdditionalProperty(EN_LANG,
@@ -567,6 +568,46 @@ public class TemplateRequestTest {
       .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
   }
 
+  @Test
+  public void templateWithBarcodeProducesHtmlWithImage() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("Item barcode: {{item.barcode}}")
+          .withBody("Barcode image: {{{item.barcodeImage}}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("item",
+            new JsonObject()
+              .put("barcode", "1234567890")));
+
+    String expectedHeader = "Item barcode: 1234567890";
+    String expectedBody = "Barcode image: <img src='cid:<barcode_1234567890>' alt='1234567890'>";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", Matchers.is(templateId))
+      .body("result.header", Matchers.is(expectedHeader))
+      .body("result.body", Matchers.is(expectedBody))
+      .body("meta.lang", Matchers.is(EN_LANG))
+      .body("meta.outputFormat", Matchers.is(HTML_OUTPUT_FORMAT));
+  }
+
   private String postTemplate(Template template) {
     return RestAssured.given()
       .spec(spec)
@@ -586,7 +627,7 @@ public class TemplateRequestTest {
   private Template createTemplate() {
     return new Template()
       .withDescription("Template for password change")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()
@@ -603,7 +644,7 @@ public class TemplateRequestTest {
   private Template createTemplateWithMultipleItems() {
     return new Template()
       .withDescription("Check out template")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()
