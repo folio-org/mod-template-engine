@@ -5,6 +5,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static io.vertx.core.json.JsonObject.mapFrom;
+import static org.hamcrest.Matchers.is;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -207,12 +208,12 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.size", Matchers.is(expectedBody.length()))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.size", is(expectedBody.length()))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
@@ -236,11 +237,11 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
+      .body("templateId", is(templateId))
       .body("result.header", Matchers.containsString(expectedHeaderSubstring))
       .body("result.body", Matchers.containsString(expectedBodySubstring))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
@@ -284,11 +285,11 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
@@ -334,11 +335,11 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
@@ -422,8 +423,8 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.body", Matchers.is(expectedBody));
+      .body("templateId", is(templateId))
+      .body("result.body", is(expectedBody));
   }
 
   @Test
@@ -464,11 +465,11 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
@@ -511,11 +512,11 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
@@ -561,15 +562,15 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
-  public void templateWithBarcodeProducesHtmlWithImage() {
+  public void templateWithBarcodImageProducesHtmlAndAttachment() {
     Template template = new Template()
       .withDescription("Template with barcodes")
       .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
@@ -577,7 +578,7 @@ public class TemplateRequestTest {
       .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
         new LocalizedTemplatesProperty()
           .withHeader("Item barcode: {{item.barcode}}")
-          .withBody("Barcode image: {{{item.barcodeImage}}}")));
+          .withBody("Item barcode image: {{{item.barcodeImage}}}")));
 
     String templateId = postTemplate(template);
 
@@ -589,10 +590,24 @@ public class TemplateRequestTest {
         .withContext(new Context()
           .withAdditionalProperty("item",
             new JsonObject()
-              .put("barcode", "1234567890")));
+              .put("barcode", "1234567890"))
+          // is not in the template, so no barcode image should be created
+          .withAdditionalProperty("user",
+            new JsonObject()
+              .put("barcode", "1111111111")));
 
     String expectedHeader = "Item barcode: 1234567890";
-    String expectedBody = "Barcode image: <img src='cid:<barcode_1234567890>' alt='1234567890'>";
+    String expectedBody = "Item barcode image: <img src=\"cid:<barcode_1234567890>\" alt=\"item.barcodeImage\">";
+    String expectedAttachmentName = "barcodeImage_1234567890";
+    String expectedAttachmentDisposition = "inline";
+    String expectedAttachmentContentType = "image/png";
+    String expectedAttachmentContentId = "<barcode_1234567890>";
+    String expectedAttachmentData =
+      "iVBORw0KGgoAAAANSUhEUgAAAPwAAAB2AQAAAADE+8N0AAAACXBIWXMAABibAAAYmwFJdYOUAAAAEnRFWHRTb2Z0d2FyZQBCYX" +
+      "Jjb2RlNEryjnYuAAAA+0lEQVR42u3SsYrCQBAG4A0Bl4MjqQUxr5EiaGHvsyg2CSzZvSe4FxDyKoqinb5C9I7bNsk2G1h3L+Ha" +
+      "zMFxjcUMTPcVM/8MoZHIVzOi3TasqC5LXr/vd9QvRHii2t8SggABAgQIECBAgAABAgQ/wP1e1R+AzcODY/QgkigsBwGjb32LOP" +
+      "B3fACY9GNimIvd+ri5DIEqU4lmLrGbz7aYD4CGK9NklhsFAMvVrcmCxaM+QkCWX+nIa/XrGgBXs8zucasDDwCFnfKGqfr8AoC5" +
+      "JVEHlARmyPmMjHsAbcHcxKYylgoIyqa+6KL2pAai7sC+P5g0wLH+/w9PDL4Bagk4h4ExMHEAAAAASUVORK5CYII=";
 
     RestAssured.given()
       .spec(spec)
@@ -601,11 +616,59 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(HTML_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result.attachments.size()", is(1))
+      .body("result.attachments[0].disposition", is(expectedAttachmentDisposition))
+      .body("result.attachments[0].contentType", is(expectedAttachmentContentType))
+      .body("result.attachments[0].name", is(expectedAttachmentName))
+      .body("result.attachments[0].contentId", is(expectedAttachmentContentId))
+      .body("result.attachments[0].data", is(expectedAttachmentData));
+  }
+
+  @Test
+  public void noBarcodeImagesInTemplateProducesNoAttachments() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("User barcode: {{user.barcode}}")
+          .withBody("Item barcode image: {{{item.barcodeImage}}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("user",
+            new JsonObject()
+              // {{user.barcodeImage}} is not in the template, so no image should be created
+              .put("barcode", "1111111111")));
+
+    String expectedHeader = "User barcode: 1111111111";
+    String expectedBody = "Item barcode image: ";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result", Matchers.not(Matchers.hasKey("attachments")));
   }
 
   private String postTemplate(Template template) {

@@ -35,11 +35,11 @@ public class ContextDateTimeFormatter {
   }
 
   public static void formatDatesInContext(JsonObject context, String languageTag, String zoneId) {
+    final Map<String, Object> contextMap = JsonFlattener.flattenAsMap(context.encode());
+    final JsonPathParser parser = new JsonPathParser(context);
+
     TimeZone timeZone = TimeZone.getTimeZone(zoneId);
     Locale locale = Locale.forLanguageTag(languageTag);
-
-    Map<String, Object> contextMap = JsonFlattener.flattenAsMap(context.encode());
-    JsonPathParser parser = new JsonPathParser(context);
 
     for (Map.Entry<String, Object> entry : contextMap.entrySet()) {
       String token = entry.getKey();
