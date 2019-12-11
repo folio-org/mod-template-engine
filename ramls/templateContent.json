@@ -15,7 +15,7 @@
       "description": "Template for body"
     },
     "attachments": {
-      "description":"List of attachments",
+      "description": "List of attachments",
       "id": "attachments",
       "type": ["array", "null"],
       "items": {

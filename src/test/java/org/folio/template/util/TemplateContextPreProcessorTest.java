@@ -40,13 +40,12 @@ class TemplateContextPreProcessorTest {
         .put("enrichableDateTime", inputDate))
       .put("rootDateTime", inputDate);
 
-    new TemplateContextPreProcessor(null, inputJson, null).enrichContextWithDateTimes();
+    new TemplateContextPreProcessor(new LocalizedTemplatesProperty(), inputJson, null).enrichContextWithDateTimes();
     assertEquals(expectedJson, inputJson);
   }
 
   @Test
   void barcodeImageTokensAndAttachmentsAreCreated() {
-
     LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
       .withHeader("Barcode: {{item.barcode}}")
       .withBody("Barcode image: {{{item.barcodeImage}}}");
@@ -68,13 +67,13 @@ class TemplateContextPreProcessorTest {
         .put("barcode", "11111")
         .put("foobarcode", "22222")
         .put("barcoder", "33333")
-        .put("barcodeImage", "<img src=\"cid:<barcode_11111>\" alt=\"item.barcodeImage\">"))
+        .put("barcodeImage", "<img src='cid:barcode_11111' alt='item.barcodeImage'>"))
       .put("user", new JsonObject()
         .put("barcode", "22222"));
 
     Attachment expectedAttachment = new Attachment()
       .withContentId("<barcode_11111>")
-      .withName("barcodeImage_11111")
+      .withName("barcode_11111")
       .withDisposition("inline")
       .withContentType("image/png")
       .withData("iVBORw0KGgoAAAANSUhEUgAAAN0AAAB2AQAAAABkZKuaAAAACXBIWXMAABibAAAYmwFJdYOUAAAAEnRFW" +
@@ -92,6 +91,53 @@ class TemplateContextPreProcessorTest {
     List<Attachment> attachments = processor.getAttachments();
     assertEquals(1, attachments.size());
     assertEquals(expectedAttachmentJson, JsonObject.mapFrom(attachments.get(0)));
+  }
+
+  @Test
+  void duplicateTokensDoNotProduceDuplicateAttachments() {
+    LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
+      .withHeader("Barcode: {{item.barcode}}")
+      .withBody("Barcode image: {{{item.barcodeImage}}} " +
+        "Duplicate barcode: {{item.barcode}} " +
+        "Duplicate barcode image: {{{item.barcodeImage}}}");
+
+    JsonObject inputJson = new JsonObject()
+      .put("item", new JsonObject()
+        .put("barcode", "11111"));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("item", new JsonObject()
+        .put("barcode", "11111")
+        .put("barcodeImage", "<img src='cid:barcode_11111' alt='item.barcodeImage'>"));
+
+    TemplateContextPreProcessor processor = new TemplateContextPreProcessor(template, inputJson, null);
+    processor.handleBarcodeImageTokens();
+
+    assertEquals(expectedJson, inputJson);
+    assertEquals(1, processor.getAttachments().size());
+  }
+
+  @Test
+  void noNewTokensOrAttachmentsAreCreatedWhenImageTokenIsNotInTemplate() {
+    LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
+      .withHeader("User name: {{user.name}}")
+      .withBody("User barcode: {{user.barcode}}");
+
+    JsonObject inputJson = new JsonObject()
+      .put("user", new JsonObject()
+        .put("name", "Tester")
+        .put("barcode", "11111"));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("user", new JsonObject()
+        .put("name", "Tester")
+        .put("barcode", "11111"));
+
+    TemplateContextPreProcessor processor = new TemplateContextPreProcessor(template, inputJson, null);
+    processor.handleBarcodeImageTokens();
+
+    assertEquals(expectedJson, inputJson);
+    assertTrue(processor.getAttachments().isEmpty());
   }
 
 }

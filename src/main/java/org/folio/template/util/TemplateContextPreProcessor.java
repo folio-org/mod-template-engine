@@ -9,20 +9,25 @@ import org.folio.rest.tools.parser.JsonPathParser;
 import org.folio.template.client.LocaleConfiguration;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static javax.mail.Part.INLINE;
 import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInContext;
 
 public class TemplateContextPreProcessor {
 
-  // ContentId must be wrapped in "<...>", otherwise webmail clients (e.g. Gmail)
-  // may not display the image within email body, but in list of attachments instead
-  private static final String ATTACHMENT_CID_TEMPLATE = "<barcode_%s>";
-  private static final String ATTACHMENT_NAME_TEMPLATE = "barcodeImage_%s";
-  private static final String HTML_IMG_TEMPLATE = "<img src=\"cid:%s\" alt=\"%s\">";
-  private static final String TOKEN_TEMPLATE = "{{%s}}";
+  // ContentId of the attachment must be wrapped in "<...>", otherwise webmail clients (e.g. Gmail)
+  // may not display the image within email body, but as a list of attachments instead
+  private static final String ATTACHMENT_CONTENT_ID_TEMPLATE = "<%s>";
+  private static final String ATTACHMENT_NAME_TEMPLATE = "barcode_%s";
+  private static final String HTML_IMG_TEMPLATE = "<img src='cid:%s' alt='%s'>";
+  private static final String TOKEN_PATTERN = "\\{\\{([.a-zA-Z]+)}}";
   private static final String CONTENT_TYPE_PNG = "image/png";
 
   private static final String SUFFIX_DATE = "Date";
@@ -35,6 +40,7 @@ public class TemplateContextPreProcessor {
   private final LocaleConfiguration config;
   private final List<Attachment> attachments = new ArrayList<>();
   private final JsonPathParser jsonParser;
+  private final Set<String> tokensFromTemplate;
 
   public TemplateContextPreProcessor(
       LocalizedTemplatesProperty template, JsonObject context, LocaleConfiguration config) {
@@ -42,6 +48,7 @@ public class TemplateContextPreProcessor {
     this.context = context;
     this.config = config;
     this.jsonParser = new JsonPathParser(this.context);
+    this.tokensFromTemplate = Collections.unmodifiableSet(getTokensFromTemplate());
   }
 
   public List<Attachment> getAttachments() {
@@ -69,20 +76,15 @@ public class TemplateContextPreProcessor {
       .stream()
       .filter(key -> objectIsNonBlankString(contextMap.get(key)))
       .filter(key -> key.endsWith(SUFFIX_BARCODE))
-      .filter(key -> templateContainsToken(template, key + SUFFIX_IMAGE))
+      .filter(key -> tokensFromTemplate.contains(key + SUFFIX_IMAGE))
       .forEach(key -> {
         final String barcode = (String) contextMap.get(key);
-        final String contentId =  String.format(ATTACHMENT_CID_TEMPLATE, barcode);
-        final String imageKey = key + SUFFIX_IMAGE;
-        final String imageValue = String.format(HTML_IMG_TEMPLATE, contentId, imageKey);
-        jsonParser.setValueAt(imageKey, imageValue);
-        attachments.add(buildBarcodeImageAttachment(barcode, contentId));
+        final String imgContentId =  String.format(ATTACHMENT_NAME_TEMPLATE, barcode);
+        final String imageTokenKey = key + SUFFIX_IMAGE;
+        final String imageTokenValue = String.format(HTML_IMG_TEMPLATE, imgContentId, imageTokenKey);
+        jsonParser.setValueAt(imageTokenKey, imageTokenValue);
+        attachments.add(buildBarcodeImageAttachment(barcode, imgContentId));
       });
-  }
-
-  private boolean templateContainsToken(LocalizedTemplatesProperty template, String token) {
-    String formattedToken = String.format(TOKEN_TEMPLATE, token);
-    return template.getHeader().contains(formattedToken) || template.getBody().contains(formattedToken);
   }
 
   private Attachment buildBarcodeImageAttachment(String barcode, String contentId) {
@@ -90,8 +92,8 @@ public class TemplateContextPreProcessor {
       .withData(BarcodeImageGenerator.generateBase64Image(barcode))
       .withContentType(CONTENT_TYPE_PNG)
       .withDisposition(INLINE)
-      .withName(String.format(ATTACHMENT_NAME_TEMPLATE, barcode))
-      .withContentId(contentId);
+      .withName(contentId)
+      .withContentId(String.format(ATTACHMENT_CONTENT_ID_TEMPLATE, contentId));
   }
 
   private boolean objectIsNonBlankString(Object obj) {
@@ -101,6 +103,16 @@ public class TemplateContextPreProcessor {
 
   private Map<String, Object> getContextMap() {
     return JsonFlattener.flattenAsMap(context.encode());
+  }
+
+  private Set<String> getTokensFromTemplate() {
+    Set<String> tokens = new HashSet<>();
+    Matcher matcher = Pattern.compile(TOKEN_PATTERN)
+        .matcher(template.getHeader() + template.getBody());
+    while (matcher.find()) {
+      tokens.add(matcher.group(1));
+    }
+    return tokens;
   }
 
 }

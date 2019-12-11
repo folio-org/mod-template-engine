@@ -570,7 +570,7 @@ public class TemplateRequestTest {
   }
 
   @Test
-  public void templateWithBarcodImageProducesHtmlAndAttachment() {
+  public void templateWithBarcodeImageProducesHtmlAndAttachment() {
     Template template = new Template()
       .withDescription("Template with barcodes")
       .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
@@ -597,8 +597,8 @@ public class TemplateRequestTest {
               .put("barcode", "1111111111")));
 
     String expectedHeader = "Item barcode: 1234567890";
-    String expectedBody = "Item barcode image: <img src=\"cid:<barcode_1234567890>\" alt=\"item.barcodeImage\">";
-    String expectedAttachmentName = "barcodeImage_1234567890";
+    String expectedBody = "Item barcode image: <img src='cid:barcode_1234567890' alt='item.barcodeImage'>";
+    String expectedAttachmentName = "barcode_1234567890";
     String expectedAttachmentDisposition = "inline";
     String expectedAttachmentContentType = "image/png";
     String expectedAttachmentContentId = "<barcode_1234567890>";
@@ -630,15 +630,15 @@ public class TemplateRequestTest {
   }
 
   @Test
-  public void noBarcodeImagesInTemplateProducesNoAttachments() {
+  public void noAttachmentsAreCreatedWhenImageTokenIsNotInTemplate() {
     Template template = new Template()
       .withDescription("Template with barcodes")
       .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
         new LocalizedTemplatesProperty()
-          .withHeader("User barcode: {{user.barcode}}")
-          .withBody("Item barcode image: {{{item.barcodeImage}}}")));
+          .withHeader("User name: {{user.name}}")
+          .withBody("User barcode: {{user.barcode}}")));
 
     String templateId = postTemplate(template);
 
@@ -650,11 +650,12 @@ public class TemplateRequestTest {
         .withContext(new Context()
           .withAdditionalProperty("user",
             new JsonObject()
-              // {{user.barcodeImage}} is not in the template, so no image should be created
-              .put("barcode", "1111111111")));
+              // {{user.barcodeImage}} is not in the template, so no token or image should be created
+              .put("barcode", "1111111111")
+              .put("name", "Tester")));
 
-    String expectedHeader = "User barcode: 1111111111";
-    String expectedBody = "Item barcode image: ";
+    String expectedHeader = "User name: Tester";
+    String expectedBody = "User barcode: 1111111111";
 
     RestAssured.given()
       .spec(spec)
