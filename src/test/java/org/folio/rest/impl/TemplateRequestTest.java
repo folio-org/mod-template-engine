@@ -590,11 +590,7 @@ public class TemplateRequestTest {
         .withContext(new Context()
           .withAdditionalProperty("item",
             new JsonObject()
-              .put("barcode", "1234567890"))
-          // is not in the template, so no barcode image should be created
-          .withAdditionalProperty("user",
-            new JsonObject()
-              .put("barcode", "1111111111")));
+              .put("barcode", "1234567890")));
 
     String expectedHeader = "Item barcode: 1234567890";
     String expectedBody = "Item barcode image: <img src='cid:barcode_1234567890' alt='item.barcodeImage'>";
@@ -644,7 +640,7 @@ public class TemplateRequestTest {
         .withContext(new Context()
           .withAdditionalProperty("user",
             new JsonObject()
-              // {{user.barcodeImage}} is not in the template, so no token or image should be created
+              // {{user.barcodeImage}} is not in the template, so no image attachments should be created
               .put("barcode", "1111111111")
               .put("name", "Tester")));
 
@@ -664,6 +660,52 @@ public class TemplateRequestTest {
       .body("meta.lang", is(EN_LANG))
       .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
       .body("result", Matchers.not(Matchers.hasKey("attachments")));
+  }
+
+  @Test
+  public void duplicateImageTokensDoNotCreateDuplicateAttachments() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("User barcode: {{user.barcode}} " +
+            "User barcode image: {{{user.barcodeImage}}}")
+          .withBody("User barcode: {{user.barcode}} " +
+            "User barcode image: {{{user.barcodeImage}}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("user",
+            new JsonObject()
+              // {{user.barcodeImage}} is not in the template, so no token or image should be created
+              .put("barcode", "1234567890")));
+
+    String expectedHeader = "User barcode: 1234567890 " +
+        "User barcode image: <img src='cid:barcode_1234567890' alt='user.barcodeImage'>";
+    String expectedBody = "User barcode: 1234567890 " +
+        "User barcode image: <img src='cid:barcode_1234567890' alt='user.barcodeImage'>";
+
+    RestAssured.given()
+        .spec(spec)
+        .body(toJson(templateRequest))
+        .when()
+        .post(TEMPLATE_REQUEST_PATH)
+        .then()
+        .statusCode(HttpStatus.SC_OK)
+        .body("templateId", is(templateId))
+        .body("result.header", is(expectedHeader))
+        .body("result.body", is(expectedBody))
+        .body("meta.lang", is(EN_LANG))
+        .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+        .body("result.attachments.size()", is(1));
   }
 
   private String postTemplate(Template template) {
