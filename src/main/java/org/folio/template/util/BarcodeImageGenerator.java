@@ -15,7 +15,7 @@ import java.util.Base64;
 
 public class BarcodeImageGenerator {
   private static final Logger LOG = LoggerFactory.getLogger("mod-template-engine");
-  private static final String MIME_TYPE_PNG = "image/x-png";
+  private static final String MIME_TYPE_PNG = "image/png";
 
   private BarcodeImageGenerator() {
     throw new UnsupportedOperationException("Do not instantiate");
