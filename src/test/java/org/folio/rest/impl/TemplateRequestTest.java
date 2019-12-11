@@ -578,7 +578,7 @@ public class TemplateRequestTest {
       .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
         new LocalizedTemplatesProperty()
           .withHeader("Item barcode: {{item.barcode}}")
-          .withBody("Item barcode image: {{{item.barcodeImage}}}")));
+          .withBody("Item barcode image: {{item.barcodeImage}}")));
 
     String templateId = postTemplate(template);
 
@@ -671,9 +671,9 @@ public class TemplateRequestTest {
       .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
         new LocalizedTemplatesProperty()
           .withHeader("User barcode: {{user.barcode}} " +
-            "User barcode image: {{{user.barcodeImage}}}")
+            "User barcode image: {{user.barcodeImage}}")
           .withBody("User barcode: {{user.barcode}} " +
-            "User barcode image: {{{user.barcodeImage}}}")));
+            "User barcode image: {{user.barcodeImage}}")));
 
     String templateId = postTemplate(template);
 

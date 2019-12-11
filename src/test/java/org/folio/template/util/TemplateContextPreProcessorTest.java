@@ -50,7 +50,7 @@ class TemplateContextPreProcessorTest {
   void barcodeImageTokensAndAttachmentsAreCreated() {
     LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
         .withHeader("Barcode: {{item.barcode}}")
-        .withBody("Barcode image: {{{item.barcodeImage}}}");
+        .withBody("Barcode image: {{item.barcodeImage}}");
 
     JsonObject inputJson = new JsonObject()
         .put("barcode", "00000")
@@ -99,9 +99,9 @@ class TemplateContextPreProcessorTest {
   void duplicateTokensDoNotProduceDuplicateAttachments() {
     LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
       .withHeader("Barcode: {{item.barcode}}")
-      .withBody("Barcode image: {{{item.barcodeImage}}} " +
+      .withBody("Barcode image: {{item.barcodeImage}} " +
         "Duplicate barcode: {{item.barcode}} " +
-        "Duplicate barcode image: {{{item.barcodeImage}}}");
+        "Duplicate barcode image: {{item.barcodeImage}}");
 
     JsonObject inputJson = new JsonObject()
       .put("item", new JsonObject()

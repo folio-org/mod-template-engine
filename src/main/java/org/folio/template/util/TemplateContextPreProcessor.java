@@ -27,6 +27,8 @@ public class TemplateContextPreProcessor {
   private static final String ATTACHMENT_CONTENT_ID_TEMPLATE = "<%s>";
   private static final String ATTACHMENT_NAME_TEMPLATE = "barcode_%s";
   private static final String HTML_IMG_TEMPLATE = "<img src='cid:%s' alt='%s'>";
+  private static final String TOKEN_TEMPLATE_REGULAR = "{{%s}}";
+  private static final String TOKEN_TEMPLATE_HTML = "{{{%s}}}";
   private static final String TOKEN_PATTERN = "\\{\\{([.a-zA-Z]+)}}";
   private static final String CONTENT_TYPE_PNG = "image/png";
 
@@ -38,7 +40,7 @@ public class TemplateContextPreProcessor {
   private final LocalizedTemplatesProperty template;
   private final JsonObject context;
   private final LocaleConfiguration config;
-  private final List<Attachment> attachments = new ArrayList<>();
+  private final List<Attachment> attachments;
   private final JsonPathParser jsonParser;
   private final Set<String> tokensFromTemplate;
 
@@ -47,6 +49,7 @@ public class TemplateContextPreProcessor {
     this.template = template;
     this.context = context;
     this.config = config;
+    this.attachments = new ArrayList<>();
     this.jsonParser = new JsonPathParser(this.context);
     this.tokensFromTemplate = Collections.unmodifiableSet(getTokensFromTemplate());
   }
@@ -72,6 +75,8 @@ public class TemplateContextPreProcessor {
 
   void handleBarcodeImageTokens() {
     final Map<String, Object> contextMap = getContextMap();
+    List<String> tokensToFix = new ArrayList<>();
+
     contextMap.keySet()
       .stream()
       .filter(key -> objectIsNonBlankString(contextMap.get(key)))
@@ -82,9 +87,13 @@ public class TemplateContextPreProcessor {
         final String imgContentId =  String.format(ATTACHMENT_NAME_TEMPLATE, barcode);
         final String imageTokenKey = key + SUFFIX_IMAGE;
         final String imageTokenValue = String.format(HTML_IMG_TEMPLATE, imgContentId, imageTokenKey);
+
         jsonParser.setValueAt(imageTokenKey, imageTokenValue);
         attachments.add(buildBarcodeImageAttachment(barcode, imgContentId));
+        tokensToFix.add(imageTokenKey);
       });
+
+    fixTokensWithHtmlValue(tokensToFix);
   }
 
   private Attachment buildBarcodeImageAttachment(String barcode, String contentId) {
@@ -113,6 +122,27 @@ public class TemplateContextPreProcessor {
       tokens.add(matcher.group(1));
     }
     return tokens;
+  }
+
+  private void fixTokensWithHtmlValue(List<String> keysFromContext) {
+    if (keysFromContext.isEmpty()) {
+      return;
+    }
+
+    String header = template.getHeader();
+    String body = template.getBody();
+
+    for (String key : keysFromContext) {
+      String existingToken = String.format(TOKEN_TEMPLATE_REGULAR, key);
+      String replacementToken = String.format(TOKEN_TEMPLATE_HTML, key);
+
+      String pattern = Pattern.quote(existingToken);
+      header = header.replaceAll(pattern, replacementToken);
+      body = body.replaceAll(pattern, replacementToken);
+    }
+
+    template.withHeader(header);
+    template.withBody(body);
   }
 
 }
