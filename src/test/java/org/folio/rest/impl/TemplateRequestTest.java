@@ -601,13 +601,7 @@ public class TemplateRequestTest {
     String expectedAttachmentName = "barcode_1234567890";
     String expectedAttachmentDisposition = "inline";
     String expectedAttachmentContentType = "image/png";
-    String expectedAttachmentContentId = "<barcode_1234567890>";
-    String expectedAttachmentData =
-      "iVBORw0KGgoAAAANSUhEUgAAAPwAAAB2AQAAAADE+8N0AAAACXBIWXMAABibAAAYmwFJdYOUAAAAEnRFWHRTb2Z0d2FyZQBCYX" +
-      "Jjb2RlNEryjnYuAAAA+0lEQVR42u3SsYrCQBAG4A0Bl4MjqQUxr5EiaGHvsyg2CSzZvSe4FxDyKoqinb5C9I7bNsk2G1h3L+Ha" +
-      "zMFxjcUMTPcVM/8MoZHIVzOi3TasqC5LXr/vd9QvRHii2t8SggABAgQIECBAgAABAgQ/wP1e1R+AzcODY/QgkigsBwGjb32LOP" +
-      "B3fACY9GNimIvd+ri5DIEqU4lmLrGbz7aYD4CGK9NklhsFAMvVrcmCxaM+QkCWX+nIa/XrGgBXs8zucasDDwCFnfKGqfr8AoC5" +
-      "JVEHlARmyPmMjHsAbcHcxKYylgoIyqa+6KL2pAai7sC+P5g0wLH+/w9PDL4Bagk4h4ExMHEAAAAASUVORK5CYII=";
+    String expectedAttachmentContentId = "<barcode_1234567890>";;
 
     RestAssured.given()
       .spec(spec)
@@ -626,7 +620,7 @@ public class TemplateRequestTest {
       .body("result.attachments[0].contentType", is(expectedAttachmentContentType))
       .body("result.attachments[0].name", is(expectedAttachmentName))
       .body("result.attachments[0].contentId", is(expectedAttachmentContentId))
-      .body("result.attachments[0].data", is(expectedAttachmentData));
+      .body("result.attachments[0].data", Matchers.not((Matchers.isEmptyOrNullString())));
   }
 
   @Test

@@ -1,10 +1,12 @@
 package org.folio.template.util;
 
 import io.vertx.core.json.JsonObject;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.rest.jaxrs.model.Attachment;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.junit.jupiter.api.Test;
 
+import java.util.Base64;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,41 +49,34 @@ class TemplateContextPreProcessorTest {
   @Test
   void barcodeImageTokensAndAttachmentsAreCreated() {
     LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
-      .withHeader("Barcode: {{item.barcode}}")
-      .withBody("Barcode image: {{{item.barcodeImage}}}");
+        .withHeader("Barcode: {{item.barcode}}")
+        .withBody("Barcode image: {{{item.barcodeImage}}}");
 
     JsonObject inputJson = new JsonObject()
-      .put("barcode", "00000")
-      .put("item", new JsonObject()
-        .put("name", "tester")
-        .put("barcode", "11111") // valid, barcodeImage is present in template
-        .put("foobarcode", "22222")
-        .put("barcoder", "33333"))
-      .put("user", new JsonObject()
-        .put("barcode", "22222")); // valid, but barcodeImage is NOT present in template
+        .put("barcode", "00000")
+        .put("item", new JsonObject()
+            .put("name", "tester")
+            .put("barcode", "123456789") // valid, barcodeImage is present in template
+            .put("foobarcode", "22222")
+            .put("barcoder", "33333"))
+        .put("user", new JsonObject()
+            .put("barcode", "22222")); // valid, but barcodeImage is NOT present in template
 
     JsonObject expectedJson = new JsonObject()
-      .put("barcode", "00000")
-      .put("item", new JsonObject()
-        .put("name", "tester")
-        .put("barcode", "11111")
-        .put("foobarcode", "22222")
-        .put("barcoder", "33333")
-        .put("barcodeImage", "<img src='cid:barcode_11111' alt='item.barcodeImage'>"))
-      .put("user", new JsonObject()
-        .put("barcode", "22222"));
+        .put("barcode", "00000")
+        .put("item", new JsonObject()
+            .put("name", "tester")
+            .put("barcode", "123456789")
+            .put("foobarcode", "22222")
+            .put("barcoder", "33333")
+            .put("barcodeImage", "<img src='cid:barcode_123456789' alt='item.barcodeImage'>"))
+        .put("user", new JsonObject()
+            .put("barcode", "22222"));
 
-    Attachment expectedAttachment = new Attachment()
-      .withContentId("<barcode_11111>")
-      .withName("barcode_11111")
-      .withDisposition("inline")
-      .withContentType("image/png")
-      .withData("iVBORw0KGgoAAAANSUhEUgAAAN0AAAB2AQAAAABkZKuaAAAACXBIWXMAABibAAAYmwFJdYOUAAAAEnRFW" +
-        "HRTb2Z0d2FyZQBCYXJjb2RlNEryjnYuAAAAcUlEQVR42mNgl5//r47xh8UDGYYC++PHH/zv7z/Aflye+Q" +
-        "/jOQaGUclRyVHJUclRyVHJUclRyVHJUcnBJ/kfN/hBtOT8z3/+z39OjqT84x//5Y9jl/wj3/zgjzw7Dsn" +
-        "5k5/8ma9OdQcNI0ny43NQSAIAY75PvNLUmqwAAAAASUVORK5CYII=");
-
-    JsonObject expectedAttachmentJson = JsonObject.mapFrom(expectedAttachment);
+    String expectedAttachmentContentId = "<barcode_123456789>";
+    String expectedAttachmentName = "barcode_123456789";
+    String expectedAttachmentDisposition = "inline";
+    String expectedAttachmentContentType = "image/png";
 
     TemplateContextPreProcessor processor = new TemplateContextPreProcessor(template, inputJson, null);
     processor.handleBarcodeImageTokens();
@@ -90,7 +85,14 @@ class TemplateContextPreProcessorTest {
 
     List<Attachment> attachments = processor.getAttachments();
     assertEquals(1, attachments.size());
-    assertEquals(expectedAttachmentJson, JsonObject.mapFrom(attachments.get(0)));
+
+    Attachment attachment = attachments.get(0);
+    assertEquals(attachment.getContentId(), expectedAttachmentContentId);
+    assertEquals(attachment.getContentType(), expectedAttachmentContentType);
+    assertEquals(attachment.getDisposition(), expectedAttachmentDisposition);
+    assertEquals(attachment.getName(), expectedAttachmentName);
+    assertTrue(StringUtils.isNotBlank(attachment.getData()));
+    Base64.getDecoder().decode(attachment.getData());
   }
 
   @Test
