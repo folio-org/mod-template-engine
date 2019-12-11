@@ -49,29 +49,29 @@ class TemplateContextPreProcessorTest {
   @Test
   void barcodeImageTokensAndAttachmentsAreCreated() {
     LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
-        .withHeader("Barcode: {{item.barcode}}")
-        .withBody("Barcode image: {{item.barcodeImage}}");
+      .withHeader("Barcode: {{item.barcode}}")
+      .withBody("Barcode image: {{item.barcodeImage}}");
 
     JsonObject inputJson = new JsonObject()
-        .put("barcode", "00000")
-        .put("item", new JsonObject()
-            .put("name", "tester")
-            .put("barcode", "123456789") // valid, barcodeImage is present in template
-            .put("foobarcode", "22222")
-            .put("barcoder", "33333"))
-        .put("user", new JsonObject()
-            .put("barcode", "22222")); // valid, but barcodeImage is NOT present in template
+      .put("barcode", "00000")
+      .put("item", new JsonObject()
+        .put("name", "tester")
+        .put("barcode", "123456789") // valid, barcodeImage is present in template
+        .put("foobarcode", "22222")
+        .put("barcoder", "33333"))
+      .put("user", new JsonObject()
+        .put("barcode", "22222")); // valid, but barcodeImage is NOT present in template
 
     JsonObject expectedJson = new JsonObject()
-        .put("barcode", "00000")
-        .put("item", new JsonObject()
-            .put("name", "tester")
-            .put("barcode", "123456789")
-            .put("foobarcode", "22222")
-            .put("barcoder", "33333")
-            .put("barcodeImage", "<img src='cid:barcode_123456789' alt='item.barcodeImage'>"))
-        .put("user", new JsonObject()
-            .put("barcode", "22222"));
+      .put("barcode", "00000")
+      .put("item", new JsonObject()
+        .put("name", "tester")
+        .put("barcode", "123456789")
+        .put("foobarcode", "22222")
+        .put("barcoder", "33333")
+        .put("barcodeImage", "<img src='cid:barcode_123456789' alt='item.barcodeImage'>"))
+      .put("user", new JsonObject()
+        .put("barcode", "22222"));
 
     String expectedAttachmentContentId = "<barcode_123456789>";
     String expectedAttachmentName = "barcode_123456789";
