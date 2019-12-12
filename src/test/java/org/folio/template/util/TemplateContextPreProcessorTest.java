@@ -79,7 +79,7 @@ class TemplateContextPreProcessorTest {
         .put("barcode", "123456789")
         .put("foobarcode", "22222")
         .put("barcoder", "33333")
-        .put("barcodeImage", "<img src='cid:barcode_123456789' alt='item.barcodeImage'>"))
+        .put("barcodeImage", "<img src='cid:barcode_123456789' alt='barcode_123456789'>"))
       .put("user", new JsonObject()
         .put("barcode", "22222"));
 
@@ -120,7 +120,7 @@ class TemplateContextPreProcessorTest {
     JsonObject expectedJson = new JsonObject()
       .put("item", new JsonObject()
         .put("barcode", "11111")
-        .put("barcodeImage", "<img src='cid:barcode_11111' alt='item.barcodeImage'>"));
+        .put("barcodeImage", "<img src='cid:barcode_11111' alt='barcode_11111'>"));
 
     TemplateContextPreProcessor processor = new TemplateContextPreProcessor(template, inputJson, null);
     processor.handleBarcodeImageTokens();

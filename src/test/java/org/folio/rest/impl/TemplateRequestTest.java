@@ -593,7 +593,7 @@ public class TemplateRequestTest {
               .put("barcode", "1234567890")));
 
     String expectedHeader = "Item barcode: 1234567890";
-    String expectedBody = "Item barcode image: <img src='cid:barcode_1234567890' alt='item.barcodeImage'>";
+    String expectedBody = "Item barcode image: <img src='cid:barcode_1234567890' alt='barcode_1234567890'>";
     String expectedAttachmentName = "barcode_1234567890";
     String expectedAttachmentDisposition = "inline";
     String expectedAttachmentContentType = "image/png";
@@ -689,9 +689,9 @@ public class TemplateRequestTest {
               .put("barcode", "1234567890")));
 
     String expectedHeader = "User barcode: 1234567890 " +
-        "User barcode image: <img src='cid:barcode_1234567890' alt='user.barcodeImage'>";
+        "User barcode image: <img src='cid:barcode_1234567890' alt='barcode_1234567890'>";
     String expectedBody = "User barcode: 1234567890 " +
-        "User barcode image: <img src='cid:barcode_1234567890' alt='user.barcodeImage'>";
+        "User barcode image: <img src='cid:barcode_1234567890' alt='barcode_1234567890'>";
 
     RestAssured.given()
         .spec(spec)
@@ -706,6 +706,113 @@ public class TemplateRequestTest {
         .body("meta.lang", is(EN_LANG))
         .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
         .body("result.attachments.size()", is(1));
+  }
+
+  @Test
+  public void attachmentsAreCreatedOnlyForBarcodeImageTokens() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("User barcode: {{user.barcode}}")
+          .withBody("{{user.image}}" +
+            "{{user.Image}}" +
+            "{{user.barcodeimage}}" +
+            "{{user.barCodeImage}}" +
+            "{{user.faceImage}}" +
+            "{{item.barcodeImage}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("user",
+            new JsonObject()
+              // {{user.barcodeImage}} is not in the template, so no token or image should be created
+              .put("barcode", "1234567890")));
+
+    String expectedHeader = "User barcode: 1234567890";
+    String expectedBody = "";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result.attachments.size()", is(0));
+  }
+
+  @Test
+  public void barcodeImagesAreCreatedForAllItemInArray() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("{{#items}}{{item.barcode}}{{item.barcodeImage}} {{/items}}")
+          .withBody("{{#users}}{{user.barcode}}{{user.barcodeImage}} {{/users}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("items", new JsonArray()
+            .add(new JsonObject()
+              .put("item", new JsonObject()
+                .put("barcode", "item1")))
+            .add(new JsonObject()
+              .put("item", new JsonObject()
+                .put("barcode", "item2"))))
+          .withAdditionalProperty("users", new JsonArray()
+            .add(new JsonObject().put("user", new JsonObject().put("barcode", "user1")))
+            .add(new JsonObject().put("user", new JsonObject().put("barcode", "user2")))));
+
+    String expectedHeader = "item1<img src='cid:barcode_item1' alt='barcode_item1'> " +
+      "item2<img src='cid:barcode_item2' alt='barcode_item2'> ";
+    String expectedBody = "user1<img src='cid:barcode_user1' alt='barcode_user1'> " +
+      "user2<img src='cid:barcode_user2' alt='barcode_user2'> ";
+
+    String expectedCid1 = "<barcode_item1>";
+    String expectedCid2 = "<barcode_item2>";
+    String expectedCid3 = "<barcode_user1>";
+    String expectedCid4 = "<barcode_user2>";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result.attachments.size()", is(4))
+      .body("result.attachments[0].contentId", is(expectedCid1))
+      .body("result.attachments[1].contentId", is(expectedCid2))
+      .body("result.attachments[2].contentId", is(expectedCid3))
+      .body("result.attachments[3].contentId", is(expectedCid4))
+      ;
   }
 
   private String postTemplate(Template template) {

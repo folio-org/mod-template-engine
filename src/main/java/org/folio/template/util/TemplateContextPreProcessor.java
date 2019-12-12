@@ -67,28 +67,26 @@ public class TemplateContextPreProcessor {
       .filter(key -> objectIsNonBlankString(contextMap.get(key)))
       .filter(key -> key.endsWith(SUFFIX_DATE))
       .filter(key -> !contextMap.containsKey(key + SUFFIX_TIME))
-      .filter(key -> templateTokens.contains(key + SUFFIX_TIME))
       .forEach(key -> jsonParser.setValueAt(key + SUFFIX_TIME, contextMap.get(key)));
   }
 
   void handleBarcodeImageTokens() {
     Map<String, Object> contextMap = getContextMap();
-    List<String> newTokens = new ArrayList<>();
+    Set<String> newTokens = new HashSet<>();
 
-    contextMap.keySet()
-      .stream()
-      .filter(key -> objectIsNonBlankString(contextMap.get(key)))
-      .filter(key -> key.endsWith(SUFFIX_BARCODE))
-      .filter(key -> templateTokens.contains(key + SUFFIX_IMAGE))
-      .forEach(key -> {
-        final String barcode = (String) contextMap.get(key);
-        final String imgContentId =  String.format(ATTACHMENT_NAME_TEMPLATE, barcode);
-        final String imageTokenKey = key + SUFFIX_IMAGE;
-        final String imageTokenValue = String.format(HTML_IMG_TEMPLATE, imgContentId, imageTokenKey);
+    contextMap.entrySet().stream()
+      .filter(e -> objectIsNonBlankString(e.getValue()))
+      .filter(e -> e.getKey().endsWith(SUFFIX_BARCODE))
+      .map(entry -> new Token(entry.getKey(), (String) entry.getValue()))
+      .filter(token -> templateTokens.contains(token.shortPath() + SUFFIX_IMAGE))
+      .forEach(token -> {
+        final String imgContentId =  String.format(ATTACHMENT_NAME_TEMPLATE, token.value());
+        final String imageTokenKey = token.fullPath() + SUFFIX_IMAGE;
+        final String imageTokenValue = String.format(HTML_IMG_TEMPLATE, imgContentId, imgContentId);
 
         jsonParser.setValueAt(imageTokenKey, imageTokenValue);
-        attachments.add(buildBarcodeImageAttachment(barcode, imgContentId));
-        newTokens.add(imageTokenKey);
+        attachments.add(buildBarcodeImageAttachment(token.value(), imgContentId));
+        newTokens.add(token.shortPath() + SUFFIX_IMAGE);
       });
 
     // For HTML to be interpreted correctly by Mustache,
@@ -126,7 +124,7 @@ public class TemplateContextPreProcessor {
     return tokens;
   }
 
-  private void fixTokensWithHtmlValue(List<String> keysFromContext) {
+  private void fixTokensWithHtmlValue(Set<String> keysFromContext) {
     if (keysFromContext.isEmpty()) {
       return;
     }
@@ -142,6 +140,35 @@ public class TemplateContextPreProcessor {
     }
     template.withHeader(header);
     template.withBody(body);
+  }
+
+  private static class Token {
+    private final String fullPath;
+    private final String shortPath;
+    private final String value;
+
+    Token(String token, String value) {
+      this.fullPath = token;
+      this.value = value;
+      this.shortPath = extractShortPath(token);
+    }
+
+    private static String extractShortPath(String fullPath) {
+      int arrayEndIndex = fullPath.lastIndexOf(']');
+      return arrayEndIndex == -1 ? fullPath : fullPath.substring(arrayEndIndex + 2);
+    }
+
+    private String fullPath() {
+      return fullPath;
+    }
+
+    private String shortPath() {
+      return shortPath;
+    }
+
+    private String value() {
+      return value;
+    }
   }
 
 }
