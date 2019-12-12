@@ -134,8 +134,7 @@ public class TemplateServiceImpl implements TemplateService {
         return promise.future().map(processedContent -> {
           Result processedTemplate = processedContent
             .mapTo(Result.class)
-            // TODO: replace with nullable declaration in JSON-schema
-            .withAttachments(preProcessor.getAttachments().isEmpty() ? null : preProcessor.getAttachments());
+            .withAttachments(preProcessor.getAttachments());
           Meta resultMetaInfo = new Meta()
             .withSize(processedTemplate.getBody().length())
             .withDateCreate(new Date())

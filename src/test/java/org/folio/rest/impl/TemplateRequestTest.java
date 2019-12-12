@@ -597,7 +597,7 @@ public class TemplateRequestTest {
     String expectedAttachmentName = "barcode_1234567890";
     String expectedAttachmentDisposition = "inline";
     String expectedAttachmentContentType = "image/png";
-    String expectedAttachmentContentId = "<barcode_1234567890>";;
+    String expectedAttachmentContentId = "<barcode_1234567890>";
 
     RestAssured.given()
       .spec(spec)
@@ -659,7 +659,7 @@ public class TemplateRequestTest {
       .body("result.body", is(expectedBody))
       .body("meta.lang", is(EN_LANG))
       .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
-      .body("result", Matchers.not(Matchers.hasKey("attachments")));
+      .body("result.attachments.size()", is(0));
   }
 
   @Test
