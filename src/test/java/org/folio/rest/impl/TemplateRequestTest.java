@@ -763,8 +763,8 @@ public class TemplateRequestTest {
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
         new LocalizedTemplatesProperty()
-          .withHeader("{{#items}}{{item.barcode}}{{item.barcodeImage}} {{/items}}")
-          .withBody("{{#users}}{{user.barcode}}{{user.barcodeImage}} {{/users}}")));
+          .withHeader("{{#loans}}{{item.barcode}}{{item.barcodeImage}} {{/loans}}")
+          .withBody("{{#loans}}{{user.barcode}}{{user.barcodeImage}} {{/loans}}")));
 
     String templateId = postTemplate(template);
 
@@ -774,16 +774,17 @@ public class TemplateRequestTest {
         .withLang(EN_LANG)
         .withOutputFormat(HTML_OUTPUT_FORMAT)
         .withContext(new Context()
-          .withAdditionalProperty("items", new JsonArray()
+          .withAdditionalProperty("loans", new JsonArray()
             .add(new JsonObject()
               .put("item", new JsonObject()
-                .put("barcode", "item1")))
+                .put("barcode", "item1"))
+              .put("user", new JsonObject()
+                .put("barcode", "user1")))
             .add(new JsonObject()
               .put("item", new JsonObject()
-                .put("barcode", "item2"))))
-          .withAdditionalProperty("users", new JsonArray()
-            .add(new JsonObject().put("user", new JsonObject().put("barcode", "user1")))
-            .add(new JsonObject().put("user", new JsonObject().put("barcode", "user2")))));
+                .put("barcode", "item2"))
+              .put("user", new JsonObject()
+                .put("barcode", "user2")))));
 
     String expectedHeader = "item1<img src='cid:barcode_item1' alt='barcode_item1'> " +
       "item2<img src='cid:barcode_item2' alt='barcode_item2'> ";
@@ -791,8 +792,8 @@ public class TemplateRequestTest {
       "user2<img src='cid:barcode_user2' alt='barcode_user2'> ";
 
     String expectedCid1 = "<barcode_item1>";
-    String expectedCid2 = "<barcode_item2>";
-    String expectedCid3 = "<barcode_user1>";
+    String expectedCid2 = "<barcode_user1>";
+    String expectedCid3 = "<barcode_item2>";
     String expectedCid4 = "<barcode_user2>";
 
     RestAssured.given()
