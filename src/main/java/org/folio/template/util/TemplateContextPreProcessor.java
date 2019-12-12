@@ -21,9 +21,6 @@ import static javax.mail.Part.INLINE;
 import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInContext;
 
 public class TemplateContextPreProcessor {
-
-  // ContentId of the attachment must be wrapped in "<...>", otherwise webmail clients (e.g. Gmail)
-  // may not display the image within email body, but as a list of attachments instead
   private static final String ATTACHMENT_CONTENT_ID_TEMPLATE = "<%s>";
   private static final String ATTACHMENT_NAME_TEMPLATE = "barcode_%s";
   private static final String HTML_IMG_TEMPLATE = "<img src='cid:%s' alt='%s'>";
@@ -42,7 +39,7 @@ public class TemplateContextPreProcessor {
   private final LocaleConfiguration config;
   private final List<Attachment> attachments;
   private final JsonPathParser jsonParser;
-  private final Set<String> tokensFromTemplate;
+  private final Set<String> templateTokens;
 
   public TemplateContextPreProcessor(
       LocalizedTemplatesProperty template, JsonObject context, LocaleConfiguration config) {
@@ -51,7 +48,7 @@ public class TemplateContextPreProcessor {
     this.config = config;
     this.attachments = new ArrayList<>();
     this.jsonParser = new JsonPathParser(this.context);
-    this.tokensFromTemplate = Collections.unmodifiableSet(getTokensFromTemplate());
+    this.templateTokens = Collections.unmodifiableSet(getTokensFromTemplate());
   }
 
   public List<Attachment> getAttachments() {
@@ -74,14 +71,14 @@ public class TemplateContextPreProcessor {
   }
 
   void handleBarcodeImageTokens() {
-    final Map<String, Object> contextMap = getContextMap();
-    List<String> tokensToFix = new ArrayList<>();
+    Map<String, Object> contextMap = getContextMap();
+    List<String> newTokens = new ArrayList<>();
 
     contextMap.keySet()
       .stream()
       .filter(key -> objectIsNonBlankString(contextMap.get(key)))
       .filter(key -> key.endsWith(SUFFIX_BARCODE))
-      .filter(key -> tokensFromTemplate.contains(key + SUFFIX_IMAGE))
+      .filter(key -> templateTokens.contains(key + SUFFIX_IMAGE))
       .forEach(key -> {
         final String barcode = (String) contextMap.get(key);
         final String imgContentId =  String.format(ATTACHMENT_NAME_TEMPLATE, barcode);
@@ -90,10 +87,12 @@ public class TemplateContextPreProcessor {
 
         jsonParser.setValueAt(imageTokenKey, imageTokenValue);
         attachments.add(buildBarcodeImageAttachment(barcode, imgContentId));
-        tokensToFix.add(imageTokenKey);
+        newTokens.add(imageTokenKey);
       });
 
-    fixTokensWithHtmlValue(tokensToFix);
+    // For HTML to be interpreted correctly by Mustache,
+    // tokens must be wrapped in triple curly braces: "{{{...}}}"
+    fixTokensWithHtmlValue(newTokens);
   }
 
   private Attachment buildBarcodeImageAttachment(String barcode, String contentId) {
@@ -102,6 +101,8 @@ public class TemplateContextPreProcessor {
       .withContentType(CONTENT_TYPE_PNG)
       .withDisposition(INLINE)
       .withName(contentId)
+      // ContentId of the attachment must be wrapped in "<...>", otherwise webmail
+      // clients (e.g. Gmail) may not display the image within email body
       .withContentId(String.format(ATTACHMENT_CONTENT_ID_TEMPLATE, contentId));
   }
 
@@ -140,7 +141,6 @@ public class TemplateContextPreProcessor {
       header = header.replaceAll(pattern, replacementToken);
       body = body.replaceAll(pattern, replacementToken);
     }
-
     template.withHeader(header);
     template.withBody(body);
   }
