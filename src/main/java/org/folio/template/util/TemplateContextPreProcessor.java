@@ -77,7 +77,7 @@ public class TemplateContextPreProcessor {
     contextMap.entrySet().stream()
       .filter(e -> objectIsNonBlankString(e.getValue()))
       .filter(e -> e.getKey().endsWith(SUFFIX_BARCODE))
-      .map(entry -> new Token(entry.getKey(), (String) entry.getValue()))
+      .map(e -> new Token(e.getKey(), (String) e.getValue()))
       .filter(token -> templateTokens.contains(token.shortPath() + SUFFIX_IMAGE))
       .forEach(token -> {
         final String imgContentId =  String.format(ATTACHMENT_NAME_TEMPLATE, token.value());
@@ -153,7 +153,7 @@ public class TemplateContextPreProcessor {
       this.shortPath = extractShortPath(token);
     }
 
-    private static String extractShortPath(String fullPath) {
+    private String extractShortPath(String fullPath) {
       int arrayEndIndex = fullPath.lastIndexOf(']');
       return arrayEndIndex == -1 ? fullPath : fullPath.substring(arrayEndIndex + 2);
     }
