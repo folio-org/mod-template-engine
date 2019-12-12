@@ -17,6 +17,16 @@ class TemplateContextPreProcessorTest {
   void contextIsEnrichedWithAdditionalDateTimeTokens() {
     String inputDate = "2019-06-18T14:04:33.205Z";
 
+    LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
+      .withHeader("Test")
+      .withBody("{{rootDateTime}}" +
+        "{{emptyDateTime}}" +
+        "{{blankDateTime}}" +
+        "{{nullDateTime}}" +
+        "{{loan.dueDateTime}}" +
+        "{{loan.enrichableDateTime}}" +
+        "{{loan.existingDateTime}}");
+
     JsonObject inputJson = new JsonObject()
       .put("rootDate", inputDate)
       .put("emptyDate", "")
@@ -42,7 +52,7 @@ class TemplateContextPreProcessorTest {
         .put("enrichableDateTime", inputDate))
       .put("rootDateTime", inputDate);
 
-    new TemplateContextPreProcessor(new LocalizedTemplatesProperty(), inputJson, null).enrichContextWithDateTimes();
+    new TemplateContextPreProcessor(template, inputJson, null).enrichContextWithDateTimes();
     assertEquals(expectedJson, inputJson);
   }
 

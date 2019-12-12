@@ -67,6 +67,7 @@ public class TemplateContextPreProcessor {
       .filter(key -> objectIsNonBlankString(contextMap.get(key)))
       .filter(key -> key.endsWith(SUFFIX_DATE))
       .filter(key -> !contextMap.containsKey(key + SUFFIX_TIME))
+      .filter(key -> templateTokens.contains(key + SUFFIX_TIME))
       .forEach(key -> jsonParser.setValueAt(key + SUFFIX_TIME, contextMap.get(key)));
   }
 
@@ -129,10 +130,8 @@ public class TemplateContextPreProcessor {
     if (keysFromContext.isEmpty()) {
       return;
     }
-
     String header = template.getHeader();
     String body = template.getBody();
-
     for (String key : keysFromContext) {
       String existingToken = String.format(TOKEN_TEMPLATE_REGULAR, key);
       String replacementToken = String.format(TOKEN_TEMPLATE_HTML, key);
