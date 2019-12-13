@@ -285,11 +285,11 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
