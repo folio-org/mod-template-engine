@@ -3,6 +3,7 @@ package org.folio.template.util;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.krysalis.barcode4j.HumanReadablePlacement;
 import org.krysalis.barcode4j.impl.code128.Code128Bean;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.krysalis.barcode4j.tools.UnitConv;
@@ -25,6 +26,8 @@ public class BarcodeImageGenerator {
     final int dpi = 160;
     // Folio uses barcodes of type "Code 128"
     Code128Bean bean = new Code128Bean();
+    // remove human-redable text under the barcode, since it produces NPE on Linux
+    bean.setMsgPosition(HumanReadablePlacement.HRP_NONE);
     bean.setModuleWidth(UnitConv.in2mm(2.8f / dpi));
     bean.doQuietZone(false);
 
