@@ -15,7 +15,7 @@
   "provides": [
     {
       "id": "template-engine",
-      "version": "2.1",
+      "version": "2.2",
       "handlers": [
         {
           "methods": ["GET"],
