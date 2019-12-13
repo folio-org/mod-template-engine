@@ -11,6 +11,7 @@ import org.folio.template.client.LocaleConfiguration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class TemplateContextPreProcessor {
   private final LocalizedTemplatesProperty template;
   private final JsonObject context;
   private final LocaleConfiguration config;
-  private final List<Attachment> attachments;
+  private final Map<String, Attachment> attachments;
   private final JsonPathParser jsonParser;
   private final Set<String> templateTokens;
 
@@ -46,13 +47,13 @@ public class TemplateContextPreProcessor {
     this.template = template;
     this.context = context;
     this.config = config;
-    this.attachments = new ArrayList<>();
+    this.attachments = new LinkedHashMap<>();
     this.jsonParser = new JsonPathParser(this.context);
     this.templateTokens = Collections.unmodifiableSet(getTokensFromTemplate());
   }
 
   public List<Attachment> getAttachments() {
-    return attachments;
+    return new ArrayList<>(attachments.values());
   }
 
   public void process() {
@@ -85,24 +86,13 @@ public class TemplateContextPreProcessor {
         final String imageTokenValue = String.format(HTML_IMG_TEMPLATE, imgContentId, imgContentId);
 
         jsonParser.setValueAt(imageTokenKey, imageTokenValue);
-        attachments.add(buildBarcodeImageAttachment(token.value(), imgContentId));
+        createAttachment(token.value(), imgContentId);
         newTokens.add(token.shortPath() + SUFFIX_IMAGE);
       });
 
     // For HTML to be interpreted correctly by Mustache,
     // tokens must be wrapped in triple curly braces: "{{{...}}}"
     fixTokensWithHtmlValue(newTokens);
-  }
-
-  private Attachment buildBarcodeImageAttachment(String barcode, String contentId) {
-    return new Attachment()
-      .withData(BarcodeImageGenerator.generateBase64Image(barcode))
-      .withContentType(CONTENT_TYPE_PNG)
-      .withDisposition(INLINE)
-      .withName(contentId)
-      // ContentId of the attachment must be wrapped in "<...>", otherwise webmail
-      // clients (e.g. Gmail) may not display the image within email body
-      .withContentId(String.format(ATTACHMENT_CONTENT_ID_TEMPLATE, contentId));
   }
 
   private boolean objectIsNonBlankString(Object obj) {
@@ -140,6 +130,24 @@ public class TemplateContextPreProcessor {
     }
     template.withHeader(header);
     template.withBody(body);
+  }
+
+  private void createAttachment(String barcode, String contentId) {
+    if (attachments.containsKey(contentId)) {
+      return;
+    }
+    // ContentId of the attachment must be wrapped in "<...>", otherwise webmail
+    // clients (e.g. Gmail) may not display the image within email body
+    String formattedContentId = String.format(ATTACHMENT_CONTENT_ID_TEMPLATE, contentId);
+
+    Attachment attachment = new Attachment()
+      .withData(BarcodeImageGenerator.generateBase64Image(barcode))
+      .withContentType(CONTENT_TYPE_PNG)
+      .withDisposition(INLINE)
+      .withName(contentId)
+      .withContentId(formattedContentId);
+
+    attachments.put(contentId, attachment);
   }
 
   private static class Token {
