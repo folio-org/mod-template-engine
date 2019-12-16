@@ -1,6 +1,7 @@
 FROM folioci/alpine-jre-openjdk8:latest
 
-RUN groupadd -r -g 999 folio && useradd -u 999 --no-log-init -r -g folio folio
+# Create a new group and user
+RUN addgroup -S -g 999 folio && adduser -S -D -u 999 -G folio folio
 USER folio
 
 # Install missing font library for barcode images generation
