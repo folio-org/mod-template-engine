@@ -26,8 +26,6 @@ public class BarcodeImageGenerator {
     final int dpi = 160;
     // Folio uses barcodes of type "Code 128"
     Code128Bean bean = new Code128Bean();
-    // remove human-redable text under the barcode, since it produces NPE on Linux
-    bean.setMsgPosition(HumanReadablePlacement.HRP_NONE);
     bean.setModuleWidth(UnitConv.in2mm(2.8f / dpi));
     bean.doQuietZone(false);
 
