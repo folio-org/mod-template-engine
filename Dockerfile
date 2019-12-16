@@ -1,6 +1,7 @@
 FROM folioci/alpine-jre-openjdk8:latest
 
-USER root
+RUN groupadd -r -g 999 folio && useradd -u 999 --no-log-init -r -g folio folio
+USER folio
 
 # Install missing font library for barcode images generation
 RUN apk add --no-cache ttf-dejavu
