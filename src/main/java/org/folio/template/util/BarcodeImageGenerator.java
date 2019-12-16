@@ -16,20 +16,20 @@ import java.util.Base64;
 public class BarcodeImageGenerator {
   private static final Logger LOG = LoggerFactory.getLogger("mod-template-engine");
   private static final String MIME_TYPE_PNG = "image/png";
+  private static final int DPI = 160;
 
   private BarcodeImageGenerator() {
     throw new UnsupportedOperationException("Do not instantiate");
   }
 
   private static void generateBarcodeImage(String barcode, OutputStream out) throws IOException {
-    final int dpi = 160;
     // Folio uses barcodes of type "Code 128"
     Code128Bean bean = new Code128Bean();
-    bean.setModuleWidth(UnitConv.in2mm(2.8f / dpi));
+    bean.setModuleWidth(UnitConv.in2mm(2.8f / DPI));
     bean.doQuietZone(false);
 
     BitmapCanvasProvider canvas = new BitmapCanvasProvider(
-        out, MIME_TYPE_PNG, dpi, BufferedImage.TYPE_BYTE_BINARY, false, 0);
+        out, MIME_TYPE_PNG, DPI, BufferedImage.TYPE_BYTE_BINARY, false, 0);
 
     bean.generateBarcode(canvas, barcode);
     canvas.finish();
