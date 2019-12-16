@@ -1,5 +1,10 @@
 FROM folioci/alpine-jre-openjdk8:latest
 
+# Install missing font library for barcode images generation
+USER root
+RUN apk add --no-cache ttf-dejavu
+USER folio
+
 ENV VERTICLE_FILE mod-template-engine-fat.jar
 
 # Set the location of the verticles
@@ -10,8 +15,3 @@ COPY target/${VERTICLE_FILE} ${VERTICLE_HOME}/${VERTICLE_FILE}
 
 # Expose this port locally in the container.
 EXPOSE 8081
-
-# Install missing font library for barcode images generation
-USER root
-RUN apk add --no-cache ttf-dejavu
-USER folio
