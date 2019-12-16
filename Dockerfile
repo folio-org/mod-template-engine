@@ -1,5 +1,7 @@
 FROM folioci/alpine-jre-openjdk8:latest
 
+USER root
+
 # Install missing font library for barcode images generation
 RUN apk add --no-cache ttf-dejavu
 
