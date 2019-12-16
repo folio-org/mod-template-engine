@@ -65,8 +65,8 @@ public class TemplateContextPreProcessor {
   void enrichContextWithDateTimes() {
     final Map<String, Object> contextMap = getContextMap();
     contextMap.keySet().stream()
-      .filter(key -> objectIsNonBlankString(contextMap.get(key)))
       .filter(key -> key.endsWith(SUFFIX_DATE))
+      .filter(key -> objectIsNonBlankString(contextMap.get(key)))
       .filter(key -> !contextMap.containsKey(key + SUFFIX_TIME))
       .forEach(key -> jsonParser.setValueAt(key + SUFFIX_TIME, contextMap.get(key)));
   }
@@ -76,8 +76,8 @@ public class TemplateContextPreProcessor {
     Set<String> newTokens = new HashSet<>();
 
     contextMap.entrySet().stream()
-      .filter(e -> objectIsNonBlankString(e.getValue()))
       .filter(e -> e.getKey().endsWith(SUFFIX_BARCODE))
+      .filter(e -> objectIsNonBlankString(e.getValue()))
       .map(e -> new Token(e.getKey(), (String) e.getValue()))
       .filter(token -> templateTokens.contains(token.shortPath() + SUFFIX_IMAGE))
       .forEach(token -> {
