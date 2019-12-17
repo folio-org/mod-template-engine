@@ -118,6 +118,33 @@ class ContextDateTimeFormatterTest {
     assertEquals(expectedJson, inputJson);
   }
 
+  @Test
+  void datesWithNonStringValuesAreSkipped() {
+    String inputDate = "2019-06-18T14:04:33.205Z";
+    String expectedShortDate = "6/18/19";
+
+    JsonObject inputJson = new JsonObject()
+      .put("user", new JsonObject()
+        .put("username", "Reader")
+        .put("createdDate", inputDate)
+        .put("updatedDate", 1576581085686L)
+        .put("metadata", new JsonObject()
+          .put("createdDate", inputDate)
+        . put("updatedDate", 1576581085675L)));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("user", new JsonObject()
+        .put("username", "Reader")
+        .put("createdDate", expectedShortDate)
+        .put("updatedDate", 1576581085686L)
+        .put("metadata", new JsonObject()
+          .put("createdDate", expectedShortDate)
+          .put("updatedDate", 1576581085675L)));
+
+    ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
+    assertEquals(expectedJson, inputJson);
+  }
+
   @ParameterizedTest
   @CsvSource(value = {
     "Asia/Hong_Kong | zh-CN | 2019/9/18 下午10:04",
