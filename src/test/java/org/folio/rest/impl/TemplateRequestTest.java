@@ -863,6 +863,45 @@ public class TemplateRequestTest {
       .body("result.attachments[1].contentId", is(expectedUserCid));
   }
 
+  @Test
+  public void dateTokensWithNonStringValuesDoNotBreakProcessing() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("Reset your Folio account")
+          .withBody("Hi {{user.username}}!")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("user", new JsonObject()
+            .put("username", "Reader")
+            .put("createdDate", 1576581085686L)
+            .put("updatedDate", 1576581085686L)
+            .put("metadata", new JsonObject()
+              .put("createdDate", 1576243494376L)
+              .put("updatedDate", 1576581085675L))));
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT));
+  }
+
   private String postTemplate(Template template) {
     return RestAssured.given()
       .spec(spec)
