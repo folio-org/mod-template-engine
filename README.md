@@ -119,5 +119,4 @@ RUN apk add --no-cache ttf-dejavu
 USER folio
 ```
 Introduction of this new dependency affects this particular Docker image only and should not
-cause any compatibility issues when running the module natively. Should you experience any issues
-caused by these changes, feel free to report a bug.
+cause any compatibility issues when running the module natively.
