@@ -15,6 +15,7 @@ import com.ibm.icu.util.TimeZone;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.folio.rest.tools.parser.JsonPathParser;
 
 public class ContextDateTimeFormatter {
@@ -44,7 +45,7 @@ public class ContextDateTimeFormatter {
     for (Map.Entry<String, Object> entry : contextMap.entrySet()) {
       String token = entry.getKey();
       Optional<Integer> timeFormat = getTimeFormatForToken(token);
-      if (timeFormat.isPresent()) {
+      if (timeFormat.isPresent() && objectIsNonBlankString(entry.getValue())) {
         try {
           ZonedDateTime parsedDateTime = ZonedDateTime.parse((String) entry.getValue(), ISO_DATE_TIME_FORMATTER);
           DateFormat i18NDateFormatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, timeFormat.get(), locale);
@@ -67,6 +68,11 @@ public class ContextDateTimeFormatter {
       timeFormat = DateFormat.SHORT;
     }
     return Optional.ofNullable(timeFormat);
+  }
+
+  private static boolean objectIsNonBlankString(Object obj) {
+    return obj instanceof String
+      && StringUtils.isNoneBlank((String) obj);
   }
 
 }
