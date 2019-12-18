@@ -108,15 +108,3 @@ The built artifacts for this module are available.
 See [configuration](https://dev.folio.org/download/artifacts) for repository access,
 and the [Docker image](https://hub.docker.com/r/folioorg/mod-template-engine/).
 
-### Dockerfile
-Since version `1.8.0` the module contains functionality for barcode image generation,
-which relies on system font configuration not found in Alpine-based Docker image currently used
-for module delivery. This missing dependency is installed by adding following instructions 
-to Dockerfile:
-```
-USER root
-RUN apk add --no-cache ttf-dejavu
-USER folio
-```
-Introduction of this new dependency affects this particular Docker image only and should not
-cause any compatibility issues when running the module natively.
