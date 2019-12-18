@@ -5,6 +5,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static io.vertx.core.json.JsonObject.mapFrom;
+import static org.hamcrest.Matchers.is;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,6 +56,7 @@ public class TemplateRequestTest {
   private static final String TEMPLATES_TABLE_NAME = "template";
 
   private static final String TXT_OUTPUT_FORMAT = "txt";
+  private static final String HTML_OUTPUT_FORMAT = "html";
   private static final String EN_LANG = "en";
 
   private static Vertx vertx;
