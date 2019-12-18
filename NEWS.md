@@ -1,3 +1,6 @@
+## 2019-12-18 v1.7.1
+ * Fix date formatting for date-tokens with non-String values (MODTEMPENG-41)
+
 ## 2019-12-03 v1.7.0
  * Fix American date format on checkout receipt (MODTEMPENG-25)
  * Entire Reset password URL is not hyperlinked (MODTEMPENG-27)
