@@ -571,7 +571,7 @@ public class TemplateRequestTest {
   public void dateTokensWithNonStringValuesDoNotBreakProcessing() {
     Template template = new Template()
       .withDescription("Template with barcodes")
-      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withOutputFormats(Collections.singletonList("html"))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
         new LocalizedTemplatesProperty()
@@ -584,7 +584,7 @@ public class TemplateRequestTest {
       new TemplateProcessingRequest()
         .withTemplateId(templateId)
         .withLang(EN_LANG)
-        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withOutputFormat("html")
         .withContext(new Context()
           .withAdditionalProperty("user", new JsonObject()
             .put("username", "Reader")
@@ -601,9 +601,9 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", is(templateId))
-      .body("meta.lang", is(EN_LANG))
-      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT));
+      .body("templateId", Matchers.is(templateId))
+      .body("meta.lang", Matchers.is(EN_LANG))
+      .body("meta.outputFormat", Matchers.is("html"));
   }
 
   private String postTemplate(Template template) {
