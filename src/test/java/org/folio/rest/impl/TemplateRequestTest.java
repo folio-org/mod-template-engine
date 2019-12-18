@@ -208,12 +208,12 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.size", Matchers.is(expectedBody.length()))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.size", is(expectedBody.length()))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
@@ -237,18 +237,18 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
+      .body("templateId", is(templateId))
       .body("result.header", Matchers.containsString(expectedHeaderSubstring))
       .body("result.body", Matchers.containsString(expectedBodySubstring))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
   public void shouldLocalizeDatesAccordingToDefaultConfiguration() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()
@@ -285,18 +285,18 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
   public void shouldLocalizeDatesAccordingToConfigurationSetup() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()
@@ -335,11 +335,11 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
@@ -386,7 +386,7 @@ public class TemplateRequestTest {
   public void shouldLocalizeDatesInContextWithArray() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()
@@ -423,15 +423,15 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.body", Matchers.is(expectedBody));
+      .body("templateId", is(templateId))
+      .body("result.body", is(expectedBody));
   }
 
   @Test
   public void shouldRemoveTimeFromDatesBasedOnToken() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates()
         .withAdditionalProperty(EN_LANG,
@@ -465,18 +465,18 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
   public void dateRemainsUnchangedIfDateTokenContainsInvalidValue() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
           new LocalizedTemplatesProperty()
@@ -512,26 +512,26 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
   }
 
   @Test
   public void shouldEnrichContextAndFormatDatesCorrectly() {
     Template template = new Template()
       .withDescription("Template with dates")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates()
         .withAdditionalProperty(EN_LANG,
-            new LocalizedTemplatesProperty()
-              .withHeader("Request expiration date: {{request.requestExpirationDate}}. "
-                  + "Request expiration time: {{request.requestExpirationDateTime}}.")
-              .withBody("Loan due date: {{loan.dueDate}}. Loan due time: {{loan.dueDateTime}}. "
-                  + "Loan checked in date: {{loan.checkedInDate}}. Loan checked in time: {{loan.checkedInDateTime}}")));
+          new LocalizedTemplatesProperty()
+            .withHeader("Request expiration date: {{request.requestExpirationDate}}. "
+                + "Request expiration time: {{request.requestExpirationDateTime}}.")
+            .withBody("Loan due date: {{loan.dueDate}}. Loan due time: {{loan.dueDateTime}}. "
+                + "Loan checked in date: {{loan.checkedInDate}}. Loan checked in time: {{loan.checkedInDateTime}}")));
 
     String templateId = postTemplate(template);
 
@@ -562,11 +562,344 @@ public class TemplateRequestTest {
       .post(TEMPLATE_REQUEST_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("templateId", Matchers.is(templateId))
-      .body("result.header", Matchers.is(expectedHeader))
-      .body("result.body", Matchers.is(expectedBody))
-      .body("meta.lang", Matchers.is(EN_LANG))
-      .body("meta.outputFormat", Matchers.is(TXT_OUTPUT_FORMAT));
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(TXT_OUTPUT_FORMAT));
+  }
+
+  @Test
+  public void templateWithBarcodeImageProducesHtmlAndAttachment() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("Item barcode: {{item.barcode}}")
+          .withBody("Item barcode image: {{item.barcodeImage}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("item",
+            new JsonObject()
+              .put("barcode", "1234567890")));
+
+    String expectedHeader = "Item barcode: 1234567890";
+    String expectedBody = "Item barcode image: <img src='cid:barcode_1234567890' alt='barcode_1234567890'>";
+    String expectedAttachmentName = "barcode_1234567890";
+    String expectedAttachmentDisposition = "inline";
+    String expectedAttachmentContentType = "image/png";
+    String expectedAttachmentContentId = "<barcode_1234567890>";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result.attachments.size()", is(1))
+      .body("result.attachments[0].disposition", is(expectedAttachmentDisposition))
+      .body("result.attachments[0].contentType", is(expectedAttachmentContentType))
+      .body("result.attachments[0].name", is(expectedAttachmentName))
+      .body("result.attachments[0].contentId", is(expectedAttachmentContentId))
+      .body("result.attachments[0].data", Matchers.not((Matchers.isEmptyOrNullString())));
+  }
+
+  @Test
+  public void noAttachmentsAreCreatedWhenImageTokenIsNotInTemplate() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("User name: {{user.name}}")
+          .withBody("User barcode: {{user.barcode}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("user",
+            new JsonObject()
+              // {{user.barcodeImage}} is not in the template, so no image attachments should be created
+              .put("barcode", "1111111111")
+              .put("name", "Tester")));
+
+    String expectedHeader = "User name: Tester";
+    String expectedBody = "User barcode: 1111111111";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result.attachments.size()", is(0));
+  }
+
+  @Test
+  public void duplicateImageTokensDoNotCreateDuplicateAttachments() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("User barcode: {{user.barcode}} " +
+            "User barcode image: {{user.barcodeImage}}")
+          .withBody("User barcode: {{user.barcode}} " +
+            "User barcode image: {{user.barcodeImage}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("user",
+            new JsonObject()
+              // {{user.barcodeImage}} is not in the template, so no token or image should be created
+              .put("barcode", "1234567890")));
+
+    String expectedHeader = "User barcode: 1234567890 " +
+      "User barcode image: <img src='cid:barcode_1234567890' alt='barcode_1234567890'>";
+    String expectedBody = "User barcode: 1234567890 " +
+      "User barcode image: <img src='cid:barcode_1234567890' alt='barcode_1234567890'>";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result.attachments.size()", is(1));
+  }
+
+  @Test
+  public void attachmentsAreCreatedOnlyForBarcodeImageTokens() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("User barcode: {{user.barcode}}")
+          .withBody("{{user.image}}" +
+            "{{user.Image}}" +
+            "{{user.barcodeimage}}" +
+            "{{user.barCodeImage}}" +
+            "{{user.faceImage}}" +
+            "{{item.barcodeImage}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("user",
+            new JsonObject()
+              // {{user.barcodeImage}} is not in the template, so no token or image should be created
+              .put("barcode", "1234567890")));
+
+    String expectedHeader = "User barcode: 1234567890";
+    String expectedBody = "";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result.attachments.size()", is(0));
+  }
+
+  @Test
+  public void barcodeImagesAreCreatedForAllItemInArray() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("{{user.barcode}}{{user.barcodeImage}}")
+          .withBody("{{#loans}}{{item.barcode}}{{item.barcodeImage}} {{/loans}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("loans", new JsonArray()
+            .add(new JsonObject()
+              .put("item", new JsonObject()
+                .put("barcode", "item1")))
+            .add(new JsonObject()
+              .put("item", new JsonObject()
+                .put("barcode", "item2"))))
+          .withAdditionalProperty("user", new JsonObject()
+                .put("barcode", "user1")));
+
+    String expectedHeader = "user1<img src='cid:barcode_user1' alt='barcode_user1'>";
+    String expectedBody = "item1<img src='cid:barcode_item1' alt='barcode_item1'> " +
+      "item2<img src='cid:barcode_item2' alt='barcode_item2'> ";
+
+    String expectedCid1 = "<barcode_item1>";
+    String expectedCid2 = "<barcode_item2>";
+    String expectedCid3 = "<barcode_user1>";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result.attachments.size()", is(3))
+      .body("result.attachments[0].contentId", is(expectedCid1))
+      .body("result.attachments[1].contentId", is(expectedCid2))
+      .body("result.attachments[2].contentId", is(expectedCid3));
+  }
+
+  @Test
+  public void duplicateItemsInArrayDoNotProduceDuplicateAttachments() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("{{user.barcode}}{{user.barcodeImage}}")
+          .withBody("{{#loans}}{{item.barcode}}{{item.barcodeImage}} {{/loans}}")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("loans", new JsonArray()
+            .add(new JsonObject()
+              .put("item", new JsonObject()
+                .put("barcode", "item1")))
+            .add(new JsonObject()
+              .put("item", new JsonObject()
+                .put("barcode", "item1"))))
+          .withAdditionalProperty("user", new JsonObject()
+            .put("barcode", "user1")));
+
+    String expectedHeader = "user1<img src='cid:barcode_user1' alt='barcode_user1'>";
+    String expectedBody = "item1<img src='cid:barcode_item1' alt='barcode_item1'> " +
+      "item1<img src='cid:barcode_item1' alt='barcode_item1'> ";
+
+    String expectedItemCid = "<barcode_item1>";
+    String expectedUserCid = "<barcode_user1>";
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("result.header", is(expectedHeader))
+      .body("result.body", is(expectedBody))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT))
+      .body("result.attachments.size()", is(2))
+      .body("result.attachments[0].contentId", is(expectedItemCid))
+      .body("result.attachments[1].contentId", is(expectedUserCid));
+  }
+
+  @Test
+  public void dateTokensWithNonStringValuesDoNotBreakProcessing() {
+    Template template = new Template()
+      .withDescription("Template with barcodes")
+      .withOutputFormats(Collections.singletonList(HTML_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
+        new LocalizedTemplatesProperty()
+          .withHeader("Reset your Folio account")
+          .withBody("Hi {{user.username}}!")));
+
+    String templateId = postTemplate(template);
+
+    TemplateProcessingRequest templateRequest =
+      new TemplateProcessingRequest()
+        .withTemplateId(templateId)
+        .withLang(EN_LANG)
+        .withOutputFormat(HTML_OUTPUT_FORMAT)
+        .withContext(new Context()
+          .withAdditionalProperty("user", new JsonObject()
+            .put("username", "Reader")
+            .put("createdDate", 1576581085686L)
+            .put("updatedDate", 1576581085686L)
+            .put("metadata", new JsonObject()
+              .put("createdDate", 1576243494376L)
+              .put("updatedDate", 1576581085675L))));
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(templateRequest))
+      .when()
+      .post(TEMPLATE_REQUEST_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("templateId", is(templateId))
+      .body("meta.lang", is(EN_LANG))
+      .body("meta.outputFormat", is(HTML_OUTPUT_FORMAT));
   }
 
   @Test
@@ -627,7 +960,7 @@ public class TemplateRequestTest {
   private Template createTemplate() {
     return new Template()
       .withDescription("Template for password change")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()
@@ -644,7 +977,7 @@ public class TemplateRequestTest {
   private Template createTemplateWithMultipleItems() {
     return new Template()
       .withDescription("Check out template")
-      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, "html"))
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT, HTML_OUTPUT_FORMAT))
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(
         new LocalizedTemplates()

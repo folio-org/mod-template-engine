@@ -2,8 +2,6 @@ package org.folio.template.service;
 
 import static io.vertx.core.Future.failedFuture;
 import static java.lang.String.format;
-import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInContext;
-import static org.folio.template.util.TemplateEngineHelper.enrichContextWithDateTimes;
 
 import java.util.Date;
 import java.util.List;
@@ -30,6 +28,7 @@ import org.folio.template.dao.TemplateDao;
 import org.folio.template.dao.TemplateDaoImpl;
 import org.folio.template.resolver.TemplateResolver;
 import org.folio.template.util.OkapiConnectionParams;
+import org.folio.template.util.TemplateContextPreProcessor;
 import org.folio.template.util.TemplateEngineHelper;
 
 import io.vertx.core.CompositeFuture;
@@ -120,8 +119,8 @@ public class TemplateServiceImpl implements TemplateService {
 
         LocaleConfiguration config = compositeFuture.resultAt(1);
 
-        enrichContextWithDateTimes(contextObject);
-        formatDatesInContext(contextObject, config.getLanguageTag(), config.getTimeZoneId());
+        TemplateContextPreProcessor preProcessor = new TemplateContextPreProcessor(templateContent, contextObject, config);
+        preProcessor.process();
 
         String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
         TemplateResolver templateResolverProxy = TemplateResolver.createProxy(vertx, templateResolverAddress);
@@ -133,7 +132,9 @@ public class TemplateServiceImpl implements TemplateService {
           templateRequest.getOutputFormat(), promise);
 
         return promise.future().map(processedContent -> {
-          Result processedTemplate = processedContent.mapTo(Result.class);
+          Result processedTemplate = processedContent
+            .mapTo(Result.class)
+            .withAttachments(preProcessor.getAttachments());
           Meta resultMetaInfo = new Meta()
             .withSize(processedTemplate.getBody().length())
             .withDateCreate(new Date())
