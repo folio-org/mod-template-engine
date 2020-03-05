@@ -14,8 +14,6 @@ import org.apache.http.HttpStatus;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.*;
-import org.folio.rest.persist.Criteria.Criterion;
-import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -44,16 +42,12 @@ public class TemplateRequestTest {
 
   private static final String OKAPI_HEADER_URL = "x-okapi-url";
 
-  private static final String TENANT = "diku";
   private static final String TOKEN = "diku_token";
   private static final String LOCALHOST = "http://localhost";
 
   private static final String TEMPLATE_PATH = "/templates";
   private static final String TEMPLATE_REQUEST_PATH = "/template-request";
   private static final String CONFIG_REQUEST_PATH = "/configurations/entries";
-
-
-  private static final String TEMPLATES_TABLE_NAME = "template";
 
   private static final String TXT_OUTPUT_FORMAT = "txt";
   private static final String HTML_OUTPUT_FORMAT = "html";
@@ -77,9 +71,9 @@ public class TemplateRequestTest {
     int port = NetworkUtils.nextFreePort();
     moduleUrl = LOCALHOST + ':' + port;
 
-    PostgresClient.getInstance(vertx).startEmbeddedPostgres();
+    Postgres.init();
 
-    TenantClient tenantClient = new TenantClient(moduleUrl, TENANT, null);
+    TenantClient tenantClient = new TenantClient(moduleUrl, Postgres.getTenant(), null);
     DeploymentOptions restVerticleDeploymentOptions = new DeploymentOptions().setConfig(new JsonObject().put("http.port", port));
     vertx.deployVerticle(RestVerticle.class.getName(), restVerticleDeploymentOptions, res -> {
       try {
@@ -96,20 +90,12 @@ public class TemplateRequestTest {
     spec = new RequestSpecBuilder()
       .setContentType(ContentType.JSON)
       .setBaseUri(moduleUrl)
-      .addHeader(RestVerticle.OKAPI_HEADER_TENANT, TENANT)
-      .addHeader(RestVerticle.OKAPI_HEADER_TOKEN, TOKEN)
+      .addHeader(RestVerticle.OKAPI_HEADER_TENANT, Postgres.getTenant())
+      .addHeader(RestVerticle.OKAPI_HEADER_TOKEN, Postgres.getTenant())
       .addHeader(OKAPI_HEADER_URL, LOCALHOST + ':' + mockServer.port())
       .build();
     mockConfigModule();
-    clearTemplatesTable(context);
-  }
-
-  private void clearTemplatesTable(TestContext context) {
-    PostgresClient.getInstance(vertx, TENANT).delete(TEMPLATES_TABLE_NAME, new Criterion(), event -> {
-      if (event.failed()) {
-        context.fail(event.cause());
-      }
-    });
+    Postgres.truncate();
   }
 
   @Test

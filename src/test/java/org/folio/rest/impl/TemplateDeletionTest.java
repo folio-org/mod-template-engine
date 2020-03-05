@@ -7,8 +7,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
-import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
-
 import java.io.IOException;
 
 import io.vertx.core.logging.Logger;
@@ -16,7 +14,6 @@ import io.vertx.core.logging.LoggerFactory;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.TenantAttributes;
-import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -69,19 +66,22 @@ class TemplateDeletionTest {
     spec = new RequestSpecBuilder()
       .setContentType(ContentType.JSON)
       .setBaseUri(okapiUrl)
-      .addHeader(OKAPI_HEADER_TENANT, "test_tenant")
+      .addHeader(OKAPI_HEADER_TENANT, Postgres.getTenant())
       .addHeader("X-Okapi-Token", "test_token")
       .addHeader("X-Okapi-Url", "http://localhost:" + mockServerPort)
       .build();
 
-    PostgresClient.getInstance(vertx).startEmbeddedPostgres();
-    TenantClient tenantClient = new TenantClient(okapiUrl, "test_tenant", null);
+    Postgres.init();
+    TenantClient tenantClient = new TenantClient(okapiUrl, Postgres.getTenant(), null);
 
     vertx.deployVerticle(RestVerticle::new,
       new DeploymentOptions().setConfig(new JsonObject().put("http.port", okapiPort)), deploy -> {
       try {
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
-        tenantClient.postTenant(t, post -> context.completeNow());
+        tenantClient.postTenant(t, post -> {
+          Postgres.truncate();
+          context.completeNow();
+        });
       } catch (Exception e) {
         logger.error(e.getMessage());
         context.failNow(e);
@@ -92,7 +92,6 @@ class TemplateDeletionTest {
   @AfterAll
   static void afterAll() {
     wireMockServer.stop();
-    PostgresClient.stopEmbeddedPostgres();
   }
 
   @Test
