@@ -6,6 +6,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static io.vertx.core.json.JsonObject.mapFrom;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +43,6 @@ public class TemplateRequestTest {
 
   private static final String OKAPI_HEADER_URL = "x-okapi-url";
 
-  private static final String TOKEN = "diku_token";
   private static final String LOCALHOST = "http://localhost";
 
   private static final String TEMPLATE_PATH = "/templates";
@@ -72,17 +72,21 @@ public class TemplateRequestTest {
     moduleUrl = LOCALHOST + ':' + port;
 
     Postgres.init();
+    Postgres.dropSchema();
 
     TenantClient tenantClient = new TenantClient(moduleUrl, Postgres.getTenant(), null);
     DeploymentOptions restVerticleDeploymentOptions = new DeploymentOptions().setConfig(new JsonObject().put("http.port", port));
-    vertx.deployVerticle(RestVerticle.class.getName(), restVerticleDeploymentOptions, res -> {
+    vertx.deployVerticle(RestVerticle.class.getName(), restVerticleDeploymentOptions, context.asyncAssertSuccess(res -> {
       try {
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
-        tenantClient.postTenant(t, res2 -> async.complete());
+        tenantClient.postTenant(t, res2 -> {
+          assertThat(res2.statusCode(), is(201));
+          async.complete();
+        });
       } catch (Exception e) {
         context.fail(e);
       }
-    });
+    }));
   }
 
   @Before

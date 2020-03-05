@@ -17,6 +17,10 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.TenantAttributes;
@@ -83,22 +87,25 @@ public class RestVerticleTest {
     vertx = Vertx.vertx();
 
     Postgres.init();
+    Postgres.dropSchema();
 
     DeploymentOptions options = new DeploymentOptions().setConfig(
       new JsonObject()
         .put("http.port", okapiPort)
     );
 
-    vertx.deployVerticle(RestVerticle.class.getName(), options, res -> {
+    vertx.deployVerticle(RestVerticle.class.getName(), options, context.asyncAssertSuccess(res -> {
       try {
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
         tenantClient.postTenant(t, res2 -> {
+          assertThat(res2.statusCode(), is(201));
+          System.out.println("X");
           async.complete();
         });
       } catch (Exception e) {
         context.fail(e);
       }
-    });
+    }));
   }
 
   @Before

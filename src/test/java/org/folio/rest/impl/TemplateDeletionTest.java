@@ -6,6 +6,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import java.io.IOException;
 
@@ -72,14 +74,18 @@ class TemplateDeletionTest {
       .build();
 
     Postgres.init();
+    Postgres.dropSchema();
     TenantClient tenantClient = new TenantClient(okapiUrl, Postgres.getTenant(), null);
 
     vertx.deployVerticle(RestVerticle::new,
       new DeploymentOptions().setConfig(new JsonObject().put("http.port", okapiPort)), deploy -> {
       try {
+        if (deploy.failed()) {
+          context.failNow(deploy.cause());
+        }
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
         tenantClient.postTenant(t, post -> {
-          Postgres.truncate();
+          assertThat(post.statusCode(), is(201));
           context.completeNow();
         });
       } catch (Exception e) {

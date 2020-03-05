@@ -15,6 +15,7 @@ import io.vertx.ext.sql.UpdateResult;
  */
 public final class Postgres {
   private static boolean shutdownHookInstalled = false;
+  private static Vertx vertx = Vertx.vertx();
 
   public static String getTenant() {
     return "testtenant";
@@ -30,14 +31,10 @@ public final class Postgres {
     shutdownHookInstalled = true;
   }
 
-  /**
-   * Truncate the template table
-   */
-  public static void truncate() {
+  public static UpdateResult runSql(String sql) {
     CompletableFuture<UpdateResult> future = new CompletableFuture<>();
 
-    PostgresClient.getInstance(Vertx.vertx()).execute(
-        "TRUNCATE " + getTenant() + "_mod_template_engine.template CASCADE", handler -> {
+    PostgresClient.getInstance(vertx).execute(sql, handler -> {
       if (handler.failed()) {
         future.completeExceptionally(handler.cause());
         return;
@@ -46,9 +43,46 @@ public final class Postgres {
     });
 
     try {
-      future.get(5, TimeUnit.SECONDS);
+      return future.get(5, TimeUnit.SECONDS);
     } catch (InterruptedException | ExecutionException | TimeoutException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  /**
+   * Run sql, return null on exception.
+   */
+  public static UpdateResult runSqlIgnore(String sql) {
+    CompletableFuture<UpdateResult> future = new CompletableFuture<>();
+
+    PostgresClient.getInstance(vertx).execute(sql, handler -> {
+      if (handler.failed()) {
+        future.complete(null);
+        return;
+      }
+      future.complete(handler.result());
+    });
+
+    try {
+      return future.get(5, TimeUnit.SECONDS);
+    } catch (InterruptedException | ExecutionException | TimeoutException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static void dropSchema() {
+    runSql("DROP SCHEMA IF EXISTS " + getTenant() + "_mod_template_engine CASCADE");
+    runSqlIgnore("DROP OWNED BY "   + getTenant() + "_mod_template_engine CASCADE");
+    runSql("DROP ROLE IF EXISTS "   + getTenant() + "_mod_template_engine");
+    // Prevent "aclcheck_error" "permission denied for schema"
+    // when recreating the ROLE with the same name but a different role OID.
+    PostgresClient.closeAllClients();
+  }
+
+  /**
+   * Truncate the template table
+   */
+  public static void truncate() {
+    runSql("TRUNCATE " + getTenant() + "_mod_template_engine.template CASCADE");
   }
 }
