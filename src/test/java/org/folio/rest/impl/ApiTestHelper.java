@@ -65,7 +65,7 @@ public class ApiTestHelper {
     HttpClient client = vertx.createHttpClient();
     HttpClientRequest request = client.requestAbs(method, url);
     //Add standard headers
-    request.putHeader("X-Okapi-Tenant", "diku")
+    request.putHeader("X-Okapi-Tenant", Postgres.getTenant())
       .putHeader("content-type", "application/json")
       .putHeader("accept", method.equals(HttpMethod.DELETE) ? "text/plain" : "application/json");
     if (headers != null) {
