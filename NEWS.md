@@ -1,3 +1,6 @@
+## 2020-03-13 v1.8.0
+ * Fix database error caused by RMB update (MODTEMPENG-37)
+
 ## 2019-12-03 v1.7.0
  * Fix American date format on checkout receipt (MODTEMPENG-25)
  * Entire Reset password URL is not hyperlinked (MODTEMPENG-27)
@@ -34,7 +37,7 @@
  * Endpoint for processing templates **POST /template-request**  was implemented.
  * Mustache template resolver was registered with name 'mustache'.
  * Template's field 'templateResolver' is validated to match one of the registered template resolvers.
- 
+
 ## 2018-08-30 v1.0.0-SNAPSHOT
 The module provide storing of templates and access to them through REST API.
 Templates support internationalization and store a set of templates texts for each language.
