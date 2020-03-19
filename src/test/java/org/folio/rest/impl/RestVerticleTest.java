@@ -17,11 +17,13 @@ import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.TenantAttributes;
-import org.folio.rest.persist.Criteria.Criterion;
-import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.tools.utils.NetworkUtils;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -30,8 +32,6 @@ import com.github.tomakehurst.wiremock.WireMockServer;
 
 @RunWith(VertxUnitRunner.class)
 public class RestVerticleTest {
-
-  private static final String TEMPLATES_TABLE_NAME = "template";
 
   private static int mockServerPort;
   private static Vertx vertx;
@@ -83,46 +83,40 @@ public class RestVerticleTest {
     Async async = context.async();
     okapiUrl = "http://localhost:" + okapiPort;
     templateUrl = okapiUrl + "/templates";
-    TenantClient tenantClient = new TenantClient(okapiUrl, "diku", null);
+    TenantClient tenantClient = new TenantClient(okapiUrl, Postgres.getTenant(), null);
     vertx = Vertx.vertx();
 
-    PostgresClient.getInstance(vertx).startEmbeddedPostgres();
+    Postgres.init();
+    Postgres.dropSchema();
 
     DeploymentOptions options = new DeploymentOptions().setConfig(
       new JsonObject()
         .put("http.port", okapiPort)
     );
 
-    vertx.deployVerticle(RestVerticle.class.getName(), options, res -> {
+    vertx.deployVerticle(RestVerticle.class.getName(), options, context.asyncAssertSuccess(res -> {
       try {
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
         tenantClient.postTenant(t, res2 -> {
+          assertThat(res2.statusCode(), is(201));
+          System.out.println("X");
           async.complete();
         });
       } catch (Exception e) {
         context.fail(e);
       }
-    });
+    }));
   }
 
   @Before
-  public void setUp(TestContext context) {
-    clearTemplatesTable(context);
-  }
-
-  private void clearTemplatesTable(TestContext context) {
-    PostgresClient.getInstance(vertx, "diku").delete(TEMPLATES_TABLE_NAME, new Criterion(), event -> {
-      if (event.failed()) {
-        context.fail(event.cause());
-      }
-    });
+  public void setUp() {
+    Postgres.truncate();
   }
 
   @AfterClass
   public static void tearDown(TestContext context) {
     Async async = context.async();
     vertx.close(context.asyncAssertSuccess(res -> {
-      PostgresClient.stopEmbeddedPostgres();
       wireMockServer.stop();
       async.complete();
     }));

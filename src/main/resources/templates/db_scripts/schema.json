@@ -5,5 +5,12 @@
       "withMetadata": true,
       "customSnippetPath": "populate-templates.sql"
     }
+  ],
+  "scripts": [
+    {
+      "run": "before",
+      "snippet": "DO $$ BEGIN ALTER TABLE template RENAME COLUMN _id TO id; EXCEPTION WHEN OTHERS THEN END; $$;",
+      "fromModuleVersion": "1.7.0"
+    }
   ]
 }
