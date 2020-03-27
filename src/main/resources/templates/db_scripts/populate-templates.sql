@@ -17,19 +17,19 @@ INSERT INTO template (id, jsonb) VALUES
  "id": "263d4e33-db8d-4e07-9060-11f442320c05",
  "description": "Account activation email",
  "outputFormats": [
-   "text/plain"
+   "text/html"
  ],
  "templateResolver": "mustache",
  "localizedTemplates": {
    "en": {
      "header": "Activate your Folio account",
-     "body": "{{user.personal.firstName}}\n\nYour Folio account has been activated. Your username is {{user.username}}. To complete activation of your account, please use the following link to create a password for your Folio account: {{link}}\n\nIf you do not create a password within 24 hours of the delivery of this email, then contact your Folio Administrator to receive a new create password link.\n\nRegards,\n\n{{institution.name}} Folio Administration"
+     "body": "<p>{{user.personal.firstName}}</p><p>Your FOLIO account has been activated.</p><p>Your username is {{user.username}}.</p><p>To complete activation of your account, please use the following link to create a password for your FOLIO account: <a href={{link}}>visit this link</a></p><p>If you do not create a password within 24 hours of the delivery of this email, then contact your FOLIO Administrator to receive a new create password link.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
    }
  }
 }'),
 ('ed8c1c67-897b-4a23-a702-c36e280c6a93', '{
  "id": "ed8c1c67-897b-4a23-a702-c36e280c6a93",
- "description": "Rest password email",
+ "description": "Reset password email",
  "outputFormats": [
    "text/html"
  ],
