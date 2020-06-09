@@ -10,6 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.UUID;
 
 import org.apache.http.HttpStatus;
 import org.folio.rest.RestVerticle;
@@ -120,7 +121,7 @@ public class TemplateRequestTest {
 
     TemplateProcessingRequest templateRequest =
       new TemplateProcessingRequest()
-        .withTemplateId("not-existing-id")
+        .withTemplateId(UUID.randomUUID().toString())
         .withLang(EN_LANG)
         .withOutputFormat(TXT_OUTPUT_FORMAT);
 
@@ -130,7 +131,7 @@ public class TemplateRequestTest {
       .when()
       .post(TEMPLATE_REQUEST_PATH)
       .then()
-      .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+      .statusCode(HttpStatus.SC_BAD_REQUEST);
   }
 
   @Test

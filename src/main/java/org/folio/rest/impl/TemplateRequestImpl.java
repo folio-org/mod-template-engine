@@ -28,7 +28,7 @@ public class TemplateRequestImpl implements TemplateRequest {
           .map(PostTemplateRequestResponse::respond200WithApplicationJson)
           .map(Response.class::cast)
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
-          .setHandler(asyncResultHandler);
+          .onComplete(asyncResultHandler);
       } catch (Exception e) {
         asyncResultHandler.handle(Future.succeededFuture(
           TemplateEngineHelper.mapExceptionToResponse(e)));
