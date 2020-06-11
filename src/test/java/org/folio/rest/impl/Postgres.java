@@ -8,7 +8,8 @@ import java.util.concurrent.TimeoutException;
 import org.folio.rest.persist.PostgresClient;
 
 import io.vertx.core.Vertx;
-import io.vertx.ext.sql.UpdateResult;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 
 /**
  * Start embedded postgres before all test classes and stop it after all test classes.
@@ -31,8 +32,8 @@ public final class Postgres {
     shutdownHookInstalled = true;
   }
 
-  public static UpdateResult runSql(String sql) {
-    CompletableFuture<UpdateResult> future = new CompletableFuture<>();
+  public static RowSet<Row> runSql(String sql) {
+    CompletableFuture<RowSet<Row>> future = new CompletableFuture<>();
 
     PostgresClient.getInstance(vertx).execute(sql, handler -> {
       if (handler.failed()) {
@@ -52,8 +53,8 @@ public final class Postgres {
   /**
    * Run sql, return null on exception.
    */
-  public static UpdateResult runSqlIgnore(String sql) {
-    CompletableFuture<UpdateResult> future = new CompletableFuture<>();
+  public static RowSet<Row> runSqlIgnore(String sql) {
+    CompletableFuture<RowSet<Row>> future = new CompletableFuture<>();
 
     PostgresClient.getInstance(vertx).execute(sql, handler -> {
       if (handler.failed()) {

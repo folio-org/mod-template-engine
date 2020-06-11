@@ -1,9 +1,9 @@
 package org.folio.template.dao;
 
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
-import io.vertx.ext.sql.UpdateResult;
+import java.util.List;
+import java.util.Optional;
+
+import org.folio.cql2pgjson.CQL2PgJSON;
 import org.folio.cql2pgjson.exception.FieldException;
 import org.folio.rest.jaxrs.model.Template;
 import org.folio.rest.persist.Criteria.Limit;
@@ -11,10 +11,12 @@ import org.folio.rest.persist.Criteria.Offset;
 import org.folio.rest.persist.PostgresClient;
 import org.folio.rest.persist.cql.CQLWrapper;
 import org.folio.rest.persist.interfaces.Results;
-import org.folio.cql2pgjson.CQL2PgJSON;
 
-import java.util.List;
-import java.util.Optional;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
+import io.vertx.core.Vertx;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 
 public class TemplateDaoImpl implements TemplateDao {
 
@@ -60,16 +62,16 @@ public class TemplateDaoImpl implements TemplateDao {
 
   @Override
   public Future<Boolean> updateTemplate(Template template) {
-    Promise<UpdateResult> promise = Promise.promise();
+    Promise<RowSet<Row>> promise = Promise.promise();
     pgClient.update(TEMPLATES_TABLE, template, template.getId(), promise);
-    return promise.future().map(updateResult -> updateResult.getUpdated() == 1);
+    return promise.future().map(updateResult -> updateResult.rowCount() == 1);
   }
 
   @Override
   public Future<Boolean> deleteTemplate(String id) {
-    Promise<UpdateResult> promise = Promise.promise();
+    Promise<RowSet<Row>> promise = Promise.promise();
     pgClient.delete(TEMPLATES_TABLE, id, promise);
-    return promise.future().map(updateResult -> updateResult.getUpdated() == 1);
+    return promise.future().map(updateResult -> updateResult.rowCount() == 1);
   }
 
   /**

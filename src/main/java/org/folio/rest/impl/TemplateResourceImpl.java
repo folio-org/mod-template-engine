@@ -31,7 +31,7 @@ public class TemplateResourceImpl implements Templates {
         templateService.addTemplate(entity)
           .map((Response) PostTemplatesResponse.respond201WithApplicationJson(entity))
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
-          .setHandler(asyncResultHandler);
+          .onComplete(asyncResultHandler);
       } catch (Exception e) {
         asyncResultHandler.handle(Future.succeededFuture(
           TemplateEngineHelper.mapExceptionToResponse(e)));
@@ -54,7 +54,7 @@ public class TemplateResourceImpl implements Templates {
           ).map(GetTemplatesResponse::respond200WithApplicationJson)
           .map(Response.class::cast)
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
-          .setHandler(asyncResultHandler);
+          .onComplete(asyncResultHandler);
       } catch (Exception e) {
         asyncResultHandler.handle(Future.succeededFuture(
           TemplateEngineHelper.mapExceptionToResponse(e)));
@@ -74,7 +74,7 @@ public class TemplateResourceImpl implements Templates {
           .map(GetTemplatesByTemplateIdResponse::respond200WithApplicationJson)
           .map(Response.class::cast)
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
-          .setHandler(asyncResultHandler);
+          .onComplete(asyncResultHandler);
       } catch (Exception e) {
         asyncResultHandler.handle(Future.succeededFuture(
           TemplateEngineHelper.mapExceptionToResponse(e)));
@@ -97,7 +97,7 @@ public class TemplateResourceImpl implements Templates {
             buildTemplateNotFound(templateId)
           )
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
-          .setHandler(asyncResultHandler);
+          .onComplete(asyncResultHandler);
       } catch (Exception e) {
         asyncResultHandler.handle(Future.succeededFuture(
           TemplateEngineHelper.mapExceptionToResponse(e)));
@@ -118,7 +118,7 @@ public class TemplateResourceImpl implements Templates {
         String.format("Template with id: %s deleted", templateId)) :
       buildTemplateNotFound(templateId))
       .otherwise(TemplateEngineHelper::mapExceptionToResponse)
-      .setHandler(asyncResultHandler);
+      .onComplete(asyncResultHandler);
   }
 
   private Response buildTemplateNotFound(String templateId) {

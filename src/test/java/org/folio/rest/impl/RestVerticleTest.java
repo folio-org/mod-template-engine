@@ -163,7 +163,7 @@ public class RestVerticleTest {
         context.assertEquals(h.getJson().getInteger("totalRecords"), 0);
       }));
 
-    chainedFuture.setHandler(chainedRes -> {
+    chainedFuture.onComplete(chainedRes -> {
       if (chainedRes.failed()) {
         logger.error("Test failed: " + chainedRes.cause().getLocalizedMessage());
         context.fail(chainedRes.cause());
