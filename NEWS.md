@@ -1,3 +1,7 @@
+## 2020-06-11 v1.9.0
+ * Update account activation email template (MODTEMPENG-44)
+ * Update RMB version to 30.0.2 and Vertx to 3.9.1 (MODTEMPENG-48)
+
 ## 2020-03-13 v1.8.0
  * Fix database error caused by RMB update (MODTEMPENG-37)
 
