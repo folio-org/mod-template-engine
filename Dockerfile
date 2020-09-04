@@ -1,4 +1,4 @@
-FROM folioci/alpine-jre-openjdk8:latest
+FROM folioci/alpine-jre-openjdk11:latest
 
 # Install missing font library for barcode images generation (must be done as root)
 USER root
