@@ -1,3 +1,6 @@
+## 2020-09-10 v1.10.0
+* Upgrade to JDK 11 and RMB v31 (MODTEMPENG-56)
+
 ## 2020-06-11 v1.9.0
  * Update account activation email template (MODTEMPENG-44)
  * Update RMB version to 30.0.2 and Vertx to 3.9.1 (MODTEMPENG-48)
