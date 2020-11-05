@@ -16,7 +16,7 @@ stages:
     steps:
       - applyAppConfig:
           catalogTemplate: p-wntj9:vega-helmcharts-mod-template-engine
-          version: 0.1.26
+          version: 15.9.0
           answers:
             image.repository: docker.dev.folio.org/mod-template-engine
             image.tag: vega-latest
