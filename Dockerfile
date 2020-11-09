@@ -4,6 +4,7 @@ FROM folioci/alpine-jre-openjdk11:latest
 USER root
 
 RUN apk add --no-cache libx11
+RUN apk add --no-cache libxrender
 RUN apk add --no-cache ttf-dejavu
 
 USER folio
