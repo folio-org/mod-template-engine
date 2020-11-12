@@ -1,3 +1,6 @@
+## 2020-11-12 v1.10.1
+* Upgrade to RMB 31.1.5 and Vert.x 3.9.4 (MODTEMPENG-60)
+
 ## 2020-09-10 v1.10.0
 * Upgrade to JDK 11 and RMB v31 (MODTEMPENG-56)
 
