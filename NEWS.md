@@ -1,3 +1,7 @@
+## 2020-11-13 v1.12.0
+ * Fix templates with barcode images (MODTEMPENG-57)
+ * Upgrade to RMB 31.1.5 and Vert.x 3.9.4 (MODTEMPENG-60)
+
 ## 2020-09-10 v1.10.0
 * Upgrade to JDK 11 and RMB v31 (MODTEMPENG-56)
 
