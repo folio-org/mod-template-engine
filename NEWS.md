@@ -1,3 +1,6 @@
+## 2020-11-13 v1.10.2
+* Fix templates with barcode images (MODTEMPENG-57)
+
 ## 2020-11-12 v1.10.1
 * Upgrade to RMB 31.1.5 and Vert.x 3.9.4 (MODTEMPENG-60)
 
