@@ -52,6 +52,7 @@ class ContextDateTimeFormatterTest {
   @Test
   void datesAreLocalizedCorrectlyBasedOnToken() {
     String inputDate = "2019-06-18T14:04:33.205Z";
+    String expectedLocalizedDate = "June 18, 2019 at 2:04 PM";
     String expectedLongDate = "6/18/19, 2:04 PM";
     String expectedShortDate = "6/18/19";
 
@@ -60,6 +61,7 @@ class ContextDateTimeFormatterTest {
       .put("loan", new JsonObject()
         .put("dueDate", inputDate)
         .put("dueDateTime", inputDate)
+        .put("detailedDateTime", inputDate)
         .put("dateWithInvalidToken", inputDate));
 
     JsonObject expectedJson = new JsonObject()
@@ -67,6 +69,7 @@ class ContextDateTimeFormatterTest {
       .put("loan", new JsonObject()
         .put("dueDate", expectedShortDate)
         .put("dueDateTime", expectedLongDate)
+        .put("detailedDateTime", expectedLocalizedDate)
         .put("dateWithInvalidToken", inputDate));
 
     ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
