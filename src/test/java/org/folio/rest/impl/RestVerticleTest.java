@@ -12,8 +12,6 @@ import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -21,6 +19,8 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.TenantAttributes;
@@ -35,7 +35,7 @@ public class RestVerticleTest {
 
   private static int mockServerPort;
   private static Vertx vertx;
-  private static final Logger logger = LoggerFactory.getLogger("TemplateEngineTest");
+  private static final Logger logger = LogManager.getLogger("TemplateEngineTest");
   private static String templateUrl;
   private static String okapiUrl;
   private static WireMockServer wireMockServer;

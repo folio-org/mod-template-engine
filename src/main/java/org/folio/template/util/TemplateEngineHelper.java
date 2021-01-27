@@ -6,16 +6,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.vertx.core.Promise;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import org.apache.http.HttpStatus;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.tools.utils.ValidationHelper;
 import org.folio.template.InUseTemplateException;
 
 public final class TemplateEngineHelper {
 
-  private static final Logger LOG = LoggerFactory.getLogger("mod-template-engine");
+  private static final Logger LOG = LogManager.getLogger("mod-template-engine");
 
   public static final String TEMPLATE_RESOLVERS_LOCAL_MAP = "template-resolvers.map";
 

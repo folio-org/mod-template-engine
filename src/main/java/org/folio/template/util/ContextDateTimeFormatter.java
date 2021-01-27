@@ -15,14 +15,14 @@ import com.github.wnameless.json.flattener.JsonFlattener;
 import com.ibm.icu.text.DateFormat;
 import com.ibm.icu.util.TimeZone;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.tools.parser.JsonPathParser;
 
 public class ContextDateTimeFormatter {
 
-  private static final Logger LOG = LoggerFactory.getLogger("mod-template-engine");
+  private static final Logger LOG = LogManager.getLogger("mod-template-engine");
 
   private static final DateTimeFormatter ISO_DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
     .append(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
