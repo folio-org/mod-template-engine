@@ -85,7 +85,7 @@ class TemplateDeletionTest {
         }
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
         tenantClient.postTenant(t, post -> {
-          assertThat(post.statusCode(), is(201));
+          assertThat(post.result().statusCode(), is(201));
           context.completeNow();
         });
       } catch (Exception e) {

@@ -98,7 +98,7 @@ public class RestVerticleTest {
       try {
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
         tenantClient.postTenant(t, res2 -> {
-          assertThat(res2.statusCode(), is(201));
+          assertThat(res2.result().statusCode(), is(201));
           System.out.println("X");
           async.complete();
         });
