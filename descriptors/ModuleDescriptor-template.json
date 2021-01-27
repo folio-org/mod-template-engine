@@ -56,15 +56,15 @@
     },
     {
         "id": "_tenant",
-        "version": "2.0",
+        "version": "1.2",
         "interfaceType": "system",
         "handlers": [
           {
           "methods": ["POST"],
           "pathPattern": "/_/tenant"
         }, {
-          "methods": ["GET", "DELETE"],
-          "pathPattern": "/_/tenant/{id}"
+          "methods": ["DELETE"],
+          "pathPattern": "/_/tenant"
         }
       ]
     }
