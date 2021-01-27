@@ -65,7 +65,8 @@
         }, {
           "methods": ["GET", "DELETE"],
           "pathPattern": "/_/tenant/{id}"
-        } ]
+        }
+        ]
     }
   ],
   "permissionSets": [
