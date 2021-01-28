@@ -1,15 +1,17 @@
 package org.folio.rest.impl;
 
+import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.CaseInsensitiveHeaders;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientRequest;
-import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
 
 import java.util.Map;
 
@@ -22,10 +24,10 @@ public class ApiTestHelper {
     private int code;
     private String body;
     private JsonObject json;
-    private HttpClientResponse response;
+    private HttpResponse<Buffer> response;
 
     public WrappedResponse(String explanation, int code, String body,
-                           HttpClientResponse response) {
+                           HttpResponse<Buffer> response) {
       this.explanation = explanation;
       this.code = code;
       this.body = body;
@@ -49,7 +51,7 @@ public class ApiTestHelper {
       return body;
     }
 
-    public HttpClientResponse getResponse() {
+    public HttpResponse<Buffer> getResponse() {
       return response;
     }
 
@@ -59,11 +61,11 @@ public class ApiTestHelper {
   }
 
   public static Future<WrappedResponse> doRequest(Vertx vertx, String url,
-                                                  HttpMethod method, CaseInsensitiveHeaders headers, String payload,
+                                                  HttpMethod method, MultiMap headers, String payload,
                                                   Integer expectedCode, String explanation, Handler<WrappedResponse> handler) {
     Promise<WrappedResponse> promise = Promise.promise();
-    HttpClient client = vertx.createHttpClient();
-    HttpClientRequest request = client.requestAbs(method, url);
+    WebClient client = WebClient.create(vertx);
+    HttpRequest<Buffer> request = client.requestAbs(method, url);
     //Add standard headers
     request.putHeader("X-Okapi-Tenant", Postgres.getTenant())
       .putHeader("content-type", "application/json")
@@ -75,33 +77,33 @@ public class ApiTestHelper {
           entry.getKey(), entry.getValue()));
       }
     }
-    //standard exception handler
-    request.exceptionHandler(promise::fail);
-    request.handler(req -> {
-      req.bodyHandler(buf -> {
-        String explainString = "(no explanation)";
-        if (explanation != null) {
-          explainString = explanation;
-        }
-        if (expectedCode != null && expectedCode != req.statusCode()) {
-          promise.fail(method.toString() + " to " + url + " failed. Expected status code "
-            + expectedCode + ", got status code " + req.statusCode() + ": "
-            + buf.toString() + " | " + explainString);
-        } else {
-          System.out.println("Got status code " + req.statusCode() + " with payload of: " + buf.toString() + " | " + explainString);
-          WrappedResponse wr = new WrappedResponse(explanation, req.statusCode(), buf.toString(), req);
-          handler.handle(wr);
-          promise.complete(wr);
-        }
-      });
-    });
+
     System.out.println("Sending " + method.toString() + " request to url '" +
       url + " with payload: " + payload + "'\n");
+
+    Handler<AsyncResult<HttpResponse<Buffer>>> responseHandler = response -> {
+      String explainString = "(no explanation)";
+      if (explanation != null) {
+        explainString = explanation;
+      }
+      if (expectedCode != null && expectedCode != response.result().statusCode()) {
+        promise.fail(method.toString() + " to " + url + " failed. Expected status code "
+          + expectedCode + ", got status code " + response.result().statusCode() + ": "
+          + response.result().body().toString() + " | " + explainString);
+      } else {
+          System.out.println("Got status code " + response.result().statusCode() + " with payload of: " + response.result().bodyAsString() + " | " + explainString);
+          WrappedResponse wr = new WrappedResponse(explanation, response.result().statusCode(), response.result().bodyAsString(), response.result());
+        handler.handle(wr);
+        promise.complete(wr);
+      }
+    };
+
     if (method == HttpMethod.PUT || method == HttpMethod.POST) {
-      request.end(payload);
+      request.sendJsonObject(new JsonObject(payload) ,responseHandler);
     } else {
-      request.end();
+      request.send(responseHandler);
     }
+
     return promise.future();
   }
 }
