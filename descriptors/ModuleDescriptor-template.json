@@ -55,11 +55,11 @@
       ]
     },
     {
-        "id": "_tenant",
-        "version": "2.0",
-        "interfaceType": "system",
-        "handlers": [
-          {
+      "id": "_tenant",
+      "version": "2.0",
+      "interfaceType": "system",
+      "handlers": [
+        {
           "methods": ["POST"],
           "pathPattern": "/_/tenant"
         }, {
