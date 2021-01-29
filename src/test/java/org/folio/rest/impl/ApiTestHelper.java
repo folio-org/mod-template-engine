@@ -26,8 +26,7 @@ public class ApiTestHelper {
     private JsonObject json;
     private HttpResponse<Buffer> response;
 
-    public WrappedResponse(String explanation, int code, String body,
-                           HttpResponse<Buffer> response) {
+    public WrappedResponse(String explanation, int code, String body, HttpResponse<Buffer> response) {
       this.explanation = explanation;
       this.code = code;
       this.body = body;
@@ -61,8 +60,8 @@ public class ApiTestHelper {
   }
 
   public static Future<WrappedResponse> doRequest(Vertx vertx, String url,
-                                                  HttpMethod method, MultiMap headers, String payload,
-                                                  Integer expectedCode, String explanation, Handler<WrappedResponse> handler) {
+    HttpMethod method, MultiMap headers, String payload,
+    Integer expectedCode, String explanation, Handler<WrappedResponse> handler) {
     Promise<WrappedResponse> promise = Promise.promise();
     WebClient client = WebClient.create(vertx);
     HttpRequest<Buffer> request = client.requestAbs(method, url);
@@ -78,8 +77,7 @@ public class ApiTestHelper {
       }
     }
 
-    System.out.println("Sending " + method.toString() + " request to url '" +
-      url + " with payload: " + payload + "'\n");
+    System.out.println(String.format("Sending %s request to url '%s with payload: %s'\n", method.toString(), url, payload));
 
     Handler<AsyncResult<HttpResponse<Buffer>>> responseHandler = response -> {
       String explainString = "(no explanation)";
@@ -87,12 +85,12 @@ public class ApiTestHelper {
         explainString = explanation;
       }
       if (expectedCode != null && expectedCode != response.result().statusCode()) {
-        promise.fail(method.toString() + " to " + url + " failed. Expected status code "
-          + expectedCode + ", got status code " + response.result().statusCode() + ": "
-          + response.result().body().toString() + " | " + explainString);
+        promise.fail(String.format("%s to %s failed. Expected status code %s, got status code %s : %s | %s",
+          method.toString(), url, expectedCode, response.result().statusCode(), response.result().bodyAsString(), explainString));
       } else {
-          System.out.println("Got status code " + response.result().statusCode() + " with payload of: " + response.result().bodyAsString() + " | " + explainString);
-          WrappedResponse wr = new WrappedResponse(explanation, response.result().statusCode(), response.result().bodyAsString(), response.result());
+        System.out.println(String.format("Got status code %s with payload of: %s | %s",
+          response.result().statusCode(), response.result().bodyAsString(), explainString));
+        WrappedResponse wr = new WrappedResponse(explanation, response.result().statusCode(), response.result().bodyAsString(), response.result());
         handler.handle(wr);
         promise.complete(wr);
       }
