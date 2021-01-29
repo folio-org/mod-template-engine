@@ -99,7 +99,7 @@ public class ApiTestHelper {
     };
 
     if (method == HttpMethod.PUT || method == HttpMethod.POST) {
-      request.sendJsonObject(new JsonObject(payload) ,responseHandler);
+      request.sendJsonObject(new JsonObject(payload), responseHandler);
     } else {
       request.send(responseHandler);
     }
