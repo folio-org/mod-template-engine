@@ -12,6 +12,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 
@@ -59,6 +61,8 @@ public class ApiTestHelper {
     }
   }
 
+  private static final Logger logger = LogManager.getLogger("ApiTestHelper");
+
   public static Future<WrappedResponse> doRequest(Vertx vertx, String url,
     HttpMethod method, MultiMap headers, String payload,
     Integer expectedCode, String explanation, Handler<WrappedResponse> handler) {
@@ -77,7 +81,7 @@ public class ApiTestHelper {
       }
     }
 
-    System.out.println(String.format("Sending %s request to url '%s with payload: %s'\n", method.toString(), url, payload));
+    logger.info(String.format("Sending %s request to url '%s with payload: %s'\n", method.toString(), url, payload));
 
     Handler<AsyncResult<HttpResponse<Buffer>>> responseHandler = response -> {
       String explainString = "(no explanation)";
@@ -88,7 +92,7 @@ public class ApiTestHelper {
         promise.fail(String.format("%s to %s failed. Expected status code %s, got status code %s : %s | %s",
           method.toString(), url, expectedCode, response.result().statusCode(), response.result().bodyAsString(), explainString));
       } else {
-        System.out.println(String.format("Got status code %s with payload of: %s | %s",
+        logger.info(String.format("Got status code %s with payload of: %s | %s",
           response.result().statusCode(), response.result().bodyAsString(), explainString));
         WrappedResponse wr = new WrappedResponse(explanation, response.result().statusCode(), response.result().bodyAsString(), response.result());
         handler.handle(wr);
