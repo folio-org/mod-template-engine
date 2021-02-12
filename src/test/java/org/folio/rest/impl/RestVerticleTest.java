@@ -20,6 +20,7 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import io.vertx.ext.web.client.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
@@ -39,6 +40,7 @@ public class RestVerticleTest {
   private static int mockServerPort;
   private static Vertx vertx;
   private static final Logger logger = LogManager.getLogger("TemplateEngineTest");
+  private static final int POST_TENANT_TIMEOUT = 10000;
   private static String templateUrl;
   private static String okapiUrl;
   private static WireMockServer wireMockServer;
@@ -109,11 +111,11 @@ public class RestVerticleTest {
           }
 
           final HttpResponse<Buffer> postResponse = postResult.result();
-          assertThat(postResponse.statusCode(), CoreMatchers.is(201));
+          assertThat(postResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_CREATED));
 
           String jobId = postResponse.bodyAsJson(TenantJob.class).getId();
 
-          tenantClient.getTenantByOperationId(jobId, 10000, getResult -> {
+          tenantClient.getTenantByOperationId(jobId, POST_TENANT_TIMEOUT, getResult -> {
             if (getResult.failed()) {
               Throwable cause = getResult.cause();
               logger.error(cause.getMessage());
@@ -122,7 +124,7 @@ public class RestVerticleTest {
             }
 
             final HttpResponse<Buffer> getResponse = getResult.result();
-            assertThat(getResponse.statusCode(), CoreMatchers.is(200));
+            assertThat(getResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_OK));
             assertThat(getResponse.bodyAsJson(TenantJob.class).getComplete(), CoreMatchers.is(true));
             async.complete();
           });
