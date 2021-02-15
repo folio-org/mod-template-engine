@@ -1,8 +1,8 @@
 package org.folio.template.util;
 
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.krysalis.barcode4j.impl.code128.Code128Bean;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.krysalis.barcode4j.tools.UnitConv;
@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import java.util.Base64;
 
 public class BarcodeImageGenerator {
-  private static final Logger LOG = LoggerFactory.getLogger("mod-template-engine");
+  private static final Logger LOG = LogManager.getLogger("mod-template-engine");
   private static final String MIME_TYPE_PNG = "image/png";
   private static final int DPI = 160;
 

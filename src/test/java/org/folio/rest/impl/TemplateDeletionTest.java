@@ -11,8 +11,8 @@ import static org.hamcrest.Matchers.is;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import java.io.IOException;
 
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.TenantAttributes;
@@ -37,7 +37,7 @@ import io.vertx.junit5.VertxTestContext;
 @ExtendWith(VertxExtension.class)
 class TemplateDeletionTest {
 
-  private static final Logger logger = LoggerFactory.getLogger(TemplateDeletionTest.class);
+  private static final Logger logger = LogManager.getLogger(TemplateDeletionTest.class);
   private static JsonObject unusedTemplate = new JsonObject()
     .put("id", "c9c7d02f-873a-4608-98e7-5e2df69a4a4f")
     .put("templateResolver", "mustache")
@@ -85,7 +85,7 @@ class TemplateDeletionTest {
         }
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
         tenantClient.postTenant(t, post -> {
-          assertThat(post.statusCode(), is(201));
+          assertThat(post.result().statusCode(), is(201));
           context.completeNow();
         });
       } catch (Exception e) {

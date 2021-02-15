@@ -7,24 +7,28 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
-import io.vertx.core.http.CaseInsensitiveHeaders;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
+import io.vertx.ext.web.client.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.TenantAttributes;
+import org.folio.rest.jaxrs.model.TenantJob;
 import org.folio.rest.tools.utils.NetworkUtils;
+import org.hamcrest.CoreMatchers;
 import org.junit.*;
 import org.junit.runner.RunWith;
 
@@ -35,7 +39,8 @@ public class RestVerticleTest {
 
   private static int mockServerPort;
   private static Vertx vertx;
-  private static final Logger logger = LoggerFactory.getLogger("TemplateEngineTest");
+  private static final Logger logger = LogManager.getLogger("TemplateEngineTest");
+  private static final int POST_TENANT_TIMEOUT = 10000;
   private static String templateUrl;
   private static String okapiUrl;
   private static WireMockServer wireMockServer;
@@ -97,10 +102,32 @@ public class RestVerticleTest {
     vertx.deployVerticle(RestVerticle.class.getName(), options, context.asyncAssertSuccess(res -> {
       try {
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
-        tenantClient.postTenant(t, res2 -> {
-          assertThat(res2.statusCode(), is(201));
-          System.out.println("X");
-          async.complete();
+        tenantClient.postTenant(t, postResult -> {
+          if (postResult.failed()) {
+            Throwable cause = postResult.cause();
+            logger.error(cause);
+            context.fail(cause);
+            return;
+          }
+
+          final HttpResponse<Buffer> postResponse = postResult.result();
+          assertThat(postResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_CREATED));
+
+          String jobId = postResponse.bodyAsJson(TenantJob.class).getId();
+
+          tenantClient.getTenantByOperationId(jobId, POST_TENANT_TIMEOUT, getResult -> {
+            if (getResult.failed()) {
+              Throwable cause = getResult.cause();
+              logger.error(cause.getMessage());
+              context.fail(cause);
+              return;
+            }
+
+            final HttpResponse<Buffer> getResponse = getResult.result();
+            assertThat(getResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_OK));
+            assertThat(getResponse.bodyAsJson(TenantJob.class).getComplete(), CoreMatchers.is(true));
+            async.complete();
+          });
         });
       } catch (Exception e) {
         context.fail(e);
@@ -199,15 +226,15 @@ public class RestVerticleTest {
   }
 
   private Future<ApiTestHelper.WrappedResponse> doDeleteById(TestContext context, String id, Handler<ApiTestHelper.WrappedResponse> handler) {
-    CaseInsensitiveHeaders headers = new CaseInsensitiveHeaders();
+    MultiMap headers = MultiMap.caseInsensitiveMultiMap();
     headers.add("X-Okapi-Token", "dummytoken");
     headers.add("X-Okapi-Url", "http://localhost:" + mockServerPort);
     return ApiTestHelper.doRequest(vertx, templateUrl + "/" + id, HttpMethod.DELETE, headers, null,
       204, "DELETE template", handler);
   }
 
-  private CaseInsensitiveHeaders buildDefHeaders() {
-    CaseInsensitiveHeaders headers = new CaseInsensitiveHeaders();
+  private MultiMap buildDefHeaders() {
+    MultiMap headers = MultiMap.caseInsensitiveMultiMap();
     headers.add("X-Okapi-Url", okapiUrl);
     return headers;
   }
