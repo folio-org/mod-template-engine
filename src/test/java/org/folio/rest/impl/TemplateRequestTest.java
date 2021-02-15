@@ -12,11 +12,16 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
+import io.vertx.core.buffer.Buffer;
+import io.vertx.ext.web.client.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.*;
 import org.folio.rest.tools.utils.NetworkUtils;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -54,6 +59,9 @@ public class TemplateRequestTest {
   private static final String HTML_OUTPUT_FORMAT = "html";
   private static final String EN_LANG = "en";
 
+  private static final Logger logger = LogManager.getLogger("TemplateEngineTest");
+  private static final int POST_TENANT_TIMEOUT = 10000;
+
   private static Vertx vertx;
   private static String moduleUrl;
 
@@ -80,9 +88,32 @@ public class TemplateRequestTest {
     vertx.deployVerticle(RestVerticle.class.getName(), restVerticleDeploymentOptions, context.asyncAssertSuccess(res -> {
       try {
         TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
-        tenantClient.postTenant(t, res2 -> {
-          assertThat(res2.result().statusCode(), is(201));
-          async.complete();
+        tenantClient.postTenant(t, postResult -> {
+          if (postResult.failed()) {
+            Throwable cause = postResult.cause();
+            logger.error(cause);
+            context.fail(cause);
+            return;
+          }
+
+          final HttpResponse<Buffer> postResponse = postResult.result();
+          assertThat(postResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_CREATED));
+
+          String jobId = postResponse.bodyAsJson(TenantJob.class).getId();
+
+          tenantClient.getTenantByOperationId(jobId, POST_TENANT_TIMEOUT, getResult -> {
+            if (getResult.failed()) {
+              Throwable cause = getResult.cause();
+              logger.error(cause.getMessage());
+              context.fail(cause);
+              return;
+            }
+
+            final HttpResponse<Buffer> getResponse = getResult.result();
+            assertThat(getResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_OK));
+            assertThat(getResponse.bodyAsJson(TenantJob.class).getComplete(), CoreMatchers.is(true));
+            async.complete();
+          });
         });
       } catch (Exception e) {
         context.fail(e);
