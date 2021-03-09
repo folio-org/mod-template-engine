@@ -1,3 +1,7 @@
+## 2021-03-09 v1.13.0
+ * Update template for password change email (MODTEMPENG-59)
+ * Update to RMB 32.1.0 and Vertx 4.0.0 (MODTEMPENG-63)
+
 ## 2020-11-13 v1.12.0
  * Fix templates with barcode images (MODTEMPENG-57)
  * Upgrade to RMB 31.1.5 and Vert.x 3.9.4 (MODTEMPENG-60)
