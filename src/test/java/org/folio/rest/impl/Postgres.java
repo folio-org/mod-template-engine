@@ -5,6 +5,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.folio.postgres.testing.PostgresTesterContainer;
 import org.folio.rest.persist.PostgresClient;
 
 import io.vertx.core.Vertx;
@@ -24,11 +25,11 @@ public final class Postgres {
 
   public static void init() {
     // PostgresClient automatically starts embedded postgres if needed
-
+    PostgresClient.setPostgresTester(new PostgresTesterContainer());
     if (shutdownHookInstalled) {
       return;
     }
-    Runtime.getRuntime().addShutdownHook(new Thread(PostgresClient::stopEmbeddedPostgres));
+    Runtime.getRuntime().addShutdownHook(new Thread(PostgresClient::stopPostgresTester));
     shutdownHookInstalled = true;
   }
 
