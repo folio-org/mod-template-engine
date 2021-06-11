@@ -1,3 +1,6 @@
+## 2021-06-11 v1.14.0
+ * Upgrade to RMB 33.0.0 and Vertx 4.1.0 (MODTEMPENG-69)
+
 ## 2021-03-09 v1.13.0
  * Update template for password change email (MODTEMPENG-59)
  * Update to RMB 32.1.0 and Vertx 4.0.0 (MODTEMPENG-63)
