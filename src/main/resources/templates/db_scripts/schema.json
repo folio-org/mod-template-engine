@@ -16,6 +16,10 @@
       "run": "after",
       "snippetPath": "update-password-changed-template.sql",
       "fromModuleVersion": "1.13.0"
+    },
+    {
+      "run": "after",
+      "snippetPath": "update-automated-fee-fine-category.sql"
     }
   ]
 }
