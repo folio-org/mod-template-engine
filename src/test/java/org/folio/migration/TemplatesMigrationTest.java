@@ -26,6 +26,8 @@ import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Future;
+import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
@@ -57,12 +59,14 @@ public class TemplatesMigrationTest {
   @BeforeClass
   public static void setUpClass(TestContext context) {
     Postgres.init();
+    Async async = context.async();
 
     DeploymentOptions options = new DeploymentOptions()
       .setConfig(new JsonObject().put("http.port", MODULE_PORT));
 
     vertx.deployVerticle(RestVerticle.class.getName(), options,
-      context.asyncAssertSuccess(res -> postTenant(context)));
+      context.asyncAssertSuccess(res -> postTenant(context)
+        .onSuccess(r -> async.complete())));
   }
 
   @Before
@@ -99,18 +103,19 @@ public class TemplatesMigrationTest {
     postTemplate(templateWithSupportedCategory);
     postTemplate(templateWithUnsupportedCategory);
 
-    postTenant(context);
+    postTenant(context)
+      .onSuccess(r -> {
+        // supported categories should remain intact
+        getTemplate(templateIdWithSupportedCategory)
+          .body(CATEGORY_KEY, is(templateWithSupportedCategory.getString(CATEGORY_KEY)));
 
-    // supported categories should remain intact
-    getTemplate(templateIdWithSupportedCategory)
-      .body(CATEGORY_KEY, is(templateWithSupportedCategory.getString(CATEGORY_KEY)));
-
-    getTemplate(templateIdWithUnsupportedCategory)
-      .body(CATEGORY_KEY, is("AutomatedFeeFineCharge"));
+        getTemplate(templateIdWithUnsupportedCategory)
+          .body(CATEGORY_KEY, is("AutomatedFeeFineCharge"));
+      });
   }
 
-  private static void postTenant(TestContext context) {
-    Async async = context.async();
+  private static Future<Void> postTenant(TestContext context) {
+    Promise<Void> promise = Promise.promise();
 
     try {
       TenantAttributes tenantAttributes = new TenantAttributes()
@@ -138,13 +143,15 @@ public class TemplatesMigrationTest {
           final HttpResponse<Buffer> getResponse = getResult.result();
           assertThat(getResponse.statusCode(), is(HttpStatus.SC_OK));
           assertThat(getResponse.bodyAsJson(TenantJob.class).getComplete(), is(true));
-          async.complete();
+          promise.complete();
         });
       });
     } catch (Exception e) {
       LOG.error(e);
       context.fail(e);
     }
+
+    return promise.future();
   }
 
   private void postTemplate(JsonObject template) {
