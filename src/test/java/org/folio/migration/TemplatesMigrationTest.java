@@ -42,7 +42,7 @@ import io.vertx.ext.web.client.WebClient;
 public class TemplatesMigrationTest {
   private static final Logger LOG = LogManager.getLogger(TemplatesMigrationTest.class);
 
-  private static final int POST_TENANT_TIMEOUT = 10000;
+  private static final int GET_TENANT_TIMEOUT = 10000;
   private static final int MODULE_PORT = NetworkUtils.nextFreePort();
   private static final int OKAPI_PORT = NetworkUtils.nextFreePort();
   private static final String OKAPI_URL_HEADER = "x-okapi-url";
@@ -50,10 +50,10 @@ public class TemplatesMigrationTest {
   private static final String OKAPI_URL = "http://localhost:" + OKAPI_PORT;
   private static final String TEMPLATES_URL = MODULE_URL + "/templates";
   private static final String CATEGORY_KEY = "category";
-
   private static final Vertx vertx = Vertx.vertx();
-  private static final WebClient webClient = WebClient.create(vertx);
-  private static final TenantClient tenantClient = new TenantClient(MODULE_URL, getTenant(), null, webClient);
+  private static final TenantClient tenantClient = new TenantClient(
+    MODULE_URL, getTenant(), null, WebClient.create(vertx));
+
   private RequestSpecification requestSpecification;
 
   @BeforeClass
@@ -133,7 +133,7 @@ public class TemplatesMigrationTest {
 
         String jobId = postResponse.bodyAsJson(TenantJob.class).getId();
 
-        tenantClient.getTenantByOperationId(jobId, POST_TENANT_TIMEOUT, getResult -> {
+        tenantClient.getTenantByOperationId(jobId, GET_TENANT_TIMEOUT, getResult -> {
           if (getResult.failed()) {
             LOG.error(getResult.cause());
             context.fail(getResult.cause());
