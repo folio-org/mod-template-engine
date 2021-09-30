@@ -1,3 +1,6 @@
+## 2021-09-30 v1.15.0
+ * Build migration script to rename deprecated template category `AutomatedFeeFine` to `AutomatedFeeFineCharge` (MODTEMPENG-72)
+
 ## 2021-06-11 v1.14.0
  * Upgrade to RMB 33.0.0 and Vertx 4.1.0 (MODTEMPENG-69)
 
