@@ -1,3 +1,6 @@
+## 2021-12-16 v1.15.1
+ * Upgrade to RMB 33.0.4 and Log4j 2.16.0 (MODTEMPENG-75)
+
 ## 2021-09-30 v1.15.0
  * Build migration script to rename deprecated template category `AutomatedFeeFine` to `AutomatedFeeFineCharge` (MODTEMPENG-72)
 
