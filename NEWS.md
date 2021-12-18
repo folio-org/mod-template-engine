@@ -1,3 +1,6 @@
+## 2021-12-18 v1.14.1
+ * Log4j 2.16.0 by upgrading to RMB 33.0.4 (MODTEMPENG-76)
+
 ## 2021-06-11 v1.14.0
  * Upgrade to RMB 33.0.0 and Vertx 4.1.0 (MODTEMPENG-69)
 
