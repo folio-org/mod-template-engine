@@ -18,9 +18,9 @@
     <http.port>8081</http.port>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <ramlfiles_util_path>${basedir}/raml-util</ramlfiles_util_path>
-    <raml-module-builder.version>33.0.4</raml-module-builder.version>
+    <raml-module-builder.version>33.2.4</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <vertx-version>4.1.0.CR1</vertx-version>
+    <vertx-version>4.2.4</vertx-version>
   </properties>
 
   <repositories>
@@ -170,16 +170,6 @@
         <version>${vertx-version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>io.vertx</groupId>
-        <artifactId>vertx-sql-client</artifactId>
-        <version>${vertx-version}-FOLIO</version>
-      </dependency>
-      <dependency>
-        <groupId>io.vertx</groupId>
-        <artifactId>vertx-pg-client</artifactId>
-        <version>${vertx-version}-FOLIO</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
