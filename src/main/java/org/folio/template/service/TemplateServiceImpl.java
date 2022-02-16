@@ -2,6 +2,7 @@ package org.folio.template.service;
 
 import static io.vertx.core.Future.failedFuture;
 import static java.lang.String.format;
+import static org.folio.okapi.common.XOkapiHeaders.TENANT;
 
 import java.util.Date;
 import java.util.List;
@@ -22,12 +23,10 @@ import org.folio.rest.jaxrs.model.TemplateProcessingResult;
 import org.folio.template.InUseTemplateException;
 import org.folio.template.client.CirculationStorageClient;
 import org.folio.template.client.ConfigurationClient;
-import org.folio.template.client.ConfigurationClientImpl;
 import org.folio.template.client.LocaleConfiguration;
 import org.folio.template.dao.TemplateDao;
 import org.folio.template.dao.TemplateDaoImpl;
 import org.folio.template.resolver.TemplateResolver;
-import org.folio.template.util.OkapiConnectionParams;
 import org.folio.template.util.TemplateContextPreProcessor;
 import org.folio.template.util.TemplateEngineHelper;
 
@@ -46,12 +45,13 @@ public class TemplateServiceImpl implements TemplateService {
   private CirculationStorageClient circulationStorageClient;
 
 
-  public TemplateServiceImpl(Vertx vertx, OkapiConnectionParams params) {
+  public TemplateServiceImpl(Vertx vertx, Map<String, String> okapiHeaders) {
     this.vertx = vertx;
-    this.templateDao = new TemplateDaoImpl(vertx, params.getTenant());
-    this.templateResolverAddressesMap = vertx.sharedData().getLocalMap(TemplateEngineHelper.TEMPLATE_RESOLVERS_LOCAL_MAP);
-    this.configurationClient = new ConfigurationClientImpl(vertx);
-    circulationStorageClient = new CirculationStorageClient(vertx);
+    this.templateDao = new TemplateDaoImpl(vertx, okapiHeaders.get(TENANT));
+    this.templateResolverAddressesMap = vertx.sharedData().getLocalMap(
+      TemplateEngineHelper.TEMPLATE_RESOLVERS_LOCAL_MAP);
+    this.configurationClient = new ConfigurationClient(vertx, okapiHeaders);
+    this.circulationStorageClient = new CirculationStorageClient(vertx, okapiHeaders);
   }
 
   public Future<List<Template>> getTemplates(String query, int offset, int limit) {
@@ -84,26 +84,23 @@ public class TemplateServiceImpl implements TemplateService {
   }
 
   @Override
-  public Future<Boolean> deleteTemplate(String id, OkapiConnectionParams params) {
-
+  public Future<Boolean> deleteTemplate(String id) {
     String query = format("loanNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
       "OR requestNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
       "OR feeFineNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\"", id);
 
-    return circulationStorageClient.findPatronNoticePolicies(query, 0, params)
+    return circulationStorageClient.findPatronNoticePolicies(query, 0)
       .compose(policies -> policies.getInteger("totalRecords") == 0 ?
         templateDao.deleteTemplate(id) : failedFuture(new InUseTemplateException()));
   }
 
   @Override
-  public Future<TemplateProcessingResult> processTemplate(
-    TemplateProcessingRequest templateRequest, OkapiConnectionParams okapiConnectionParams) {
-
+  public Future<TemplateProcessingResult> processTemplate(TemplateProcessingRequest templateRequest) {
     Future<Template> templateByIdFuture = getTemplateById(templateRequest.getTemplateId())
       .map(optionalTemplate -> optionalTemplate.orElseThrow(() ->
         new BadRequestException(String.format("Template with id %s does not exist", templateRequest.getTemplateId()))));
 
-    Future<LocaleConfiguration> localeConfigurationFuture = configurationClient.lookupLocaleConfig(okapiConnectionParams);
+    Future<LocaleConfiguration> localeConfigurationFuture = configurationClient.lookupLocaleConfig();
 
     return CompositeFuture.all(templateByIdFuture, localeConfigurationFuture)
       .compose(compositeFuture -> {

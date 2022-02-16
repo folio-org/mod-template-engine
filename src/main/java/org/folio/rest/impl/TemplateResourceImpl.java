@@ -10,7 +10,6 @@ import org.folio.rest.jaxrs.model.TemplatesCollection;
 import org.folio.rest.jaxrs.resource.Templates;
 import org.folio.template.service.TemplateService;
 import org.folio.template.service.TemplateServiceImpl;
-import org.folio.template.util.OkapiConnectionParams;
 import org.folio.template.util.TemplateEngineHelper;
 
 import javax.validation.constraints.NotNull;
@@ -27,7 +26,7 @@ public class TemplateResourceImpl implements Templates {
                             Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext(v -> {
       try {
-        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), new OkapiConnectionParams(okapiHeaders));
+        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         templateService.addTemplate(entity)
           .map((Response) PostTemplatesResponse.respond201WithApplicationJson(entity))
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
@@ -46,7 +45,7 @@ public class TemplateResourceImpl implements Templates {
                            Context vertxContext) {
     vertxContext.runOnContext(v -> {
       try {
-        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), new OkapiConnectionParams(okapiHeaders));
+        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         templateService.getTemplates(query, offset, limit)
           .map(templates -> new TemplatesCollection()
             .withTemplates(templates)
@@ -67,7 +66,7 @@ public class TemplateResourceImpl implements Templates {
                                        Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
     vertxContext.runOnContext(v -> {
       try {
-        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), new OkapiConnectionParams(okapiHeaders));
+        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         templateService.getTemplateById(templateId)
           .map(optionalTemplate -> optionalTemplate.orElseThrow(() ->
             new NotFoundException(String.format("Template with id '%s' not found", templateId))))
@@ -89,7 +88,7 @@ public class TemplateResourceImpl implements Templates {
                                        Context vertxContext) {
     vertxContext.runOnContext(v -> {
       try {
-        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), new OkapiConnectionParams(okapiHeaders));
+        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         entity.setId(templateId);
         templateService.updateTemplate(entity)
           .map(updated -> updated ?
@@ -111,9 +110,8 @@ public class TemplateResourceImpl implements Templates {
                                           Handler<AsyncResult<Response>> asyncResultHandler,
                                           Context vertxContext) {
 
-    OkapiConnectionParams params = new OkapiConnectionParams(okapiHeaders);
-    TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), params);
-    templateService.deleteTemplate(templateId, params).map(deleted -> deleted ?
+    TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
+    templateService.deleteTemplate(templateId).map(deleted -> deleted ?
       DeleteTemplatesByTemplateIdResponse.respond204WithTextPlain(
         String.format("Template with id: %s deleted", templateId)) :
       buildTemplateNotFound(templateId))
