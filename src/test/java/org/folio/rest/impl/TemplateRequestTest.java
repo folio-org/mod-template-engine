@@ -74,7 +74,7 @@ public class TemplateRequestTest {
   private RequestSpecification spec;
 
   @BeforeClass
-  public static void setUpClass(final TestContext context) throws Exception {
+  public static void setUpClass(final TestContext context) {
     Async async = context.async();
     vertx = Vertx.vertx();
     int port = NetworkUtils.nextFreePort();
@@ -122,13 +122,14 @@ public class TemplateRequestTest {
   }
 
   @Before
-  public void setUp(TestContext context) {
+  public void setUp() {
     spec = new RequestSpecBuilder()
       .setContentType(ContentType.JSON)
       .setBaseUri(moduleUrl)
       .addHeader(RestVerticle.OKAPI_HEADER_TENANT, Postgres.getTenant())
       .addHeader(RestVerticle.OKAPI_HEADER_TOKEN, Postgres.getTenant())
       .addHeader(OKAPI_HEADER_URL, LOCALHOST + ':' + mockServer.port())
+      .addHeader(RestVerticle.OKAPI_REQUESTID_HEADER, "requestId")
       .build();
     mockConfigModule();
     Postgres.truncate();

@@ -13,6 +13,7 @@ import java.util.Map;
 
 import static javax.ws.rs.core.HttpHeaders.ACCEPT;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.folio.okapi.common.WebClientFactory.getWebClient;
 import static org.folio.okapi.common.XOkapiHeaders.REQUEST_ID;
 import static org.folio.okapi.common.XOkapiHeaders.TENANT;
 import static org.folio.okapi.common.XOkapiHeaders.TOKEN;
@@ -27,7 +28,7 @@ public class OkapiClient {
 
   public OkapiClient(Vertx vertx, Map<String, String> okapiHeaders) {
     CaseInsensitiveMap<String, String> headers = new CaseInsensitiveMap<>(okapiHeaders);
-    this.webClient = vertx.getOrCreateContext().get("webClient");
+    this.webClient = getWebClient(vertx);
     okapiUrl = headers.get(URL);
     tenant = headers.get(TENANT);
     token = headers.get(TOKEN);

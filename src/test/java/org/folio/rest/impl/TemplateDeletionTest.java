@@ -9,7 +9,6 @@ import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
-import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,7 +54,7 @@ class TemplateDeletionTest {
   private static String okapiUrl;
 
   @BeforeAll
-  static void beforeAll(Vertx vertx, VertxTestContext context) throws IOException {
+  static void beforeAll(Vertx vertx, VertxTestContext context) {
 
     int okapiPort = NetworkUtils.nextFreePort();
     int mockServerPort = NetworkUtils.nextFreePort();
@@ -71,6 +70,7 @@ class TemplateDeletionTest {
       .addHeader(OKAPI_HEADER_TENANT, Postgres.getTenant())
       .addHeader("X-Okapi-Token", "test_token")
       .addHeader("X-Okapi-Url", "http://localhost:" + mockServerPort)
+      .addHeader("X-Okapi-Request-Id", "requestId")
       .build();
 
     Postgres.init();
