@@ -1,3 +1,9 @@
+## 2022-02-22 v1.16.0
+* Upgrade to RMB 33.2.4 (MODTEMPENG-79)
+* Bump httpclient from 4.5.3 to 4.5.13
+* Use new api-lint and api-doc CI facilities (FOLIO-3231)
+* Upgrade to RMB 33.0.4 and Log4j 2.16.0 (MODTEMPENG-75)
+
 ## 2021-09-30 v1.15.0
  * Build migration script to rename deprecated template category `AutomatedFeeFine` to `AutomatedFeeFineCharge` (MODTEMPENG-72)
 
