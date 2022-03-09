@@ -36,41 +36,38 @@ public class OkapiClient {
   }
 
   HttpRequest<Buffer> getAbs(String path) {
-    return webClient.requestAbs(HttpMethod.GET, okapiUrl + path)
-      .putHeader(ACCEPT, APPLICATION_JSON)
-      .putHeader(URL, okapiUrl)
-      .putHeader(TENANT, tenant)
-      .putHeader(TOKEN, token)
-      .putHeader(REQUEST_ID, requestId);
+    return addHeaders(webClient.requestAbs(HttpMethod.GET, okapiUrl + path));
   }
 
   HttpRequest<Buffer> postAbs(String path) {
-    return webClient.requestAbs(HttpMethod.POST, okapiUrl + path)
-      .putHeader(ACCEPT, APPLICATION_JSON)
-      .putHeader(URL, okapiUrl)
-      .putHeader(TENANT, tenant)
-      .putHeader(TOKEN, token)
-      .putHeader(REQUEST_ID, requestId);
+    return addHeaders(webClient.requestAbs(HttpMethod.POST, okapiUrl + path));
   }
 
   public Promise<HttpResponse<Buffer>> getMany(String path, String query, int limit) {
-    Promise<HttpResponse<Buffer>> promise = Promise.promise();
-    HttpRequest<Buffer> request = getAbs(path)
-      .addQueryParam("query", query)
-      .addQueryParam("limit", String.valueOf(limit));
-    request.send(promise);
-
-    return promise;
+    return getMany(path, query, limit, 0);
   }
 
   public Promise<HttpResponse<Buffer>> getMany(String path, String query, int limit, int offset) {
     HttpRequest<Buffer> request = getAbs(path)
       .addQueryParam("query", query)
-      .addQueryParam("limit", Integer.toString(limit))
-      .addQueryParam("offset", Integer.toString(offset));
+      .addQueryParam("limit", Integer.toString(limit));
+
+    if (offset > 0) {
+      request = request.addQueryParam("offset", Integer.toString(offset));
+    }
+
     Promise<HttpResponse<Buffer>> promise = Promise.promise();
     request.send(promise);
 
     return promise;
+  }
+
+  private HttpRequest<Buffer> addHeaders(HttpRequest<Buffer> request) {
+    return request
+      .putHeader(ACCEPT, APPLICATION_JSON)
+      .putHeader(URL, okapiUrl)
+      .putHeader(TENANT, tenant)
+      .putHeader(TOKEN, token)
+      .putHeader(REQUEST_ID, requestId);
   }
 }

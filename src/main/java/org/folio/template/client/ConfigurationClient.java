@@ -1,20 +1,20 @@
 package org.folio.template.client;
 
 
-import io.vertx.core.Future;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
+import static java.lang.String.format;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
+
 import org.folio.HttpStatus;
 import org.folio.rest.jaxrs.model.Config;
 import org.folio.rest.jaxrs.model.Configurations;
 import org.folio.template.util.OkapiModuleClientException;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static java.lang.String.format;
+import io.vertx.core.Future;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 
 public class ConfigurationClient extends OkapiClient {
 
@@ -52,9 +52,8 @@ public class ConfigurationClient extends OkapiClient {
   }
 
   private LocaleConfiguration mapToLocaleConfiguration(Configurations configurations) {
-    JsonObject localeConfig = Optional.ofNullable(configurations.getConfigs())
-      .map(Collection::stream)
-      .orElse(Stream.empty())
+    JsonObject localeConfig = Optional.ofNullable(configurations.getConfigs()).stream()
+      .flatMap(Collection::stream)
       .findFirst()
       .map(Config::getValue)
       .map(JsonObject::new)
