@@ -21,7 +21,7 @@ public class CirculationStorageClient extends OkapiClient {
 
   public Future<JsonObject> findPatronNoticePolicies(String query, int limit) {
     return getMany(PATRON_NOTICE_POLICIES_URL, query, limit).future()
-      .compose(resp -> resp.statusCode() == 200
+      .compose(resp -> resp.statusCode() == HTTP_OK.toInt()
         ? succeededFuture(resp.bodyAsJsonObject())
         : failedFuture(new OkapiModuleClientException(format("Error getting patron notice policies." +
         " Status: %d, body: %s", resp.statusCode(), resp.body()))));
