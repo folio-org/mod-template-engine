@@ -44,9 +44,8 @@ public class ConfigurationClient extends OkapiClient {
     return getMany(configRequestPath, query, limit, offset).future()
       .map(response -> {
         if (response.statusCode() != HttpStatus.HTTP_OK.toInt()) {
-          throw new OkapiModuleClientException(
-            format("Error getting config by module name. Status: %d, body: %s",
-              response.statusCode(), response.body()));
+          throw new OkapiModuleClientException(format("Error getting config by module name. " +
+            "Status: %d, body: %s", response.statusCode(), response.body()));
         }
       return response.bodyAsJsonObject().mapTo(Configurations.class);
     });
