@@ -35,6 +35,7 @@ public class ConfigurationClient extends OkapiClient {
 
   private Future<Configurations> lookupConfigByModuleAndConfigName(String moduleName,
     String configName, int limit, int offset) {
+    
     String query = format("module=%s and configName=%s", moduleName, configName);
     return lookupConfigByQuery(query, limit, offset);
   }
