@@ -91,9 +91,9 @@ public class TemplateResourceImpl implements Templates {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         entity.setId(templateId);
         templateService.updateTemplate(entity)
-          .map(updated -> Boolean.TRUE.equals(updated) ?
-            PutTemplatesByTemplateIdResponse.respond200WithApplicationJson(entity) :
-            buildTemplateNotFound(templateId)
+          .map(updated -> Boolean.TRUE.equals(updated)
+            ? PutTemplatesByTemplateIdResponse.respond200WithApplicationJson(entity)
+            : buildTemplateNotFound(templateId)
           )
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
           .onComplete(asyncResultHandler);
@@ -110,10 +110,10 @@ public class TemplateResourceImpl implements Templates {
     Context vertxContext) {
 
     TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
-    templateService.deleteTemplate(templateId).map(deleted -> Boolean.TRUE.equals(deleted) ?
-      DeleteTemplatesByTemplateIdResponse.respond204WithTextPlain(
-        String.format("Template with id: %s deleted", templateId)) :
-      buildTemplateNotFound(templateId))
+    templateService.deleteTemplate(templateId).map(deleted -> Boolean.TRUE.equals(deleted)
+        ? DeleteTemplatesByTemplateIdResponse.respond204WithTextPlain(
+        String.format("Template with id: %s deleted", templateId))
+        : buildTemplateNotFound(templateId))
       .otherwise(TemplateEngineHelper::mapExceptionToResponse)
       .onComplete(asyncResultHandler);
   }
