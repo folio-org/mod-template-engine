@@ -20,10 +20,10 @@ import java.util.Map;
 
 public class TemplateResourceImpl implements Templates {
 
-
   @Override
   public void postTemplates(Template entity, Map<String, String> okapiHeaders,
-                            Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+
     vertxContext.runOnContext(v -> {
       try {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
@@ -39,10 +39,9 @@ public class TemplateResourceImpl implements Templates {
   }
 
   @Override
-  public void getTemplates(int offset, int limit,
-                           String query, Map<String, String> okapiHeaders,
-                           Handler<AsyncResult<Response>> asyncResultHandler,
-                           Context vertxContext) {
+  public void getTemplates(int offset, int limit, String query, Map<String, String> okapiHeaders,
+    Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+
     vertxContext.runOnContext(v -> {
       try {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
@@ -63,7 +62,8 @@ public class TemplateResourceImpl implements Templates {
 
   @Override
   public void getTemplatesByTemplateId(@NotNull String templateId, Map<String, String> okapiHeaders,
-                                       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+
     vertxContext.runOnContext(v -> {
       try {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
@@ -82,16 +82,16 @@ public class TemplateResourceImpl implements Templates {
   }
 
   @Override
-  public void putTemplatesByTemplateId(@NotNull String templateId, Template
-    entity, Map<String, String> okapiHeaders,
-                                       Handler<AsyncResult<Response>> asyncResultHandler,
-                                       Context vertxContext) {
+  public void putTemplatesByTemplateId(@NotNull String templateId, Template entity,
+    Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler,
+    Context vertxContext) {
+
     vertxContext.runOnContext(v -> {
       try {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         entity.setId(templateId);
         templateService.updateTemplate(entity)
-          .map(updated -> updated ?
+          .map(updated -> Boolean.TRUE.equals(updated) ?
             PutTemplatesByTemplateIdResponse.respond200WithApplicationJson(entity) :
             buildTemplateNotFound(templateId)
           )
@@ -106,12 +106,11 @@ public class TemplateResourceImpl implements Templates {
 
   @Override
   public void deleteTemplatesByTemplateId(@NotNull String templateId,
-                                          Map<String, String> okapiHeaders,
-                                          Handler<AsyncResult<Response>> asyncResultHandler,
-                                          Context vertxContext) {
+    Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler,
+    Context vertxContext) {
 
     TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
-    templateService.deleteTemplate(templateId).map(deleted -> deleted ?
+    templateService.deleteTemplate(templateId).map(deleted -> Boolean.TRUE.equals(deleted) ?
       DeleteTemplatesByTemplateIdResponse.respond204WithTextPlain(
         String.format("Template with id: %s deleted", templateId)) :
       buildTemplateNotFound(templateId))

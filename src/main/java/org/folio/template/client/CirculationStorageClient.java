@@ -10,6 +10,7 @@ import java.util.Map;
 import static io.vertx.core.Future.failedFuture;
 import static io.vertx.core.Future.succeededFuture;
 import static java.lang.String.format;
+import static org.folio.HttpStatus.HTTP_OK;
 
 public class CirculationStorageClient extends OkapiClient {
   private static final String PATRON_NOTICE_POLICIES_URL =
@@ -23,7 +24,7 @@ public class CirculationStorageClient extends OkapiClient {
     return getMany(PATRON_NOTICE_POLICIES_URL, query, limit).future()
       .compose(resp -> resp.statusCode() == HTTP_OK.toInt()
         ? succeededFuture(resp.bodyAsJsonObject())
-        : failedFuture(new OkapiModuleClientException(format("Error getting patron notice policies." +
-        " Status: %d, body: %s", resp.statusCode(), resp.body()))));
+        : failedFuture(new OkapiModuleClientException(format("Error getting patron notice " +
+        "policies. Status: %d, body: %s", resp.statusCode(), resp.body()))));
   }
 }

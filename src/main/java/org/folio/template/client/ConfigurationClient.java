@@ -17,10 +17,8 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
 public class ConfigurationClient extends OkapiClient {
-
   private static final String DEFAULT_LANGUAGE_TAG = "en-US";
   private static final String DEFAULT_TIMEZONE_ID = "UTC";
-
   private String configRequestPath;
 
   public ConfigurationClient(Vertx vertx, Map<String, String> okapiHeaders) {
