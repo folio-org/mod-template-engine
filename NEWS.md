@@ -1,3 +1,6 @@
+## 2022-06-27 v1.17.0
+* Upgrade to RMB 34.0.0 (MODTEMPENG-87)
+
 ## 2022-02-22 v1.16.0
 * Upgrade to RMB 33.2.4 (MODTEMPENG-79)
 * Bump httpclient from 4.5.3 to 4.5.13
