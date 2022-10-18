@@ -1,3 +1,6 @@
+## 2022-10-18 v1.18.0
+* Upgrade to RMB 35.0.0 and Vertx 4.3.3 (MODTEMPENG-89)
+
 ## 2022-06-27 v1.17.0
 * Upgrade to RMB 34.0.0 (MODTEMPENG-87)
 
