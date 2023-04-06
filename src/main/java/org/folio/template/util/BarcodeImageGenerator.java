@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.krysalis.barcode4j.impl.code128.Code128Bean;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
 import org.krysalis.barcode4j.tools.UnitConv;
-
+import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,6 +17,20 @@ public class BarcodeImageGenerator {
   private static final Logger LOG = LogManager.getLogger("mod-template-engine");
   private static final String MIME_TYPE_PNG = "image/png";
   private static final int DPI = 160;
+
+  static {
+    // https://blog.adoptopenjdk.net/2021/01/prerequisites-for-font-support-in-adoptopenjdk/
+    // https://issues.folio.org/browse/MODTEMPENG-57
+    try {
+      if (GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames().length == 0) {
+        throw new RuntimeException("Number of fonts is 0");
+      }
+    } catch (Exception | Error other) {
+      // Error might be UnsatisfiedLinkError: "Error loading shared library libfreetype.so.6"
+      var e = new RuntimeException("No font found. Did you run 'apk add --no-cache fontconfig ttf-dejavu'?", other);
+      LOG.fatal(e.getMessage(), e);
+    }
+  }
 
   private BarcodeImageGenerator() {
     throw new UnsupportedOperationException("Do not instantiate");
