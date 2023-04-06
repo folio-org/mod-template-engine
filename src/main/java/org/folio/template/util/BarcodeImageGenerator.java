@@ -13,7 +13,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Base64;
-import java.util.function.Supplier;
+import java.util.function.IntSupplier;
 
 public class BarcodeImageGenerator {
   private static final Logger LOG = LogManager.getLogger("mod-template-engine");
@@ -33,11 +33,11 @@ public class BarcodeImageGenerator {
   }
 
   @SuppressWarnings("java:S1181")  // suppress "Catch Exception instead of Error"
-  static void checkFonts(Supplier<Integer> fontCount) {
+  static void checkFonts(IntSupplier fontCount) {
     // https://blog.adoptopenjdk.net/2021/01/prerequisites-for-font-support-in-adoptopenjdk/
     // https://issues.folio.org/browse/MODTEMPENG-57
     try {
-      if (fontCount.get() == 0) {
+      if (fontCount.getAsInt() == 0) {
         throw new IllegalStateException("Number of fonts is 0");
       }
     } catch (Exception | Error other) {
