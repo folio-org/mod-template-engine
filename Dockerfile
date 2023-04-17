@@ -1,10 +1,14 @@
 FROM folioci/alpine-jre-openjdk11:latest
 
+# Install latest patch versions of packages: https://pythonspeed.com/articles/security-updates-in-docker/
 # Install missing font library for barcode images generation (must be done as root)
 USER root
 
-RUN apk add --no-cache openjdk11-jre
-RUN apk add --no-cache ttf-dejavu
+RUN apk upgrade \
+ && apk add \
+      fontconfig \
+      ttf-dejavu \
+ && rm -rf /var/cache/apk/*
 
 USER folio
 
