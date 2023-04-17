@@ -73,10 +73,6 @@ class ContextDateTimeFormatterTest {
         .put("dateWithInvalidToken", inputDate));
 
     ContextDateTimeFormatter.formatDatesInContext(inputJson, LANGUAGE_TAG, TIMEZONE_ID);
-
-    System.out.println(expectedJson.encodePrettily());
-    System.out.println(inputJson.encodePrettily());
-
     assertEquals(expectedJson, inputJson);
   }
 
