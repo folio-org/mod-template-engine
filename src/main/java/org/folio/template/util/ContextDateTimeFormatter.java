@@ -39,6 +39,7 @@ public class ContextDateTimeFormatter {
   }
 
   public static void formatDatesInContext(JsonObject context, String languageTag, String zoneId) {
+    LOG.debug("formatDatesInContext:: Formatting dates in context");
     Map<String, Object> contextMap = JsonFlattener.flattenAsMap(context.encode());
     JsonPathParser parser = new JsonPathParser(context);
 
@@ -50,15 +51,17 @@ public class ContextDateTimeFormatter {
           ZonedDateTime parsedDateTime = ZonedDateTime.parse((String) entry.getValue(), ISO_DATE_TIME_FORMATTER);
           String formattedDate = dateFormat.get().format(parsedDateTime.toInstant().toEpochMilli());
           parser.setValueAt(token, formattedDate);
+          LOG.warn("Formatted date for token : {}", token);
         } catch (DateTimeParseException e) {
           // value is not a valid date
-          LOG.error(e.getMessage(), e);
+          LOG.warn("Error formatting date for token : {}", token, e);
         }
       }
     }
   }
 
   private static Optional<DateFormat> getDateFormatForToken(String token, String languageTag, String zoneId) {
+    LOG.debug("getDateFormatForToken:: Getting date format for token : {}", token);
     DateFormat i18NDateFormatter = null;
     if (endsWithIgnoreCase(token, DETAILED_DATE_TIME_SUFFIX)) {
       i18NDateFormatter = getDateFormat(DateFormat.LONG, DateFormat.SHORT, languageTag, zoneId);
@@ -72,6 +75,7 @@ public class ContextDateTimeFormatter {
   }
 
   private static DateFormat getDateFormat(int dateStyle, int timeStyle, String languageTag, String zoneId) {
+    LOG.info("getDateFormat:: Getting date format with date style {} and time style {} for language tag {} and zone ID {}", dateStyle, timeStyle, languageTag, zoneId );
     TimeZone timeZone = TimeZone.getTimeZone(zoneId);
     Locale locale = Locale.forLanguageTag(languageTag);
     DateFormat dateFormat = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);

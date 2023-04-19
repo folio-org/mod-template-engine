@@ -3,6 +3,8 @@ package org.folio.template.dao;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.cql2pgjson.CQL2PgJSON;
 import org.folio.cql2pgjson.exception.FieldException;
 import org.folio.rest.jaxrs.model.Template;
@@ -20,6 +22,7 @@ import io.vertx.sqlclient.RowSet;
 
 public class TemplateDaoImpl implements TemplateDao {
 
+  private static final Logger LOG = LogManager.getLogger("mod-template-engine");
   public static final String TEMPLATE_SCHEMA_PATH = "ramls/template.json";
   private static final String TEMPLATES_TABLE = "template";
 
@@ -35,12 +38,14 @@ public class TemplateDaoImpl implements TemplateDao {
 
   @Override
   public Future<List<Template>> getTemplates(String query, int offset, int limit) {
+    LOG.debug("getTemplates:: Retrieving templates from database");
     Promise<Results<Template>> promise = Promise.promise();
     try {
       String[] fieldList = {"*"};
       CQLWrapper cql = getCQL(query, limit, offset);
       pgClient.get(TEMPLATES_TABLE, Template.class, fieldList, cql, true, false, promise);
     } catch (Exception e) {
+      LOG.warn("Failed to retrieve templates from database with exception {}", e.getMessage());
       promise.fail(e);
     }
     return promise.future().map(Results::getResults);
@@ -48,6 +53,7 @@ public class TemplateDaoImpl implements TemplateDao {
 
   @Override
   public Future<Optional<Template>> getTemplateById(String id) {
+    LOG.debug("getTemplateById:: Retrieving template from database by Template ID: {}", id);
     Promise<Template> promise = Promise.promise();
     pgClient.getById(TEMPLATES_TABLE, id, Template.class, promise);
     return promise.future().map(Optional::ofNullable);
@@ -55,6 +61,7 @@ public class TemplateDaoImpl implements TemplateDao {
 
   @Override
   public Future<String> addTemplate(Template template) {
+    LOG.debug("addTemplate:: Adding template to database by Template ID: {}", template.getId());
     Promise<String> promise = Promise.promise();
     pgClient.save(TEMPLATES_TABLE, template.getId(), template, promise);
     return promise.future();
@@ -62,6 +69,7 @@ public class TemplateDaoImpl implements TemplateDao {
 
   @Override
   public Future<Boolean> updateTemplate(Template template) {
+    LOG.debug("updateTemplate:: Updating template in database by Template ID: {}", template.getId());
     Promise<RowSet<Row>> promise = Promise.promise();
     pgClient.update(TEMPLATES_TABLE, template, template.getId(), promise);
     return promise.future().map(updateResult -> updateResult.rowCount() == 1);
@@ -69,6 +77,7 @@ public class TemplateDaoImpl implements TemplateDao {
 
   @Override
   public Future<Boolean> deleteTemplate(String id) {
+    LOG.debug("deleteTemplate:: Deleting template from database by Template ID: {}", id);
     Promise<RowSet<Row>> promise = Promise.promise();
     pgClient.delete(TEMPLATES_TABLE, id, promise);
     return promise.future().map(updateResult -> updateResult.rowCount() == 1);
