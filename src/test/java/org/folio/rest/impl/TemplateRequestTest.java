@@ -298,7 +298,7 @@ public class TemplateRequestTest {
             new JsonObject()
               .put("dueDate", loanDueDate)));
 
-    String expectedHeader = "Request created on 6/10/19, 5:32 PM";
+    String expectedHeader = "Request created on 6/10/19, 5:32 PM";
     String expectedBody = "Due date is 6/18/19";
 
     RestAssured.given()
@@ -478,8 +478,8 @@ public class TemplateRequestTest {
         .withAdditionalProperty("loan", new JsonObject().put("dueDate", loanDueDate)
           .put("dueDateTime", loanDueDate)));
 
-    String expectedHeader = "Request created on 6/10/19, 5:32 PM. Expiration date is 6/15/19";
-    String expectedBody = "Due date is 6/18/19. Due time is 6/18/19, 2:04 PM";
+    String expectedHeader = "Request created on 6/10/19, 5:32 PM. Expiration date is 6/15/19";
+    String expectedBody = "Due date is 6/18/19. Due time is 6/18/19, 2:04 PM";
 
     RestAssured.given()
       .spec(spec)
@@ -526,7 +526,7 @@ public class TemplateRequestTest {
           .put("dueDateTime", validLoanDueDate)));
 
     String expectedHeader = "Request created on 2019-06-10T18:32:31. Expiration date is 2019-06-15";
-    String expectedBody = "Due date is 18.06.19. Due time is 6/18/19, 2:04 PM";
+    String expectedBody = "Due date is 18.06.19. Due time is 6/18/19, 2:04 PM";
 
     RestAssured.given()
       .spec(spec)
@@ -574,9 +574,9 @@ public class TemplateRequestTest {
           .put("checkedInDate", loanDate1)
           .put("checkedInDateTime", loanDate2)));
 
-    String expectedHeader = "Request expiration date: 6/10/19. Request expiration time: 6/10/19, 6:32 PM.";
-    String expectedBody = "Loan due date: 7/15/19. Loan due time: 7/15/19, 6:32 PM. " +
-        "Loan checked in date: 7/15/19. Loan checked in time: 11/11/19, 11:11 AM";
+    String expectedHeader = "Request expiration date: 6/10/19. Request expiration time: 6/10/19, 6:32 PM.";
+    String expectedBody = "Loan due date: 7/15/19. Loan due time: 7/15/19, 6:32 PM. " +
+        "Loan checked in date: 7/15/19. Loan checked in time: 11/11/19, 11:11 AM";
 
     RestAssured.given()
       .spec(spec)

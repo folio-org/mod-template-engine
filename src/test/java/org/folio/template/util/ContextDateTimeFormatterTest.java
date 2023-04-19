@@ -19,7 +19,7 @@ class ContextDateTimeFormatterTest {
   @Test
   void allTheDatesAreLocalizedInJsonObject() {
     String inputIsoDate = "2019-06-18T14:04:33.205Z";
-    String expectedFormattedDate = "6/18/19, 2:04 PM";
+    String expectedFormattedDate = "6/18/19, 2:04 PM";
 
     JsonObject inputJson = new JsonObject()
       .put("rootDateTime", inputIsoDate)
@@ -52,8 +52,8 @@ class ContextDateTimeFormatterTest {
   @Test
   void datesAreLocalizedCorrectlyBasedOnToken() {
     String inputDate = "2019-06-18T14:04:33.205Z";
-    String expectedLocalizedDate = "June 18, 2019 at 2:04 PM";
-    String expectedLongDate = "6/18/19, 2:04 PM";
+    String expectedLocalizedDate = "June 18, 2019 at 2:04 PM";
+    String expectedLongDate = "6/18/19, 2:04 PM";
     String expectedShortDate = "6/18/19";
 
     JsonObject inputJson = new JsonObject()
@@ -99,7 +99,7 @@ class ContextDateTimeFormatterTest {
   @Test
   void datesInArraysAreFormattedCorrectly() {
     String inputDate = "2019-06-18T14:04:33.205Z";
-    String expectedLongDate = "6/18/19, 2:04 PM";
+    String expectedLongDate = "6/18/19, 2:04 PM";
 
     JsonObject inputJson = new JsonObject()
       .put("loan", new JsonArray()
@@ -150,11 +150,11 @@ class ContextDateTimeFormatterTest {
 
   @ParameterizedTest
   @CsvSource(value = {
-    "Asia/Hong_Kong | zh-CN | 2019/9/18 下午10:04",
+    "Asia/Hong_Kong | zh-CN | 2019/9/18 22:04",
     "Europe/Copenhagen | da-DK | 18.09.2019 16.04",
     "Europe/London | en-GB | 18/09/2019, 15:04",
     "Europe/Stockholm | en-SE | 2019-09-18, 16:04",
-    "America/New_York | en-US | 9/18/19, 10:04 AM",
+    "America/New_York | en-US | 9/18/19, 10:04 AM",
   }, delimiter = '|')
   void shouldFormatDateDependingOnLocaleAndTimeZone(String timeZoneId, String langTag, String expected) {
     String inputIsoDate = "2019-09-18T14:04:33.205Z";
