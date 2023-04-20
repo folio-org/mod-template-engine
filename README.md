@@ -12,14 +12,14 @@ text, html, xml, doc, docx etc from the template.
 Generated payload is described by meta information which contains info
 about format, size and date. Supports localization of templates.
 
-| METHOD                             | DESCRIPTION                                        |
-|------------------------------------|----------------------------------------------------|
-| POST /templates                     | Create new template in storage                     |
-| GET /templates/{templateId}         | Get template from storage by id                    |
-| PUT /templates/{templateId}         | Update template in storage                         |
-| DELETE /templates/{templateId}      | Delete template from storage                       |
-| GET /templates?query={custom_query} | Get list of templates from storage by custom query |
-| POST /template-request              | Process specified template using context           |
+| METHOD                               | DESCRIPTION                                        |
+|--------------------------------------|----------------------------------------------------|
+| POST /templates                      | Create new template in storage                     |
+| GET /templates/{templateId}          | Get template from storage by id                    |
+| PUT /templates/{templateId}          | Update template in storage                         |
+| DELETE /templates/{templateId}       | Delete template from storage                       |
+| GET /templates?query={custom\_query} | Get list of templates from storage by custom query |
+| POST /template-request               | Process specified template using context           |
 
 Example of template record:
 ```
@@ -110,12 +110,18 @@ and the [Docker image](https://hub.docker.com/r/folioorg/mod-template-engine/).
 
 ### Dockerfile
 Since version `1.8.0` the module contains functionality for barcode image generation,
-which relies on system font configuration not found in Alpine-based Docker image currently used
-for module delivery. This missing dependency is installed by adding following instructions 
+which relies on system font configuration not found in all Alpine-based Docker images.
+This dependency is installed if missing by adding following instructions
 to Dockerfile:
 ```
 USER root
-RUN apk add --no-cache ttf-dejavu
+
+RUN apk upgrade \
+ && apk add \
+      fontconfig \
+      ttf-dejavu \
+ && rm -rf /var/cache/apk/*
+
 USER folio
 ```
 Introduction of this new dependency affects this particular Docker image only and should not
