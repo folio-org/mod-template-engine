@@ -54,6 +54,7 @@ public class BarcodeImageGenerator {
 
   private static void generateBarcodeImage(String barcode, OutputStream out) throws IOException {
     // Folio uses barcodes of type "Code 128"
+    LOG.debug("generateBarcodeImage:: Generating barcode Image with barcode : {}", barcode);
     Code128Bean bean = new Code128Bean();
     bean.setModuleWidth(UnitConv.in2mm(2.8f / DPI));
     bean.doQuietZone(false);
@@ -66,17 +67,19 @@ public class BarcodeImageGenerator {
   }
 
   private static byte[] generateBarcodeImageBytes(String barcode) {
+    LOG.debug("generateBarcodeImageBytes:: Generating barcode Image Bytes with barcode : {}", barcode);
     try (ByteArrayOutputStream out = new ByteArrayOutputStream()){
       generateBarcodeImage(barcode, out);
       return out.toByteArray();
     }
     catch (IOException ex) {
-      LOG.error("Image generation for barcode {} failed", barcode);
+      LOG.warn("Image generation for barcode {} failed", barcode,ex);
       return new byte[0];
     }
   }
 
   public static String generateBase64Image(String barcode) {
+    LOG.debug("generateBase64Image:: Generating base64 image for barcode: {}", barcode);
     if (StringUtils.isBlank(barcode)) {
       return StringUtils.EMPTY;
     }

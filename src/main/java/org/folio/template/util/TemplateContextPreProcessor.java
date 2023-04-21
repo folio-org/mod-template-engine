@@ -3,6 +3,8 @@ package org.folio.template.util;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import io.vertx.core.json.JsonObject;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.jaxrs.model.Attachment;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.tools.parser.JsonPathParser;
@@ -22,6 +24,7 @@ import static javax.mail.Part.INLINE;
 import static org.folio.template.util.ContextDateTimeFormatter.formatDatesInContext;
 
 public class TemplateContextPreProcessor {
+  private static final Logger LOG = LogManager.getLogger("mod-template-engine");
   private static final String ATTACHMENT_CONTENT_ID_TEMPLATE = "<%s>";
   private static final String ATTACHMENT_NAME_TEMPLATE = "barcode_%s";
   private static final String HTML_IMG_TEMPLATE = "<img src='cid:%s' alt='%s'>";
@@ -53,16 +56,19 @@ public class TemplateContextPreProcessor {
   }
 
   public List<Attachment> getAttachments() {
+    LOG.debug("getAttachments:: Retrieving attachments");
     return new ArrayList<>(attachments.values());
   }
 
   public void process() {
+    LOG.debug("process:: Started processsing");
     enrichContextWithDateTimes();
     formatDatesInContext(context, config.getLanguageTag(), config.getTimeZoneId());
     handleBarcodeImageTokens();
   }
 
   void enrichContextWithDateTimes() {
+    LOG.debug("enrichContextWithDateTimes:: Enriching context with date and time");
     final Map<String, Object> contextMap = getContextMap();
     contextMap.keySet().stream()
       .filter(key -> key.endsWith(SUFFIX_DATE))
@@ -72,6 +78,7 @@ public class TemplateContextPreProcessor {
   }
 
   void handleBarcodeImageTokens() {
+    LOG.debug("handleBarcodeImageTokens:: Handling barcode image tokens");
     Map<String, Object> contextMap = getContextMap();
     Set<String> newTokens = new HashSet<>();
 
@@ -105,6 +112,7 @@ public class TemplateContextPreProcessor {
   }
 
   private Set<String> getTokensFromTemplate() {
+    LOG.debug("getTokensFromTemplate:: Retrieving tokens from template");
     Set<String> tokens = new HashSet<>();
     Matcher matcher = Pattern.compile(TOKEN_PATTERN)
         .matcher(template.getHeader() + template.getBody());
@@ -115,7 +123,9 @@ public class TemplateContextPreProcessor {
   }
 
   private void fixTokensWithHtmlValue(Set<String> keysFromContext) {
+    LOG.debug("fixTokensWithHtmlValue:: Fixing tokens with HTML value");
     if (keysFromContext.isEmpty()) {
+      LOG.warn("Keys from Context are empty");
       return;
     }
     String header = template.getHeader();
@@ -133,7 +143,9 @@ public class TemplateContextPreProcessor {
   }
 
   private void createAttachment(String barcode, String contentId) {
+    LOG.debug("createAttachment:: Creating attachment for content ID: " + contentId);
     if (attachments.containsKey(contentId)) {
+      LOG.warn("Attachment with content ID : {} already exists", contentId);
       return;
     }
     // ContentId of the attachment must be wrapped in "<...>", otherwise webmail
