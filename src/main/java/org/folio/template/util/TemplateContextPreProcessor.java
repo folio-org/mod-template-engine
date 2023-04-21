@@ -143,7 +143,7 @@ public class TemplateContextPreProcessor {
   }
 
   private void createAttachment(String barcode, String contentId) {
-    LOG.debug("createAttachment:: Creating attachment for content ID: " + contentId);
+    LOG.debug("createAttachment:: Creating attachment for content ID: ", contentId);
     if (attachments.containsKey(contentId)) {
       LOG.warn("Attachment with content ID : {} already exists", contentId);
       return;

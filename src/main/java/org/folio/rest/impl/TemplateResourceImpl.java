@@ -35,7 +35,7 @@ public class TemplateResourceImpl implements Templates {
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
           .onComplete(asyncResultHandler);
       } catch (Exception e) {
-        LOG.warn("Error Posting Templates: {}" + e.getMessage());
+        LOG.warn("Error Posting Templates: {}", e.getMessage());
         asyncResultHandler.handle(Future.succeededFuture(
           TemplateEngineHelper.mapExceptionToResponse(e)));
       }
