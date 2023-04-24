@@ -14,6 +14,8 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
 import io.vertx.core.Promise;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.jaxrs.model.Meta;
 import org.folio.rest.jaxrs.model.Result;
@@ -38,6 +40,7 @@ import io.vertx.core.json.JsonObject;
 
 public class TemplateServiceImpl implements TemplateService {
 
+  private static final Logger LOG = LogManager.getLogger("mod-template-engine");
   private Vertx vertx;
   private TemplateDao templateDao;
   private Map<String, String> templateResolverAddressesMap;
@@ -55,16 +58,19 @@ public class TemplateServiceImpl implements TemplateService {
   }
 
   public Future<List<Template>> getTemplates(String query, int offset, int limit) {
+    LOG.debug("getTemplates:: Retrieving Templates with query {}", query);
     return templateDao.getTemplates(query, offset, limit);
   }
 
   @Override
   public Future<Optional<Template>> getTemplateById(String id) {
+    LOG.debug("getTemplateById:: Retrieving Template by ID : {}", id);
     return templateDao.getTemplateById(id);
   }
 
   @Override
   public Future<String> addTemplate(Template template) {
+    LOG.debug("addTemplate:: Adding Template with ID : {}", template.getId());
     validateTemplate(template);
     if (template.getId() == null) {
       template.setId(UUID.randomUUID().toString());
@@ -74,6 +80,7 @@ public class TemplateServiceImpl implements TemplateService {
 
   @Override
   public Future<Boolean> updateTemplate(Template template) {
+    LOG.debug("updateTemplate:: Updating Template with ID : {}", template.getId());
     validateTemplate(template);
     return getTemplateById(template.getId())
       .compose(optionalTemplate -> optionalTemplate
@@ -85,6 +92,7 @@ public class TemplateServiceImpl implements TemplateService {
 
   @Override
   public Future<Boolean> deleteTemplate(String id) {
+    LOG.debug("deleteTemplate:: deleting Template with ID : {}", id);
     String query = format("loanNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
       "OR requestNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
       "OR feeFineNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\"", id);
@@ -96,6 +104,7 @@ public class TemplateServiceImpl implements TemplateService {
 
   @Override
   public Future<TemplateProcessingResult> processTemplate(TemplateProcessingRequest templateRequest) {
+    LOG.debug("processTemplate:: Processing Template with ID : {}", templateRequest.getTemplateId());
     Future<Template> templateByIdFuture = getTemplateById(templateRequest.getTemplateId())
       .map(optionalTemplate -> optionalTemplate.orElseThrow(() ->
         new BadRequestException(String.format("Template with id %s does not exist", templateRequest.getTemplateId()))));
@@ -137,6 +146,7 @@ public class TemplateServiceImpl implements TemplateService {
             .withDateCreate(new Date())
             .withLang(templateRequest.getLang())
             .withOutputFormat(templateRequest.getOutputFormat());
+          LOG.info("processTemplate:: Template processed successfully");
           return new TemplateProcessingResult()
             .withResult(processedTemplate)
             .withMeta(resultMetaInfo)
@@ -146,15 +156,19 @@ public class TemplateServiceImpl implements TemplateService {
   }
 
   private void validateTemplate(Template template) {
+    LOG.debug("validateTemplate:: Validating Template with ID : {}", template.getId());
     boolean templateResolverIsSupported = templateResolverAddressesMap.containsKey(template.getTemplateResolver());
     if (!templateResolverIsSupported) {
+      LOG.warn("Template resolver {} is not Supported", template.getTemplateResolver());
       String message = String.format("Template resolver '%s' is not supported", template.getTemplateResolver());
       throw new BadRequestException(message);
     }
   }
 
   private void validateTemplateProcessingRequest(TemplateProcessingRequest templateRequest, Template template) {
+    LOG.debug("validateTemplateProcessingRequest:: Validating template Processing request with Template ID : {}", templateRequest.getTemplateId());
     if (!template.getOutputFormats().contains(templateRequest.getOutputFormat())) {
+      LOG.warn("Requested template does not support {} output format", templateRequest.getOutputFormat());
       String message = String.format("Requested template does not support '%s' output format",
         templateRequest.getOutputFormat());
       throw new BadRequestException(message);
@@ -164,6 +178,7 @@ public class TemplateServiceImpl implements TemplateService {
       template.getLocalizedTemplates().getAdditionalProperties()
         .containsKey(templateRequest.getLang());
     if (!templateSupportsGivenLanguage) {
+      LOG.warn("Requested template does not have localized template for language {}", templateRequest.getLang());
       String message = String.format("Requested template does not have localized template for language '%s'",
         templateRequest.getLang());
       throw new BadRequestException(message);

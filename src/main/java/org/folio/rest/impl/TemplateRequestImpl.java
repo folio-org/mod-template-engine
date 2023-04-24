@@ -4,6 +4,8 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.jaxrs.resource.TemplateRequest;
 import org.folio.template.service.TemplateService;
@@ -15,11 +17,13 @@ import java.util.Map;
 
 public class TemplateRequestImpl implements TemplateRequest {
 
+  private static final Logger LOG = LogManager.getLogger("mod-template-engine");
   @Override
   public void postTemplateRequest(TemplateProcessingRequest entity,
                                   Map<String, String> okapiHeaders,
                                   Handler<AsyncResult<Response>> asyncResultHandler,
                                   Context vertxContext) {
+    LOG.debug("postTemplateRequest:: Trying to post Template Request with Template ID : {}", entity.getTemplateId());
     vertxContext.runOnContext(v -> {
       try {
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
@@ -29,6 +33,7 @@ public class TemplateRequestImpl implements TemplateRequest {
           .otherwise(TemplateEngineHelper::mapExceptionToResponse)
           .onComplete(asyncResultHandler);
       } catch (Exception e) {
+        LOG.warn("Error in posting Template Request: {}", e.getMessage());
         asyncResultHandler.handle(Future.succeededFuture(
           TemplateEngineHelper.mapExceptionToResponse(e)));
       }

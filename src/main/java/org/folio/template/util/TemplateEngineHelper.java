@@ -23,7 +23,9 @@ public final class TemplateEngineHelper {
   }
 
   public static Response mapExceptionToResponse(Throwable throwable) {
+    LOG.debug("mapExceptionToResponse:: Mapping Exception to Response");
     if (throwable instanceof BadRequestException) {
+      LOG.warn("Bad request exception occurred", throwable);
       return Response.status(HttpStatus.SC_BAD_REQUEST)
         .type(MediaType.TEXT_PLAIN)
         .entity(throwable.getMessage())
@@ -31,6 +33,7 @@ public final class TemplateEngineHelper {
     }
 
     if (throwable instanceof NotFoundException) {
+      LOG.warn("Not found exception occurred", throwable);
       return Response.status(HttpStatus.SC_NOT_FOUND)
         .type(MediaType.TEXT_PLAIN)
         .entity(throwable.getMessage())
@@ -38,6 +41,7 @@ public final class TemplateEngineHelper {
     }
 
     if (throwable instanceof InUseTemplateException) {
+      LOG.warn("In use template exception occurred", throwable);
       return Response.status(HttpStatus.SC_BAD_REQUEST)
         .type(MediaType.TEXT_PLAIN_TYPE)
         .entity("Cannot delete template which is currently in use")
@@ -49,11 +53,12 @@ public final class TemplateEngineHelper {
     if (promise.future().isComplete()) {
       Response response = promise.future().result();
       if (response.getStatus() == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
-        LOG.error(throwable.getMessage(), throwable);
+        LOG.warn("Internal server error occurred", throwable);
       }
+      LOG.info("mapExceptionToResponse:: Mapped Exception to response with status code {}", response.getStatus());
       return response;
     }
-    LOG.error(throwable.getMessage(), throwable);
+    LOG.warn("Internal server error occurred : {}", throwable.getMessage(), throwable);
     return Response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR)
       .type(MediaType.TEXT_PLAIN)
       .entity(Response.Status.INTERNAL_SERVER_ERROR.getReasonPhrase())

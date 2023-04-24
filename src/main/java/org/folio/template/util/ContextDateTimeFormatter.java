@@ -39,6 +39,7 @@ public class ContextDateTimeFormatter {
   }
 
   public static void formatDatesInContext(JsonObject context, String languageTag, String zoneId) {
+    LOG.debug("formatDatesInContext:: Formatting dates in context");
     Map<String, Object> contextMap = JsonFlattener.flattenAsMap(context.encode());
     JsonPathParser parser = new JsonPathParser(context);
 
@@ -47,18 +48,20 @@ public class ContextDateTimeFormatter {
       Optional<DateFormat> dateFormat = getDateFormatForToken(token, languageTag, zoneId);
       if (dateFormat.isPresent() && objectIsNonBlankString(entry.getValue())) {
         try {
+          LOG.warn("Formatted date for token : {}", token);
           ZonedDateTime parsedDateTime = ZonedDateTime.parse((String) entry.getValue(), ISO_DATE_TIME_FORMATTER);
           String formattedDate = dateFormat.get().format(parsedDateTime.toInstant().toEpochMilli());
           parser.setValueAt(token, formattedDate);
         } catch (DateTimeParseException e) {
           // value is not a valid date
-          LOG.error(e.getMessage(), e);
+          LOG.warn("Error formatting date for token : {}", token, e);
         }
       }
     }
   }
 
   private static Optional<DateFormat> getDateFormatForToken(String token, String languageTag, String zoneId) {
+    LOG.debug("getDateFormatForToken:: Retrieving date format for token : {}", token);
     DateFormat i18NDateFormatter = null;
     if (endsWithIgnoreCase(token, DETAILED_DATE_TIME_SUFFIX)) {
       i18NDateFormatter = getDateFormat(DateFormat.LONG, DateFormat.SHORT, languageTag, zoneId);
@@ -67,15 +70,17 @@ public class ContextDateTimeFormatter {
     } else if (endsWithIgnoreCase(token, DATE_TIME_SUFFIX)) {
       i18NDateFormatter = getDateFormat(DateFormat.SHORT, DateFormat.SHORT, languageTag, zoneId);
     }
-
+    LOG.info("getDateFormatForToken:: Retrieved date format for token : {} and the result is : {}", token, Optional.ofNullable(i18NDateFormatter));
     return Optional.ofNullable(i18NDateFormatter);
   }
 
   private static DateFormat getDateFormat(int dateStyle, int timeStyle, String languageTag, String zoneId) {
+    LOG.debug("getDateFormat:: Retrieving date format with date style {} and time style {} for language tag {} and zone ID {}", dateStyle, timeStyle, languageTag, zoneId );
     TimeZone timeZone = TimeZone.getTimeZone(zoneId);
     Locale locale = Locale.forLanguageTag(languageTag);
     DateFormat dateFormat = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);
     dateFormat.setTimeZone(timeZone);
+    LOG.info("getDateFormat:: Retrieved date format and result is : {}", dateFormat);
     return dateFormat;
   }
 
