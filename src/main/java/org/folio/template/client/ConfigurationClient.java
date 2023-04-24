@@ -32,6 +32,7 @@ public class ConfigurationClient extends OkapiClient {
 
   public Future<LocaleConfiguration> lookupLocaleConfig() {
     LOG.debug("lookupLocaleConfig:: Lookup locale configuration");
+    LOG.info("lookupLocaleConfig:: Locale configuration looked up successfully");
     return lookupConfigByModuleAndConfigName("ORG", "localeSettings", 1, 0)
       .map(this::mapToLocaleConfiguration);
   }
@@ -41,6 +42,7 @@ public class ConfigurationClient extends OkapiClient {
 
     LOG.debug("lookupConfigByModuleAndConfigName:: Lookup locale configuration by Module Name {} and Config Name {}",moduleName,configName);
     String query = format("module=%s and configName=%s", moduleName, configName);
+    LOG.info("lookupConfigByModuleAndConfigName:: Locale configuration with module and config name looked up successfully");
     return lookupConfigByQuery(query, limit, offset);
   }
 
@@ -53,6 +55,7 @@ public class ConfigurationClient extends OkapiClient {
           throw new OkapiModuleClientException(format("Error getting config by module name. " +
             "Status: %d, body: %s", response.statusCode(), response.body()));
         }
+        LOG.info("lookupConfigByQuery:: Locale configuration by query looked up successfully");
       return response.bodyAsJsonObject().mapTo(Configurations.class);
     });
   }
@@ -68,6 +71,7 @@ public class ConfigurationClient extends OkapiClient {
 
     String languageTag = localeConfig.getString("locale", DEFAULT_LANGUAGE_TAG);
     String timezoneId = localeConfig.getString("timezone", DEFAULT_TIMEZONE_ID);
+    LOG.info("mapToLocaleConfiguration:: Mapped to locale configuration with Language Tag: {}, Timezone ID: {}", languageTag, timezoneId);
     return new LocaleConfiguration(languageTag, timezoneId);
   }
 }

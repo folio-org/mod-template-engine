@@ -52,6 +52,7 @@ public class MustacheTemplateResolver implements TemplateResolver {
       .map(Context::getAdditionalProperties)
       .orElse(null);
     mustache.execute(writer, contextMap);
+    LOG.info("processTemplateProperty:: Processed template property {}", templateProperty);
     return writer.toString();
   }
 }

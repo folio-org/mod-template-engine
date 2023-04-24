@@ -146,6 +146,7 @@ public class TemplateServiceImpl implements TemplateService {
             .withDateCreate(new Date())
             .withLang(templateRequest.getLang())
             .withOutputFormat(templateRequest.getOutputFormat());
+          LOG.info("processTemplate:: Template processed successfully");
           return new TemplateProcessingResult()
             .withResult(processedTemplate)
             .withMeta(resultMetaInfo)

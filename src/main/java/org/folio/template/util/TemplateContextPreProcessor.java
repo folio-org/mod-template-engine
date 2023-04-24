@@ -57,6 +57,7 @@ public class TemplateContextPreProcessor {
 
   public List<Attachment> getAttachments() {
     LOG.debug("getAttachments:: Retrieving attachments");
+    LOG.info("getAttachments:: Retrieved attachments successfully");
     return new ArrayList<>(attachments.values());
   }
 
@@ -119,6 +120,7 @@ public class TemplateContextPreProcessor {
     while (matcher.find()) {
       tokens.add(matcher.group(1));
     }
+    LOG.info("getTokensFromTemplate:: Retrieved tokens from template");
     return tokens;
   }
 

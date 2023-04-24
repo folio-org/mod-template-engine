@@ -48,6 +48,7 @@ public class TemplateDaoImpl implements TemplateDao {
       LOG.warn("Failed to retrieve templates from database with exception {}", e.getMessage());
       promise.fail(e);
     }
+    LOG.info("getTemplates:: Retrieved templates from database");
     return promise.future().map(Results::getResults);
   }
 
@@ -56,6 +57,7 @@ public class TemplateDaoImpl implements TemplateDao {
     LOG.debug("getTemplateById:: Retrieving template from database by Template ID: {}", id);
     Promise<Template> promise = Promise.promise();
     pgClient.getById(TEMPLATES_TABLE, id, Template.class, promise);
+    LOG.info("getTemplateById:: Retrieved template from database by Template ID: {}", id);
     return promise.future().map(Optional::ofNullable);
   }
 
@@ -64,6 +66,7 @@ public class TemplateDaoImpl implements TemplateDao {
     LOG.debug("addTemplate:: Adding template to database by Template ID: {}", template.getId());
     Promise<String> promise = Promise.promise();
     pgClient.save(TEMPLATES_TABLE, template.getId(), template, promise);
+    LOG.info("addTemplate:: Saved template to database by Template ID: {}", template.getId());
     return promise.future();
   }
 
@@ -72,6 +75,7 @@ public class TemplateDaoImpl implements TemplateDao {
     LOG.debug("updateTemplate:: Updating template in database by Template ID: {}", template.getId());
     Promise<RowSet<Row>> promise = Promise.promise();
     pgClient.update(TEMPLATES_TABLE, template, template.getId(), promise);
+    LOG.info("updateTemplate:: Updated template to database by Template ID: {}", template.getId());
     return promise.future().map(updateResult -> updateResult.rowCount() == 1);
   }
 
@@ -80,6 +84,7 @@ public class TemplateDaoImpl implements TemplateDao {
     LOG.debug("deleteTemplate:: Deleting template from database by Template ID: {}", id);
     Promise<RowSet<Row>> promise = Promise.promise();
     pgClient.delete(TEMPLATES_TABLE, id, promise);
+    LOG.info("deleteTemplate:: Deleted template from database by Template ID: {}", id);
     return promise.future().map(updateResult -> updateResult.rowCount() == 1);
   }
 

@@ -70,16 +70,17 @@ public class ContextDateTimeFormatter {
     } else if (endsWithIgnoreCase(token, DATE_TIME_SUFFIX)) {
       i18NDateFormatter = getDateFormat(DateFormat.SHORT, DateFormat.SHORT, languageTag, zoneId);
     }
-
+    LOG.info("getDateFormatForToken:: Retrieved date format for token : {} and the result is : {}", token, Optional.ofNullable(i18NDateFormatter));
     return Optional.ofNullable(i18NDateFormatter);
   }
 
   private static DateFormat getDateFormat(int dateStyle, int timeStyle, String languageTag, String zoneId) {
-    LOG.info("getDateFormat:: Retrieving date format with date style {} and time style {} for language tag {} and zone ID {}", dateStyle, timeStyle, languageTag, zoneId );
+    LOG.debug("getDateFormat:: Retrieving date format with date style {} and time style {} for language tag {} and zone ID {}", dateStyle, timeStyle, languageTag, zoneId );
     TimeZone timeZone = TimeZone.getTimeZone(zoneId);
     Locale locale = Locale.forLanguageTag(languageTag);
     DateFormat dateFormat = DateFormat.getDateTimeInstance(dateStyle, timeStyle, locale);
     dateFormat.setTimeZone(timeZone);
+    LOG.info("getDateFormat:: Retrieved date format and result is : {}", dateFormat);
     return dateFormat;
   }
 

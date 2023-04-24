@@ -55,6 +55,7 @@ public final class TemplateEngineHelper {
       if (response.getStatus() == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
         LOG.warn("Internal server error occurred", throwable);
       }
+      LOG.info("mapExceptionToResponse:: Mapped Exception to response with status code {}", response.getStatus());
       return response;
     }
     LOG.warn("Internal server error occurred : {}", throwable.getMessage(), throwable);

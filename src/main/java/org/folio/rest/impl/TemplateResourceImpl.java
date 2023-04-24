@@ -49,6 +49,7 @@ public class TemplateResourceImpl implements Templates {
     LOG.debug("getTemplates:: Retrieving Templates with query {}, offset {}, limit {}", query, offset, limit);
     vertxContext.runOnContext(v -> {
       try {
+        LOG.info("getTemplates:: Trying to Retrieve Templates with query {}", query);
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         templateService.getTemplates(query, offset, limit)
           .map(templates -> new TemplatesCollection()
@@ -73,6 +74,7 @@ public class TemplateResourceImpl implements Templates {
     LOG.debug("getTemplatesByTemplateId:: Retrieving Template by id {}", templateId);
     vertxContext.runOnContext(v -> {
       try {
+        LOG.info("getTemplatesByTemplateId:: Trying to Retrieve Template by id {}", templateId);
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         templateService.getTemplateById(templateId)
           .map(optionalTemplate -> optionalTemplate.orElseThrow(() ->
@@ -97,6 +99,7 @@ public class TemplateResourceImpl implements Templates {
     LOG.debug("putTemplatesByTemplateId:: Updating Template with id {}", templateId);
     vertxContext.runOnContext(v -> {
       try {
+        LOG.info("putTemplatesByTemplateId:: Trying to Update Template by id {}", templateId);
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         entity.setId(templateId);
         templateService.updateTemplate(entity)
@@ -131,6 +134,7 @@ public class TemplateResourceImpl implements Templates {
 
   private Response buildTemplateNotFound(String templateId) {
     LOG.debug("buildTemplateNotFound:: Template with ID : {} is not found", templateId);
+    LOG.info("buildTemplateNotFound:: Template with id {} not found", templateId);
     return Response
       .status(HttpStatus.SC_NOT_FOUND)
       .type(MediaType.TEXT_PLAIN)
