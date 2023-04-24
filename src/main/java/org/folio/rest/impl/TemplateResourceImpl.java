@@ -29,6 +29,7 @@ public class TemplateResourceImpl implements Templates {
     LOG.debug("postTemplates:: Trying to post Templates with template id {}", entity.getId());
     vertxContext.runOnContext(v -> {
       try {
+        LOG.warn("Trying to post Templates with template id {}", entity.getId());
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         templateService.addTemplate(entity)
           .map((Response) PostTemplatesResponse.respond201WithApplicationJson(entity))
@@ -49,7 +50,7 @@ public class TemplateResourceImpl implements Templates {
     LOG.debug("getTemplates:: Retrieving Templates with query {}, offset {}, limit {}", query, offset, limit);
     vertxContext.runOnContext(v -> {
       try {
-        LOG.info("getTemplates:: Trying to Retrieve Templates with query {}", query);
+        LOG.warn("Trying to Retrieve Templates with query {}", query);
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         templateService.getTemplates(query, offset, limit)
           .map(templates -> new TemplatesCollection()
@@ -74,7 +75,7 @@ public class TemplateResourceImpl implements Templates {
     LOG.debug("getTemplatesByTemplateId:: Retrieving Template by id {}", templateId);
     vertxContext.runOnContext(v -> {
       try {
-        LOG.info("getTemplatesByTemplateId:: Trying to Retrieve Template by id {}", templateId);
+        LOG.warn("Trying to Retrieve Template by id {}", templateId);
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         templateService.getTemplateById(templateId)
           .map(optionalTemplate -> optionalTemplate.orElseThrow(() ->
@@ -99,7 +100,7 @@ public class TemplateResourceImpl implements Templates {
     LOG.debug("putTemplatesByTemplateId:: Updating Template with id {}", templateId);
     vertxContext.runOnContext(v -> {
       try {
-        LOG.info("putTemplatesByTemplateId:: Trying to Update Template by id {}", templateId);
+        LOG.warn("Trying to Update Template by id {}", templateId);
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         entity.setId(templateId);
         templateService.updateTemplate(entity)
