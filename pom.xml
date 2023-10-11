@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>mod-template-engine</artifactId>
-  <version>1.19.1-SNAPSHOT</version>
+  <version>1.19.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <licenses>
@@ -18,9 +18,9 @@
     <http.port>8081</http.port>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <ramlfiles_util_path>${basedir}/raml-util</ramlfiles_util_path>
-    <raml-module-builder.version>35.0.6</raml-module-builder.version>
+    <raml-module-builder.version>35.1.0</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <vertx-version>4.4.1</vertx-version>
+    <vertx-version>4.4.5</vertx-version>
   </properties>
 
   <repositories>
