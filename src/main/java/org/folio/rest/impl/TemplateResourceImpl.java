@@ -97,10 +97,10 @@ public class TemplateResourceImpl implements Templates {
     Map<String, String> okapiHeaders, Handler<AsyncResult<Response>> asyncResultHandler,
     Context vertxContext) {
 
-    LOG.debug("putTemplatesByTemplateId:: Updating Template with id {}", templateId);
+    LOG.info("putTemplatesByTemplateId:: Updating Template with id {}", templateId);
     vertxContext.runOnContext(v -> {
       try {
-        LOG.warn("Trying to Update Template by id {}", templateId);
+        LOG.info("Trying to Update Template by id {}", templateId);
         TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
         entity.setId(templateId);
         templateService.updateTemplate(entity)

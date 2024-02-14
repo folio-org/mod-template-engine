@@ -80,7 +80,7 @@ public class TemplateServiceImpl implements TemplateService {
 
   @Override
   public Future<Boolean> updateTemplate(Template template) {
-    LOG.debug("updateTemplate:: Updating Template with ID : {}", template.getId());
+    LOG.info("updateTemplate:: Updating Template with ID : {}", template.getId());
     validateTemplate(template);
     return getTemplateById(template.getId())
       .compose(optionalTemplate -> optionalTemplate
@@ -104,7 +104,7 @@ public class TemplateServiceImpl implements TemplateService {
 
   @Override
   public Future<TemplateProcessingResult> processTemplate(TemplateProcessingRequest templateRequest) {
-    LOG.debug("processTemplate:: Processing Template with ID : {}", templateRequest.getTemplateId());
+    LOG.info("processTemplate:: Processing Template with ID : {}", templateRequest.getTemplateId());
     Future<Template> templateByIdFuture = getTemplateById(templateRequest.getTemplateId())
       .map(optionalTemplate -> optionalTemplate.orElseThrow(() ->
         new BadRequestException(String.format("Template with id %s does not exist", templateRequest.getTemplateId()))));
@@ -156,7 +156,7 @@ public class TemplateServiceImpl implements TemplateService {
   }
 
   private void validateTemplate(Template template) {
-    LOG.debug("validateTemplate:: Validating Template with ID : {}", template.getId());
+    LOG.info("validateTemplate:: Validating Template with ID : {}", template.getId());
     boolean templateResolverIsSupported = templateResolverAddressesMap.containsKey(template.getTemplateResolver());
     if (!templateResolverIsSupported) {
       LOG.warn("Template resolver {} is not Supported", template.getTemplateResolver());

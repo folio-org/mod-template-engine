@@ -72,7 +72,7 @@ public class TemplateDaoImpl implements TemplateDao {
 
   @Override
   public Future<Boolean> updateTemplate(Template template) {
-    LOG.debug("updateTemplate:: Updating template in database by Template ID: {}", template.getId());
+    LOG.info("updateTemplate:: Updating template in database by Template ID: {}", template.getId());
     Promise<RowSet<Row>> promise = Promise.promise();
     pgClient.update(TEMPLATES_TABLE, template, template.getId(), promise);
     LOG.info("updateTemplate:: Updated template to database by Template ID: {}", template.getId());
