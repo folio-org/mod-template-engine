@@ -6,12 +6,12 @@
   "properties": {
     "header": {
       "type": "string",
-      "pattern": "\\S+.*",
+      "pattern": "(?s)\\S+.*",
       "description": "Template for header"
     },
     "body": {
       "type": "string",
-      "pattern": "\\S+.*",
+      "pattern": "(?s)\\S+.*",
       "description": "Template for body"
     },
     "attachments": {
