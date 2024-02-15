@@ -1,3 +1,12 @@
+## 2023-10-11 v1.19.1
+* Update RMB version
+
+## 2023-10-11 v1.19.0
+* Can't process templates with barcode images (MODTEMPENG-57)
+* Upgrade dependencies for Poppy (MODTEMPENG-95)
+* Use GitHub Workflows api-lint and api-schema-lint and api-doc (MODTEMPENG-93)
+* Logging improvement (MODTEMPENG-80)
+
 ## 2022-10-18 v1.18.0
 * Upgrade to RMB 35.0.0 and Vertx 4.3.3 (MODTEMPENG-89)
 
