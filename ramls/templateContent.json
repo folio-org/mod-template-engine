@@ -6,7 +6,7 @@
   "properties": {
     "header": {
       "type": "string",
-      "pattern": "(?s)\\S+.*",
+      "pattern": "\\S+.*",
       "description": "Template for header"
     },
     "body": {
