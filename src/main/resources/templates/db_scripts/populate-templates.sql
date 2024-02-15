@@ -23,7 +23,7 @@ INSERT INTO template (id, jsonb) VALUES
  "localizedTemplates": {
    "en": {
      "header": "Complete activation of your FOLIO account",
-     "body": "<p>{{user.personal.firstName}}</p><p>Your FOLIO account has been activated.</p><p>Your username is {{user.username}}.</p><p>To complete activation of your account, please use the following link to create a password for your FOLIO account: <a href={{link}}>visit this link</a></p><p>If you do not create a password within 24 hours of the delivery of this email, then contact your FOLIO Administrator to receive a new create password link.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
+     "body": "<p>{{user.personal.firstName}}</p><p>Your FOLIO account has been activated.</p><p>Your username is {{user.username}}.</p><p>To complete activation of your account, please use the following link to create a password for your FOLIO account: <a href={{link}}>visit this link</a></p><p>If you do not create a password within {{expirationTime}} {{expirationUnitOfTime}} of the delivery of this email, then contact your FOLIO Administrator to receive a new create password link.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
    }
  }
 }'),
