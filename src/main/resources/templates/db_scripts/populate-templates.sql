@@ -23,7 +23,7 @@ INSERT INTO template (id, jsonb) VALUES
  "localizedTemplates": {
    "en": {
      "header": "Complete activation of your FOLIO account",
-     "body": "<p>{{user.personal.firstName}}</p><p>Your FOLIO account has been activated.</p><p>Your username is {{user.username}}.</p><p>To complete activation of your account, please use the following link to create a password for your FOLIO account: <a href={{link}}>visit this link</a></p><p>If you do not create a password within {{expirationTime}} {{expirationUnitOfTime}} of the delivery of this email, then contact your FOLIO Administrator to receive a new create password link.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
+     "body": "<p>{{user.personal.firstName}}</p><p>Your FOLIO account has been activated.</p><p>Your username is {{user.username}}.</p><p>To complete activation of your account, please use the following link to create a password for your FOLIO account: <a href={{link}}>visit this link</a></p><p>If you do not create a password within 24 hours of the delivery of this email, then contact your FOLIO Administrator to receive a new create password link.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
    }
  }
 }'),
@@ -84,3 +84,19 @@ UPDATE "template" SET jsonb= '{
  }
 }'
 WHERE id = '0ff6678f-53cd-4a32-9937-504c28f14077';
+
+UPDATE "template" SET jsonb= '{
+ "id": "263d4e33-db8d-4e07-9060-11f442320c05",
+ "description": "Account activation email",
+ "outputFormats": [
+   "text/html"
+ ],
+ "templateResolver": "mustache",
+ "localizedTemplates": {
+   "en": {
+     "header": "Complete activation of your FOLIO account",
+     "body": "<p>{{user.personal.firstName}}</p><p>Your FOLIO account has been activated.</p><p>Your username is {{user.username}}.</p><p>To complete activation of your account, please use the following link to create a password for your FOLIO account: <a href={{link}}>visit this link</a></p><p>If you do not create a password within {{expirationTime}} {{expirationUnitOfTime}} of the delivery of this email, then contact your FOLIO Administrator to receive a new create password link.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
+   }
+ }
+}'
+WHERE id = '263d4e33-db8d-4e07-9060-11f442320c05';
