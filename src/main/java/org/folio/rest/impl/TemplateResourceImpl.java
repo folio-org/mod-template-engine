@@ -14,7 +14,7 @@ import org.folio.template.service.TemplateService;
 import org.folio.template.service.TemplateServiceImpl;
 import org.folio.template.util.TemplateEngineHelper;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
