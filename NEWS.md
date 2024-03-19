@@ -1,3 +1,8 @@
+## 2024-03-19 v1.20.0
+* updated template body (MODTEMPENG-101)
+* Fixing template update issue due to regex (MODTEMPENG-99)
+* Updated spring dependencies (MODTEMPENG-103)
+
 ## 2023-10-11 v1.19.1
 * Update RMB version
 
