@@ -101,6 +101,7 @@ UPDATE "template" SET jsonb= '{
 }'
 WHERE id = '263d4e33-db8d-4e07-9060-11f442320c05';
 
+
 UPDATE "template" SET jsonb= '{
  "id": "ed8c1c67-897b-4a23-a702-c36e280c6a93",
  "description": "Reset password email",
