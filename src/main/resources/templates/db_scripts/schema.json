@@ -23,11 +23,11 @@
     },
     {
       "run": "after",
-      "snippetPath": "account-activation-email-template.sql"
+      "snippetPath": "update-account-activation-email-template.sql"
     },
     {
       "run": "after",
-      "snippetPath": "reset-password-email-template.sql"
+      "snippetPath": "update-reset-password-email-template.sql"
     }
   ]
 }
