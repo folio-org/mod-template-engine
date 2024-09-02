@@ -8,7 +8,7 @@ UPDATE "template" SET jsonb= '{
  "localizedTemplates": {
    "en": {
      "header": "Activate your FOLIO account",
-     "body": "<p>{{user.personal.firstName}}</p><p>Your FOLIO account has been activated.</p><p>Your username is {{user.username}}.</p><p><a href={{link}}>Set your password</a>to activate your account. This link is only valid for a short time. If it has already expired, <a href={{forgotPasswordLink}}>request a new link.</a></p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
+     "body": "<p>{{user.personal.firstName}}</p><p>Your FOLIO account has been created.</p><p>Your username is {{user.username}}.</p><p><a href={{link}}>Set your password</a> to activate your account. This link is only valid for a short time. If it has already expired, <a href={{forgotPasswordLink}}>request a new link</a>.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
    }
  }
 }'
