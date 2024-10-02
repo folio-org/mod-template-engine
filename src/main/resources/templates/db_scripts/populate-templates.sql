@@ -8,8 +8,8 @@ INSERT INTO template (id, jsonb) VALUES
  "templateResolver": "mustache",
  "localizedTemplates": {
    "en": {
-     "header": "Your Folio password changed",
-     "body": "Dear {{user.firstName}},\n\nYour password has been changed.\nThis is a confirmation that your password was changed on {{dateTime}}.\n\nDid not change your password? Contact your Folio System Administrator to help secure your account.\n\t\nRegards,\n\nFolio Support"
+     "header": "Your FOLIO password changed",
+     "body": "Dear {{user.firstName}},\n\nYour password has been changed.\nThis is a confirmation that your password was changed on {{dateTime}}.\n\nDid not change your password? Contact your FOLIO System Administrator to help secure your account.\n\t\nRegards,\n\nFOLIO Support"
    }
  }
 }'),
@@ -36,7 +36,7 @@ INSERT INTO template (id, jsonb) VALUES
  "templateResolver": "mustache",
  "localizedTemplates": {
    "en": {
-     "header": "Reset your Folio account",
+     "header": "Reset your FOLIO account",
      "body": "<p>{{user.personal.firstName}}</p><p>Your request to reset your password has been received.</p> <p>To reset your password, please <a href={{link}}>visit this link</a>.</p><p>NOTE: If you do not reset your password within {{expirationTime}} {{expirationUnitOfTime}} of the delivery of this email, the link will no longer operate. Please contact your FOLIO system administrator if you are unable to reset your password.</p><p>Regards,</p><p>{{institution.name}} FOLIO Administration</p>"
    }
  }
@@ -50,8 +50,8 @@ INSERT INTO template (id, jsonb) VALUES
  "templateResolver": "mustache",
  "localizedTemplates": {
    "en": {
-     "header": "Folio account successfully created",
-     "body": "{{user.personal.firstName}}\n\nYour Folio account has been successfully created. You should now have access to Folio. \n\nShould you have any questions or you have received this email in error, please contact your Folio Administrator. \n\nRegards, \n\n{{institution.name}} Folio Administration"
+     "header": "FOLIO account successfully created",
+     "body": "{{user.personal.firstName}}\n\nYour FOLIO account has been successfully created. You should now have access to FOLIO. \n\nShould you have any questions or you have received this email in error, please contact your FOLIO Administrator. \n\nRegards, \n\n{{institution.name}} FOLIO Administration"
    }
  }
 }'),
@@ -64,8 +64,8 @@ INSERT INTO template (id, jsonb) VALUES
  "templateResolver": "mustache",
  "localizedTemplates": {
    "en": {
-     "header": "Folio account located",
-     "body": "{{user.personal.firstName}}\n\nYour Folio username is {{user.username}}.\n\nPlease contact your Folio Administrator if you have any questions.\n\nRegards,\n\n{{institution.name}} Folio Administration"
+     "header": "FOLIO account located",
+     "body": "{{user.personal.firstName}}\n\nYour FOLIO username is {{user.username}}.\n\nPlease contact your FOLIO Administrator if you have any questions.\n\nRegards,\n\n{{institution.name}} FOLIO Administration"
    }
  }
 }') ON CONFLICT DO NOTHING;
@@ -78,8 +78,8 @@ UPDATE "template" SET jsonb= '{
  "templateResolver": "mustache",
  "localizedTemplates": {
    "en": {
-     "header": "Your Folio password changed",
-     "body": "Dear {{user.personal.firstName}},\n\nYour password has been changed.\nThis is a confirmation that your password was changed on {{dateTime}}.\n\nDid not change your password? Contact your Folio System Administrator to help secure your account.\n\t\nRegards,\n\nFolio Support"
+     "header": "Your FOLIO password changed",
+     "body": "Dear {{user.personal.firstName}},\n\nYour password has been changed.\nThis is a confirmation that your password was changed on {{dateTime}}.\n\nDid not change your password? Contact your FOLIO System Administrator to help secure your account.\n\t\nRegards,\n\nFOLIO Support"
    }
  }
 }'

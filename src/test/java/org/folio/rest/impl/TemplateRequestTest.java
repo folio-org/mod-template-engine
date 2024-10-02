@@ -271,8 +271,8 @@ public class TemplateRequestTest {
   public void shouldCreateTemplateWithNewSpaceCharacter() {
     String body = "Dear {{user.firstName}},\n\nYour password has been changed." +
       "\nThis is a confirmation that your password was changed on {{dateTime}}.\n\nDid not change " +
-      "your password? Contact your Folio System Administrator to help secure your account." +
-      "\n\t\nRegards,\n\nFolio Support";
+      "your password? Contact your FOLIO System Administrator to help secure your account." +
+      "\n\t\nRegards,\n\nFOLIO Support";
 
     Template template = new Template()
       .withDescription("Template for password change")
@@ -923,7 +923,7 @@ public class TemplateRequestTest {
       .withTemplateResolver("mustache")
       .withLocalizedTemplates(new LocalizedTemplates().withAdditionalProperty(EN_LANG,
         new LocalizedTemplatesProperty()
-          .withHeader("Reset your Folio account")
+          .withHeader("Reset your FOLIO account")
           .withBody("Hi {{user.username}}!")));
 
     String templateId = postTemplate(template);

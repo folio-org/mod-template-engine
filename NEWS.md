@@ -1,3 +1,7 @@
+## IN PROGRESS
+
+* Replace `Folio` with `FOLIO` in templates (MODTEMPENG-106)
+
 ## 2024-03-19 v1.20.0
 * updated template body (MODTEMPENG-101)
 * Fixing template update issue due to regex (MODTEMPENG-99)

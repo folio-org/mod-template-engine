@@ -7,7 +7,7 @@ UPDATE "template" SET jsonb= '{
  "templateResolver": "mustache",
  "localizedTemplates": {
    "en": {
-     "header": "Your Folio password changed",
+     "header": "Your FOLIO password changed",
      "body": "Dear {{user.personal.firstName}},\n\nThis is a confirmation that your password was changed on {{detailedDateTime}}.\n\nDid not change your password? Please contact your FOLIO System Administrator to help secure your account.\n\t\nRegards,\n\nFOLIO Support"
    }
  }
