@@ -4,8 +4,6 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Context;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import jakarta.validation.constraints.NotNull;
-
 import org.apache.http.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,6 +14,7 @@ import org.folio.template.service.TemplateService;
 import org.folio.template.service.TemplateServiceImpl;
 import org.folio.template.util.TemplateEngineHelper;
 
+import jakarta.validation.constraints.NotNull;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -71,7 +70,7 @@ public class TemplateResourceImpl implements Templates {
 
   @Override
   public void getTemplatesByTemplateId(@NotNull String templateId, Map<String, String> okapiHeaders,
-                                       Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
+    Handler<AsyncResult<Response>> asyncResultHandler, Context vertxContext) {
 
     LOG.debug("getTemplatesByTemplateId:: Retrieving Template by id {}", templateId);
     vertxContext.runOnContext(v -> {
