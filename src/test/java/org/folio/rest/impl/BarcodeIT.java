@@ -13,6 +13,8 @@ import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
+
 import org.folio.rest.jaxrs.model.Context;
 import org.folio.rest.jaxrs.model.LocalizedTemplates;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
@@ -39,9 +41,12 @@ class BarcodeIT {
   private static final Logger log = LoggerFactory.getLogger(BarcodeIT.class);
   private static final Network network = Network.newNetwork();
 
+  private static final DockerImageName POSTGRES_IMAGE_NAME = DockerImageName.parse(
+    Objects.toString(System.getenv("TESTCONTAINERS_POSTGRES_IMAGE"), "postgres:16-alpine"));
+
   @Container
   public static final PostgreSQLContainer<?> postgres =
-    new PostgreSQLContainer<>("postgres:12-alpine")
+    new PostgreSQLContainer<>(POSTGRES_IMAGE_NAME)
     .withNetwork(network)
     .withNetworkAliases("mypostgres")
     .withExposedPorts(5432)
