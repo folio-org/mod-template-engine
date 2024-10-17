@@ -268,6 +268,35 @@ public class TemplateRequestTest {
   }
 
   @Test
+  public void shouldCreateTemplateWithNewSpaceCharacter() {
+    String body = "Dear {{user.firstName}},\n\nYour password has been changed." +
+      "\nThis is a confirmation that your password was changed on {{dateTime}}.\n\nDid not change " +
+      "your password? Contact your Folio System Administrator to help secure your account." +
+      "\n\t\nRegards,\n\nFolio Support";
+
+    Template template = new Template()
+      .withDescription("Template for password change")
+      .withOutputFormats(Arrays.asList(TXT_OUTPUT_FORMAT))
+      .withTemplateResolver("mustache")
+      .withLocalizedTemplates(
+        new LocalizedTemplates()
+          .withAdditionalProperty(EN_LANG,
+            new LocalizedTemplatesProperty()
+              .withHeader("Hello message for {{user.name}}")
+              .withBody(body)));
+
+    // Tries to create a template with newSpace character
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(template))
+      .when()
+      .post(TEMPLATE_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_CREATED);
+  }
+
+  @Test
   public void shouldLocalizeDatesAccordingToDefaultConfiguration() {
     Template template = new Template()
       .withDescription("Template with dates")

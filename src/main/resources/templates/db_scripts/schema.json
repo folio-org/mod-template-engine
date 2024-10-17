@@ -20,6 +20,14 @@
     {
       "run": "after",
       "snippetPath": "update-automated-fee-fine-category.sql"
+    },
+    {
+      "run": "after",
+      "snippetPath": "update-account-activation-email-template.sql"
+    },
+    {
+      "run": "after",
+      "snippetPath": "update-reset-password-email-template.sql"
     }
   ]
 }

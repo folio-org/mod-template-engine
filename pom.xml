@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>mod-template-engine</artifactId>
-  <version>1.19.0-SNAPSHOT</version>
+  <version>1.20.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <licenses>
@@ -14,13 +14,13 @@
   </licenses>
 
   <properties>
-    <aspectj.version>1.9.19</aspectj.version>
+    <aspectj.version>1.9.21.1</aspectj.version>
     <http.port>8081</http.port>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <ramlfiles_util_path>${basedir}/raml-util</ramlfiles_util_path>
     <raml-module-builder.version>35.3.0</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <vertx-version>4.4.1</vertx-version>
+    <vertx-version>4.5.4</vertx-version>
   </properties>
 
   <repositories>
@@ -72,7 +72,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.9.2</version>
+        <version>5.10.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -142,7 +142,7 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.24.2</version>
+      <version>3.25.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -267,11 +267,11 @@
       <plugin>
         <groupId>dev.aspectj</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>
-        <version>1.13.1</version>
+        <version>1.14</version>
         <configuration>
           <verbose>true</verbose>
           <showWeaveInfo>false</showWeaveInfo>
-          <complianceLevel>11</complianceLevel>
+          <complianceLevel>17</complianceLevel>
           <aspectDirectory>src/main/java/org/folio/rest/annotations</aspectDirectory>
           <XaddSerialVersionUID>true</XaddSerialVersionUID>
           <showWeaveInfo>true</showWeaveInfo>
