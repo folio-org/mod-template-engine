@@ -106,6 +106,55 @@ class TemplateContextPreProcessorTest {
   }
 
   @Test
+  void hridBarcodeImageTokensAndAttachmentsAreCreated() {
+    LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
+      .withHeader("Instance HRID: {{item.instanceHrid}}")
+      .withBody("HRID barcode image: {{item.instanceHridImage}}");
+
+    JsonObject inputJson = new JsonObject()
+      .put("barcode", "00000")
+      .put("item", new JsonObject()
+        .put("name", "tester")
+        .put("instanceHrid", "987654321") // valid, HRID barcodeImage is present in template
+        .put("foobarcode", "22222")
+        .put("barcoder", "33333"))
+      .put("user", new JsonObject()
+        .put("barcode", "22222")); // valid, but barcodeImage is NOT present in template
+
+    JsonObject expectedJson = new JsonObject()
+      .put("barcode", "00000")
+      .put("item", new JsonObject()
+        .put("name", "tester")
+        .put("instanceHrid", "987654321")
+        .put("foobarcode", "22222")
+        .put("barcoder", "33333")
+        .put("instanceHridImage", "<img src='cid:barcode_987654321' alt='barcode_987654321'>"))
+      .put("user", new JsonObject()
+        .put("barcode", "22222"));
+
+    String expectedAttachmentContentId = "<barcode_987654321>";
+    String expectedAttachmentName = "barcode_987654321";
+    String expectedAttachmentDisposition = "inline";
+    String expectedAttachmentContentType = "image/png";
+
+    TemplateContextPreProcessor processor = new TemplateContextPreProcessor(template, inputJson, null);
+    processor.handleBarcodeImageTokens();
+
+    assertEquals(expectedJson, inputJson);
+
+    List<Attachment> attachments = processor.getAttachments();
+    assertEquals(1, attachments.size());
+
+    Attachment attachment = attachments.get(0);
+    assertEquals(attachment.getContentId(), expectedAttachmentContentId);
+    assertEquals(attachment.getContentType(), expectedAttachmentContentType);
+    assertEquals(attachment.getDisposition(), expectedAttachmentDisposition);
+    assertEquals(attachment.getName(), expectedAttachmentName);
+    assertTrue(StringUtils.isNotBlank(attachment.getData()));
+    Base64.getDecoder().decode(attachment.getData());
+  }
+
+  @Test
   void duplicateTokensDoNotProduceDuplicateAttachments() {
     LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
       .withHeader("Barcode: {{item.barcode}}")

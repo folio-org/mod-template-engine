@@ -36,6 +36,7 @@ public class TemplateContextPreProcessor {
   private static final String SUFFIX_DATE = "Date";
   private static final String SUFFIX_TIME = "Time";
   private static final String SUFFIX_BARCODE = ".barcode";
+  private static final String SUFFIX_HRID = "Hrid";
   private static final String SUFFIX_IMAGE = "Image";
 
   private final LocalizedTemplatesProperty template;
@@ -62,7 +63,7 @@ public class TemplateContextPreProcessor {
   }
 
   public void process() {
-    LOG.debug("process:: Started processsing");
+    LOG.debug("process:: Started processing");
     enrichContextWithDateTimes();
     formatDatesInContext(context, config.getLanguageTag(), config.getTimeZoneId());
     handleBarcodeImageTokens();
@@ -84,7 +85,7 @@ public class TemplateContextPreProcessor {
     Set<String> newTokens = new HashSet<>();
 
     contextMap.entrySet().stream()
-      .filter(e -> e.getKey().endsWith(SUFFIX_BARCODE))
+      .filter(e -> isSuitableImageSource(e.getKey()))
       .filter(e -> objectIsNonBlankString(e.getValue()))
       .map(e -> new Token(e.getKey(), (String) e.getValue()))
       .filter(token -> templateTokens.contains(token.shortPath() + SUFFIX_IMAGE))
@@ -101,6 +102,10 @@ public class TemplateContextPreProcessor {
     // For HTML to be interpreted correctly by Mustache,
     // tokens must be wrapped in triple curly braces: "{{{...}}}"
     fixTokensWithHtmlValue(newTokens);
+  }
+
+  private boolean isSuitableImageSource(String tokenKey) {
+      return tokenKey.endsWith(SUFFIX_BARCODE) || tokenKey.endsWith(SUFFIX_HRID);
   }
 
   private boolean objectIsNonBlankString(Object obj) {
