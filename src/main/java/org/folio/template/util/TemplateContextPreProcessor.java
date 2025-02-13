@@ -85,7 +85,7 @@ public class TemplateContextPreProcessor {
     Set<String> newTokens = new HashSet<>();
 
     contextMap.entrySet().stream()
-      .filter(e -> isSuitableImageSource(e.getKey()))
+      .filter(e -> isBarcodeImageSource(e.getKey()))
       .filter(e -> objectIsNonBlankString(e.getValue()))
       .map(e -> new Token(e.getKey(), (String) e.getValue()))
       .filter(token -> templateTokens.contains(token.shortPath() + SUFFIX_IMAGE))
@@ -104,7 +104,8 @@ public class TemplateContextPreProcessor {
     fixTokensWithHtmlValue(newTokens);
   }
 
-  private boolean isSuitableImageSource(String tokenKey) {
+  /** Will pass tokens with names ending in `.barcode` or `Hrid` */
+  private boolean isBarcodeImageSource(String tokenKey) {
       return tokenKey.endsWith(SUFFIX_BARCODE) || tokenKey.endsWith(SUFFIX_HRID);
   }
 
