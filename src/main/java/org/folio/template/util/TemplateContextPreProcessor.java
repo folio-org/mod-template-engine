@@ -10,13 +10,7 @@ import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.tools.parser.JsonPathParser;
 import org.folio.template.client.LocaleConfiguration;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,8 +29,7 @@ public class TemplateContextPreProcessor {
 
   private static final String SUFFIX_DATE = "Date";
   private static final String SUFFIX_TIME = "Time";
-  private static final String SUFFIX_BARCODE = ".barcode";
-  private static final String SUFFIX_HRID = "Hrid";
+  private static final List<String> BARCODE_IMAGE_SUFFIXES = Arrays.asList(".barcode", "Hrid");
   private static final String SUFFIX_IMAGE = "Image";
 
   private final LocalizedTemplatesProperty template;
@@ -104,9 +97,10 @@ public class TemplateContextPreProcessor {
     fixTokensWithHtmlValue(newTokens);
   }
 
-  /** Will pass tokens with names ending in `.barcode` or `Hrid` */
   private boolean isBarcodeImageSource(String tokenKey) {
-      return tokenKey.endsWith(SUFFIX_BARCODE) || tokenKey.endsWith(SUFFIX_HRID);
+    return BARCODE_IMAGE_SUFFIXES
+      .stream()
+      .anyMatch(tokenKey::endsWith);
   }
 
   private boolean objectIsNonBlankString(Object obj) {
