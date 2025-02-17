@@ -10,13 +10,7 @@ import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.tools.parser.JsonPathParser;
 import org.folio.template.client.LocaleConfiguration;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,7 +29,7 @@ public class TemplateContextPreProcessor {
 
   private static final String SUFFIX_DATE = "Date";
   private static final String SUFFIX_TIME = "Time";
-  private static final String SUFFIX_BARCODE = ".barcode";
+  private static final List<String> BARCODE_IMAGE_SUFFIXES = Arrays.asList(".barcode", "Hrid");
   private static final String SUFFIX_IMAGE = "Image";
 
   private final LocalizedTemplatesProperty template;
@@ -62,7 +56,7 @@ public class TemplateContextPreProcessor {
   }
 
   public void process() {
-    LOG.debug("process:: Started processsing");
+    LOG.debug("process:: Started processing");
     enrichContextWithDateTimes();
     formatDatesInContext(context, config.getLanguageTag(), config.getTimeZoneId());
     handleBarcodeImageTokens();
@@ -84,7 +78,7 @@ public class TemplateContextPreProcessor {
     Set<String> newTokens = new HashSet<>();
 
     contextMap.entrySet().stream()
-      .filter(e -> e.getKey().endsWith(SUFFIX_BARCODE))
+      .filter(e -> isBarcodeImageSource(e.getKey()))
       .filter(e -> objectIsNonBlankString(e.getValue()))
       .map(e -> new Token(e.getKey(), (String) e.getValue()))
       .filter(token -> templateTokens.contains(token.shortPath() + SUFFIX_IMAGE))
@@ -101,6 +95,12 @@ public class TemplateContextPreProcessor {
     // For HTML to be interpreted correctly by Mustache,
     // tokens must be wrapped in triple curly braces: "{{{...}}}"
     fixTokensWithHtmlValue(newTokens);
+  }
+
+  private boolean isBarcodeImageSource(String tokenKey) {
+    return BARCODE_IMAGE_SUFFIXES
+      .stream()
+      .anyMatch(tokenKey::endsWith);
   }
 
   private boolean objectIsNonBlankString(Object obj) {
