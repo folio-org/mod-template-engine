@@ -18,9 +18,9 @@
     <http.port>8081</http.port>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <ramlfiles_util_path>${basedir}/raml-util</ramlfiles_util_path>
-    <raml-module-builder.version>35.3.0</raml-module-builder.version>
+    <raml-module-builder.version>35.4.0</raml-module-builder.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <vertx-version>4.5.4</vertx-version>
+    <vertx-version>4.5.13</vertx-version>
   </properties>
 
   <repositories>
@@ -447,7 +447,7 @@
         <configuration>
           <failsOnError>false</failsOnError>
           <failOnViolation>false</failOnViolation>
-          <logViolationsToConsole>true</logViolationsToConsole>
+          <logViolationsToConsole>false</logViolationsToConsole>
           <configLocation>https://raw.githubusercontent.com/folio-org/raml-module-builder/master/codestyles.xml</configLocation>
           <cacheFile>${basedir}/target/cachefile</cacheFile>
         </configuration>
