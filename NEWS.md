@@ -1,3 +1,7 @@
+## 2025-03-XX v1.22.0
+* Support barcode image generate for HRID tokens (MODTEMPENG-111)
+* Upgrade Java and RMB version for Sunflower (FOLIO-4220)
+
 ## 2024-10-30 v1.21.0
 * Upgrade RMB version to V.35.3.0 (MODTEMPENG-107)
 * remove TTL details from the account-activation and password-reset templates (MODTEMPENG-105)
