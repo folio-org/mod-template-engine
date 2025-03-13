@@ -1,4 +1,4 @@
-## 2025-03-XX v1.22.0
+## 2025-03-13 v1.22.0
 * Support barcode image generate for HRID tokens (MODTEMPENG-111)
 * Upgrade Java and RMB version for Sunflower (FOLIO-4220)
 
