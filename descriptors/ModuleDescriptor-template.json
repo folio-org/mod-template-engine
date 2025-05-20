@@ -9,6 +9,10 @@
     {
       "id": "patron-notice-policy-storage",
       "version": "0.13"
+    },
+    {
+      "id": "users",
+      "version": "16.4"
     }
 
   ],
@@ -30,7 +34,8 @@
         {
           "methods": ["GET"],
           "pathPattern": "/templates/{templateId}",
-          "permissionsRequired": ["templates.item.get"]
+          "permissionsRequired": ["templates.item.get"],
+          "modulePermissions": ["users.collection.get"]
         },
         {
           "methods": ["PUT"],
