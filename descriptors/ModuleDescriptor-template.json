@@ -24,7 +24,8 @@
         {
           "methods": ["GET"],
           "pathPattern": "/templates",
-          "permissionsRequired": ["templates.collection.get"]
+          "permissionsRequired": ["templates.collection.get"],
+          "modulePermissions": ["users.collection.get"]
         },
         {
           "methods": ["POST"],
