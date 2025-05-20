@@ -24,8 +24,7 @@
         {
           "methods": ["GET"],
           "pathPattern": "/templates",
-          "permissionsRequired": ["templates.collection.get"],
-          "modulePermissions": ["users.collection.get"]
+          "permissionsRequired": ["templates.collection.get"]
         },
         {
           "methods": ["POST"],
@@ -35,8 +34,7 @@
         {
           "methods": ["GET"],
           "pathPattern": "/templates/{templateId}",
-          "permissionsRequired": ["templates.item.get"],
-          "modulePermissions": ["users.collection.get"]
+          "permissionsRequired": ["templates.item.get"]
         },
         {
           "methods": ["PUT"],
@@ -116,7 +114,8 @@
         "templates.item.post",
         "templates.item.put",
         "templates.item.delete",
-        "template-request.post"
+        "template-request.post",
+        "users.collection.get"
       ],
       "visible": false
     }
