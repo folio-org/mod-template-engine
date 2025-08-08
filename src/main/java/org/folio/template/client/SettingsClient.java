@@ -42,7 +42,6 @@ public class SettingsClient extends OkapiClient {
 
     LOG.debug("lookupSettingsByScopeAndKey:: Lookup locale settings by scope {} and key {}", scope, key);
     String query = format("scope==%s and key==%s", scope, key);
-    LOG.info("lookupSettingsByScopeAndKey:: Locale settings with scope and key looked up successfully");
     return lookupSettingsByQuery(query, limit, offset);
   }
 
@@ -56,7 +55,7 @@ public class SettingsClient extends OkapiClient {
           throw new OkapiModuleClientException(
             format("Error getting locale settings. Status: %d, body: %s", response.statusCode(), response.body()));
         }
-        LOG.info("lookupSettingsByQuery:: Locale settings by query looked up successfully: {}", response.bodyAsJsonObject());
+        LOG.info("lookupSettingsByQuery:: Locale settings by query looked up successfully.");
       return response.bodyAsJsonObject();
     });
   }
@@ -70,7 +69,7 @@ public class SettingsClient extends OkapiClient {
       .map(obj -> (JsonObject)obj)
       .findFirst()
       .orElse(new JsonObject());
-    LOG.info("mapToLocaleSettings:: Found locale setting: {}", localeSetting);
+    LOG.debug("mapToLocaleSettings:: Found locale setting: {}", localeSetting);
 
     var valueObj = Optional.ofNullable(localeSetting.getJsonObject("value")).orElse(new JsonObject());
     String languageTag = valueObj.getString("locale", DEFAULT_LANGUAGE_TAG);

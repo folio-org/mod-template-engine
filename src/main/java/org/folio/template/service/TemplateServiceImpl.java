@@ -147,8 +147,7 @@ public class TemplateServiceImpl implements TemplateService {
             .withLang(templateRequest.getLang())
             .withOutputFormat(templateRequest.getOutputFormat());
 
-          LOG.info("processTemplate:: Template processed successfully, body: {}, attachments: {}",
-            processedTemplate.getBody(), processedTemplate.getAttachments());
+          LOG.info("processTemplate:: Template processed successfully");
 
           return new TemplateProcessingResult()
             .withResult(processedTemplate)
