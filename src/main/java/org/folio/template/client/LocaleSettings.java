@@ -1,11 +1,11 @@
 package org.folio.template.client;
 
-public class LocaleConfiguration {
+public class LocaleSettings {
 
   private final String languageTag;
   private final String timeZoneId;
 
-  public LocaleConfiguration(String languageTag, String timeZoneId) {
+  public LocaleSettings(String languageTag, String timeZoneId) {
     this.languageTag = languageTag;
     this.timeZoneId = timeZoneId;
   }

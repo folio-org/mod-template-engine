@@ -30,7 +30,7 @@ public class ConfigurationClient extends OkapiClient {
     this.configRequestPath = System.getProperty("config.client.path", "/configurations/entries");
   }
 
-  public Future<LocaleConfiguration> lookupLocaleConfig() {
+  public Future<LocaleSettings> lookupLocaleConfig() {
     LOG.debug("lookupLocaleConfig:: Lookup locale configuration");
     LOG.info("lookupLocaleConfig:: Locale configuration looked up successfully");
     return lookupConfigByModuleAndConfigName("ORG", "localeSettings", 1, 0)
@@ -60,7 +60,7 @@ public class ConfigurationClient extends OkapiClient {
     });
   }
 
-  private LocaleConfiguration mapToLocaleConfiguration(Configurations configurations) {
+  private LocaleSettings mapToLocaleConfiguration(Configurations configurations) {
     LOG.debug("mapToLocaleConfiguration:: Mapping configurations {} to locale configuration", configurations);
     JsonObject localeConfig = Optional.ofNullable(configurations.getConfigs()).stream()
       .flatMap(Collection::stream)
@@ -72,6 +72,6 @@ public class ConfigurationClient extends OkapiClient {
     String languageTag = localeConfig.getString("locale", DEFAULT_LANGUAGE_TAG);
     String timezoneId = localeConfig.getString("timezone", DEFAULT_TIMEZONE_ID);
     LOG.info("mapToLocaleConfiguration:: Mapped to locale configuration with Language Tag: {}, Timezone ID: {}", languageTag, timezoneId);
-    return new LocaleConfiguration(languageTag, timezoneId);
+    return new LocaleSettings(languageTag, timezoneId);
   }
 }

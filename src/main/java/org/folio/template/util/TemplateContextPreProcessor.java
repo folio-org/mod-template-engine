@@ -8,7 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.folio.rest.jaxrs.model.Attachment;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
 import org.folio.rest.tools.parser.JsonPathParser;
-import org.folio.template.client.LocaleConfiguration;
+import org.folio.template.client.LocaleSettings;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -34,13 +34,13 @@ public class TemplateContextPreProcessor {
 
   private final LocalizedTemplatesProperty template;
   private final JsonObject context;
-  private final LocaleConfiguration config;
+  private final LocaleSettings config;
   private final Map<String, Attachment> attachments;
   private final JsonPathParser jsonParser;
   private final Set<String> templateTokens;
 
   public TemplateContextPreProcessor(
-      LocalizedTemplatesProperty template, JsonObject context, LocaleConfiguration config) {
+      LocalizedTemplatesProperty template, JsonObject context, LocaleSettings config) {
     this.template = template;
     this.context = context;
     this.config = config;
