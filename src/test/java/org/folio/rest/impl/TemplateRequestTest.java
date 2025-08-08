@@ -1004,10 +1004,9 @@ public class TemplateRequestTest {
   }
 
   private void mockConfigModule() {
-    Settings settings =
-      new Settings().withItems(Collections.emptyList());
+    var settings = new JsonObject().put("items", new JsonArray());
     stubFor(get(urlPathEqualTo(SETTINGS_REQUEST_PATH))
-      .willReturn(okJson(toJson(mapFrom(settings)))));
+      .willReturn(okJson(toJson(settings))));
   }
 
   private void mockLocaleSettings(String languageToken, String timezoneId) {
@@ -1015,12 +1014,12 @@ public class TemplateRequestTest {
       .put("locale", languageToken)
       .put("timezone", timezoneId);
 
-    Item setting = new Item()
-      .withScope("stripes-core.prefs.manage")
-      .withKey("tenantLocaleSettings")
-      .withValue(localeConfigValue);
-    Settings settings =
-      new Settings().withItems(Collections.singletonList(setting));
+    var setting = new JsonObject()
+      .put("scope", "stripes-core.prefs.manage")
+      .put("key", "tenantLocaleSettings")
+      .put("value", localeConfigValue);
+    var settings = new JsonObject()
+      .put("items", new JsonArray().add(setting));
 
     stubFor(get(urlPathEqualTo(SETTINGS_REQUEST_PATH))
       .willReturn(okJson(toJson(settings))));
