@@ -24,7 +24,8 @@ public class TemplateContextPreProcessor {
   private static final String HTML_IMG_TEMPLATE = "<img src='cid:%s' alt='%s'>";
   private static final String TOKEN_TEMPLATE_REGULAR = "{{%s}}";
   private static final String TOKEN_TEMPLATE_HTML = "{{{%s}}}";
-  private static final String TOKEN_PATTERN = "\\{\\{([.a-zA-Z]+)}}";
+  private static final String TOKEN_REGEX = "\\{\\{([.a-zA-Z]+)}}";
+  private static final Pattern TOKEN_PATTERN = Pattern.compile(TOKEN_REGEX);
   private static final String CONTENT_TYPE_PNG = "image/png";
 
   private static final String SUFFIX_DATE = "Date";
@@ -115,8 +116,7 @@ public class TemplateContextPreProcessor {
   private Set<String> getTokensFromTemplate() {
     LOG.debug("getTokensFromTemplate:: Retrieving tokens from template");
     Set<String> tokens = new HashSet<>();
-    Matcher matcher = Pattern.compile(TOKEN_PATTERN)
-        .matcher(template.getHeader() + template.getBody());
+    Matcher matcher = TOKEN_PATTERN.matcher(template.getHeader() + template.getBody());
     while (matcher.find()) {
       tokens.add(matcher.group(1));
     }

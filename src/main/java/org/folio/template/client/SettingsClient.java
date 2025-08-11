@@ -66,7 +66,7 @@ public class SettingsClient extends OkapiClient {
       .map(JsonArray::stream)
       .orElse(Stream.empty())
       .filter(Objects::nonNull)
-      .map(obj -> (JsonObject)obj)
+      .map(JsonObject.class::cast)
       .findFirst()
       .orElse(new JsonObject());
     LOG.debug("mapToLocaleSettings:: Found locale setting: {}", localeSetting);
