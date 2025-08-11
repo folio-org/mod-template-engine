@@ -53,7 +53,7 @@ public class TemplateRequestTest {
 
   private static final String TEMPLATE_PATH = "/templates";
   private static final String TEMPLATE_REQUEST_PATH = "/template-request";
-  private static final String CONFIG_REQUEST_PATH = "/configurations/entries";
+  private static final String SETTINGS_REQUEST_PATH = "/settings/entries";
 
   private static final String TXT_OUTPUT_FORMAT = "txt";
   private static final String HTML_OUTPUT_FORMAT = "html";
@@ -1004,22 +1004,24 @@ public class TemplateRequestTest {
   }
 
   private void mockConfigModule() {
-    Configurations configurations =
-      new Configurations().withConfigs(Collections.emptyList()).withTotalRecords(0);
-    stubFor(get(urlPathEqualTo(CONFIG_REQUEST_PATH))
-      .willReturn(okJson(toJson(mapFrom(configurations)))));
+    var settings = new JsonObject().put("items", new JsonArray());
+    stubFor(get(urlPathEqualTo(SETTINGS_REQUEST_PATH))
+      .willReturn(okJson(toJson(settings))));
   }
 
   private void mockLocaleSettings(String languageToken, String timezoneId) {
-    String localeConfigValue = new JsonObject()
+    var localeConfigValue = new JsonObject()
       .put("locale", languageToken)
-      .put("timezone", timezoneId).encode();
+      .put("timezone", timezoneId);
 
-    Config config = new Config().withValue(localeConfigValue);
-    Configurations configurations =
-      new Configurations().withConfigs(Collections.singletonList(config)).withTotalRecords(1);
+    var setting = new JsonObject()
+      .put("scope", "stripes-core.prefs.manage")
+      .put("key", "tenantLocaleSettings")
+      .put("value", localeConfigValue);
+    var settings = new JsonObject()
+      .put("items", new JsonArray().add(setting));
 
-    stubFor(get(urlPathEqualTo(CONFIG_REQUEST_PATH))
-      .willReturn(okJson(toJson(configurations))));
+    stubFor(get(urlPathEqualTo(SETTINGS_REQUEST_PATH))
+      .willReturn(okJson(toJson(settings))));
   }
 }

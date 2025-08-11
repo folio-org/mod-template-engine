@@ -58,7 +58,7 @@ class BarcodeIT {
   public static final GenericContainer<?> okapi =
     new GenericContainer<>(DockerImageName.parse("busybox:1.35.0-uclibc"))
     .withCommand("busybox httpd -f -v -p 9130")
-    .withCopyToContainer(Transferable.of("{}"), "/configurations/entries")
+    .withCopyToContainer(Transferable.of("{}"), "/settings/entries")
     .withNetwork(network)
     .withNetworkAliases("okapi")
     .withExposedPorts(9130);
