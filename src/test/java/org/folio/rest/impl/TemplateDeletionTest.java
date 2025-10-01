@@ -2,6 +2,7 @@ package org.folio.rest.impl;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.jsonResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static io.restassured.RestAssured.given;
@@ -12,12 +13,15 @@ import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.okapi.common.XOkapiHeaders;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.TenantAttributes;
 import org.folio.rest.tools.utils.NetworkUtils;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -36,6 +40,10 @@ import io.vertx.junit5.VertxTestContext;
 @ExtendWith(VertxExtension.class)
 class TemplateDeletionTest {
 
+  public static final String EXPECTED_CQL_QUERY =
+      "loanNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
+          "OR requestNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
+          "OR feeFineNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\"";
   private static final Logger logger = LogManager.getLogger(TemplateDeletionTest.class);
   private static JsonObject unusedTemplate = new JsonObject()
     .put("id", "c9c7d02f-873a-4608-98e7-5e2df69a4a4f")
@@ -62,7 +70,6 @@ class TemplateDeletionTest {
 
     wireMockServer = new WireMockServer(mockServerPort);
     wireMockServer.start();
-    setupStub();
 
     spec = new RequestSpecBuilder()
       .setContentType(ContentType.JSON)
@@ -95,6 +102,12 @@ class TemplateDeletionTest {
     });
   }
 
+  @AfterEach
+  void tearDown() {
+    Postgres.truncate();
+    wireMockServer.resetAll();
+  }
+
   @AfterAll
   static void afterAll() {
     wireMockServer.stop();
@@ -102,6 +115,16 @@ class TemplateDeletionTest {
 
   @Test
   void canDeleteTemplate() {
+    var expectedQuery = format(EXPECTED_CQL_QUERY, unusedTemplate.getString("id"));
+    wireMockServer.stubFor(
+      get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))
+        .withQueryParam("query", equalTo(expectedQuery))
+        .withQueryParam("limit", equalTo("0"))
+        .willReturn(okJson(new JsonObject()
+          .put("patronNoticePolicies", new JsonArray())
+          .put("totalRecords", 0).encode()))
+    );
+
     given()
       .spec(spec)
       .body(unusedTemplate.encode())
@@ -117,7 +140,68 @@ class TemplateDeletionTest {
   }
 
   @Test
+  void canDeleteTemplateWhenRouteIsNotFound() {
+    var expectedQuery = format(EXPECTED_CQL_QUERY, inUseTemplate.getString("id"));
+    wireMockServer.stubFor(
+      get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))
+        .withQueryParam("query", equalTo(expectedQuery))
+        .withQueryParam("limit", equalTo("0"))
+        .willReturn(jsonResponse(new JsonObject()
+            .put("message", "no Route matched with those values")
+            .put("request_id", "4e37864c9da5970e3dfddf604a0e172a").encode(),
+          404))
+    );
+
+    given()
+      .spec(spec)
+      .body(inUseTemplate.encode())
+      .when()
+      .post("/templates");
+
+    given()
+      .spec(spec)
+      .when()
+      .delete("/templates/" + inUseTemplate.getString("id"))
+      .then()
+      .statusCode(204);
+  }
+
+  @Test
+  void cannotDeleteTemplateWhenInternalServerError() {
+    var expectedQuery = format(EXPECTED_CQL_QUERY, unusedTemplate.getString("id"));
+    wireMockServer.stubFor(
+      get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))
+        .withQueryParam("query", equalTo(expectedQuery))
+        .withQueryParam("limit", equalTo("0"))
+        .willReturn(jsonResponse(new JsonObject()
+            .put("message", "Internal Server Error").encode(), 500))
+    );
+
+    given()
+      .spec(spec)
+      .body(unusedTemplate.encode())
+      .when()
+      .post("/templates");
+
+    given()
+      .spec(spec)
+      .when()
+      .delete("/templates/" + unusedTemplate.getString("id"))
+      .then()
+      .statusCode(500);
+  }
+
+  @Test
   void cannotDeleteWhenTemplateInUse() {
+    wireMockServer.stubFor(
+      get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))
+        .withQueryParam("query", equalTo(format(EXPECTED_CQL_QUERY, inUseTemplate.getString("id"))))
+        .withQueryParam("limit", equalTo("0"))
+        .willReturn(okJson(new JsonObject()
+          .put("patronNoticePolicies", new JsonArray())
+          .put("totalRecords", 1).encode()))
+    );
+
     given()
       .spec(spec)
       .body(inUseTemplate.encode())
@@ -132,29 +216,26 @@ class TemplateDeletionTest {
       .statusCode(400);
   }
 
-  private static void setupStub() {
-
-    String query = "loanNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
-      "OR requestNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\" " +
-      "OR feeFineNotices == \"*\\\"templateId\\\": \\\"%1$s\\\"*\"";
-
+  @Test
+  void cannotDeleteWhenTemplateInUseWithInvalidResponseBody() {
     wireMockServer.stubFor(
       get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))
-        .withQueryParam("query", equalTo(format(query, inUseTemplate.getString("id"))))
+        .withQueryParam("query", equalTo(format(EXPECTED_CQL_QUERY, inUseTemplate.getString("id"))))
         .withQueryParam("limit", equalTo("0"))
-        .willReturn(okJson(new JsonObject()
-          .put("patronNoticePolicies", new JsonArray())
-          .put("totalRecords", 1).encode()))
+        .willReturn(okJson(new JsonObject().put("test_key", "test_value").encode()))
     );
 
-    wireMockServer.stubFor(
-      get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))
-        .withQueryParam("query", equalTo(format(query, unusedTemplate.getString("id"))))
-        .withQueryParam("limit", equalTo("0"))
-        .willReturn(okJson(new JsonObject()
-          .put("patronNoticePolicies", new JsonArray())
-          .put("totalRecords", 0).encode()))
-    );
+    given()
+      .spec(spec)
+      .body(inUseTemplate.encode())
+      .when()
+      .post("/templates");
 
+    given()
+      .spec(spec)
+      .when()
+      .delete("/templates/" + inUseTemplate.getString("id"))
+      .then()
+      .statusCode(500);
   }
 }

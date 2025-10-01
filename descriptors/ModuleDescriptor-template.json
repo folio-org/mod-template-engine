@@ -5,12 +5,13 @@
     {
       "id": "configuration",
       "version": "2.0"
-    },
+    }
+  ],
+  "optional": [
     {
       "id": "patron-notice-policy-storage",
       "version": "0.13"
     }
-
   ],
   "provides": [
     {

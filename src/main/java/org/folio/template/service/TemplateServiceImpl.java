@@ -7,6 +7,7 @@ import static org.folio.okapi.common.XOkapiHeaders.TENANT;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +30,7 @@ import org.folio.template.client.LocaleConfiguration;
 import org.folio.template.dao.TemplateDao;
 import org.folio.template.dao.TemplateDaoImpl;
 import org.folio.template.resolver.TemplateResolver;
+import org.folio.template.util.OkapiModuleClientException;
 import org.folio.template.util.TemplateContextPreProcessor;
 import org.folio.template.util.TemplateEngineHelper;
 
@@ -99,7 +101,16 @@ public class TemplateServiceImpl implements TemplateService {
 
     return circulationStorageClient.findPatronNoticePolicies(query, 0)
       .compose(policies -> policies.getInteger("totalRecords") == 0 ?
-        templateDao.deleteTemplate(id) : failedFuture(new InUseTemplateException()));
+        templateDao.deleteTemplate(id) : failedFuture(new InUseTemplateException()))
+      .recover(throwable -> {
+        // indicates that route is not found (returned from folio-module-sidecar/gateway)
+        if (throwable instanceof OkapiModuleClientException clientException) {
+          if (Objects.equals(clientException.getStatus(), 404)) {
+            return templateDao.deleteTemplate(id);
+          }
+        }
+        return failedFuture(throwable);
+      });
   }
 
   @Override
@@ -184,5 +195,4 @@ public class TemplateServiceImpl implements TemplateService {
       throw new BadRequestException(message);
     }
   }
-
 }

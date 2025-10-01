@@ -53,7 +53,7 @@ public class ConfigurationClient extends OkapiClient {
         if (response.statusCode() != HttpStatus.HTTP_OK.toInt()) {
           LOG.warn("Error getting config by module name. Status: {}, body: {}", response.statusCode(), response.body());
           throw new OkapiModuleClientException(format("Error getting config by module name. " +
-            "Status: %d, body: %s", response.statusCode(), response.body()));
+            "Status: %d, body: %s", response.statusCode(), response.body()), response.statusCode());
         }
         LOG.info("lookupConfigByQuery:: Locale configuration by query looked up successfully");
       return response.bodyAsJsonObject().mapTo(Configurations.class);
