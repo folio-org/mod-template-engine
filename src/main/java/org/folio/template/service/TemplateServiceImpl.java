@@ -25,8 +25,8 @@ import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.jaxrs.model.TemplateProcessingResult;
 import org.folio.template.InUseTemplateException;
 import org.folio.template.client.CirculationStorageClient;
-import org.folio.template.client.ConfigurationClient;
-import org.folio.template.client.LocaleConfiguration;
+import org.folio.template.client.LocaleSettings;
+import org.folio.template.client.SettingsClient;
 import org.folio.template.dao.TemplateDao;
 import org.folio.template.dao.TemplateDaoImpl;
 import org.folio.template.resolver.TemplateResolver;
@@ -46,7 +46,7 @@ public class TemplateServiceImpl implements TemplateService {
   private Vertx vertx;
   private TemplateDao templateDao;
   private Map<String, String> templateResolverAddressesMap;
-  private ConfigurationClient configurationClient;
+  private SettingsClient settingsClient;
   private CirculationStorageClient circulationStorageClient;
 
 
@@ -55,7 +55,7 @@ public class TemplateServiceImpl implements TemplateService {
     this.templateDao = new TemplateDaoImpl(vertx, okapiHeaders.get(TENANT));
     this.templateResolverAddressesMap = vertx.sharedData().getLocalMap(
       TemplateEngineHelper.TEMPLATE_RESOLVERS_LOCAL_MAP);
-    this.configurationClient = new ConfigurationClient(vertx, okapiHeaders);
+    this.settingsClient = new SettingsClient(vertx, okapiHeaders);
     this.circulationStorageClient = new CirculationStorageClient(vertx, okapiHeaders);
   }
 
@@ -120,7 +120,7 @@ public class TemplateServiceImpl implements TemplateService {
       .map(optionalTemplate -> optionalTemplate.orElseThrow(() ->
         new BadRequestException(String.format("Template with id %s does not exist", templateRequest.getTemplateId()))));
 
-    Future<LocaleConfiguration> localeConfigurationFuture = configurationClient.lookupLocaleConfig();
+    Future<LocaleSettings> localeConfigurationFuture = settingsClient.lookupLocaleSetting();
 
     return CompositeFuture.all(templateByIdFuture, localeConfigurationFuture)
       .compose(compositeFuture -> {
@@ -134,7 +134,7 @@ public class TemplateServiceImpl implements TemplateService {
             .map(JsonObject::mapFrom)
             .orElse(new JsonObject());
 
-        LocaleConfiguration config = compositeFuture.resultAt(1);
+        LocaleSettings config = compositeFuture.resultAt(1);
 
         TemplateContextPreProcessor preProcessor = new TemplateContextPreProcessor(templateContent, contextObject, config);
         preProcessor.process();
@@ -157,7 +157,9 @@ public class TemplateServiceImpl implements TemplateService {
             .withDateCreate(new Date())
             .withLang(templateRequest.getLang())
             .withOutputFormat(templateRequest.getOutputFormat());
+
           LOG.info("processTemplate:: Template processed successfully");
+
           return new TemplateProcessingResult()
             .withResult(processedTemplate)
             .withMeta(resultMetaInfo)
