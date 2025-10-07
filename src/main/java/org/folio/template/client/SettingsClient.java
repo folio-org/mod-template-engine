@@ -51,7 +51,7 @@ public class SettingsClient extends OkapiClient {
       .map(response -> {
         if (response.statusCode() != HttpStatus.HTTP_OK.toInt()) {
           LOG.warn("lookupSettingsByQuery:: Error getting locale settings. Status: {}, body: {}",
-            response.statusCode(), response.body());
+            response::statusCode, response::body);
           throw new OkapiModuleClientException(
             format("Error getting locale settings. Status: %d, body: %s",
               response.statusCode(), response.body()), response.statusCode());
