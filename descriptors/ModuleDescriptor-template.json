@@ -3,12 +3,14 @@
   "name": "Template engine module",
   "requires": [
     {
-      "id": "patron-notice-policy-storage",
-      "version": "0.13"
-    },
-    {
       "id": "settings",
       "version": "1.2"
+    }
+  ],
+  "optional": [
+    {
+      "id": "patron-notice-policy-storage",
+      "version": "0.13"
     }
   ],
   "provides": [

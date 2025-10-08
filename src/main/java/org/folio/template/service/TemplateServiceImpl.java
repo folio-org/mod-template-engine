@@ -2,11 +2,13 @@ package org.folio.template.service;
 
 import static io.vertx.core.Future.failedFuture;
 import static java.lang.String.format;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.folio.okapi.common.XOkapiHeaders.TENANT;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +31,7 @@ import org.folio.template.client.SettingsClient;
 import org.folio.template.dao.TemplateDao;
 import org.folio.template.dao.TemplateDaoImpl;
 import org.folio.template.resolver.TemplateResolver;
+import org.folio.template.util.OkapiModuleClientException;
 import org.folio.template.util.TemplateContextPreProcessor;
 import org.folio.template.util.TemplateEngineHelper;
 
@@ -99,7 +102,17 @@ public class TemplateServiceImpl implements TemplateService {
 
     return circulationStorageClient.findPatronNoticePolicies(query, 0)
       .compose(policies -> policies.getInteger("totalRecords") == 0 ?
-        templateDao.deleteTemplate(id) : failedFuture(new InUseTemplateException()));
+        templateDao.deleteTemplate(id) : failedFuture(new InUseTemplateException()))
+      .recover(throwable -> {
+        // indicates that route is not found (returned from folio-module-sidecar/gateway)
+        if (isModuleUrlNotFound(throwable)) {
+          LOG.info("Patron notice policy storage not available, " +
+            "proceeding with deletion for template: {}", id);
+          return templateDao.deleteTemplate(id);
+        }
+
+        return failedFuture(throwable);
+      });
   }
 
   @Override
@@ -187,4 +200,8 @@ public class TemplateServiceImpl implements TemplateService {
     }
   }
 
+  private static boolean isModuleUrlNotFound(Throwable throwable) {
+    return throwable instanceof OkapiModuleClientException clientException
+      && Objects.equals(clientException.getStatus(), NOT_FOUND.getStatusCode());
+  }
 }

@@ -30,6 +30,6 @@ public class CirculationStorageClient extends OkapiClient {
       .compose(resp -> resp.statusCode() == HTTP_OK.toInt()
         ? succeededFuture(resp.bodyAsJsonObject())
         : failedFuture(new OkapiModuleClientException(format("Error getting patron notice " +
-        "policies. Status: %d, body: %s", resp.statusCode(), resp.body()))));
+        "policies. Status: %d, body: %s", resp.statusCode(), resp.body()), resp.statusCode())));
   }
 }
