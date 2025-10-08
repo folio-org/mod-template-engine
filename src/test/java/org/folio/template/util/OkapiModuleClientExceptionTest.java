@@ -12,25 +12,27 @@ class OkapiModuleClientExceptionTest {
       throw new OkapiModuleClientException();
     });
 
-    assertNull(actual.getStatus());
+    assertEquals(0, actual.getStatus());
   }
 
   @Test
   void create_positive_cause() {
+    var cause = new RuntimeException("test");
     var actual = assertThrows(OkapiModuleClientException.class, () -> {
-      throw new OkapiModuleClientException(new RuntimeException("test"));
+      throw new OkapiModuleClientException(cause);
     });
 
-    assertNull(actual.getStatus());
+    assertEquals(0, actual.getStatus());
   }
 
   @Test
   void create_positive_messageAndCause() {
+    var cause = new RuntimeException("test cause");
     var actual = assertThrows(OkapiModuleClientException.class, () -> {
-      throw new OkapiModuleClientException("test", new RuntimeException("test cause"));
+      throw new OkapiModuleClientException("test", cause);
     });
 
-    assertNull(actual.getStatus());
+    assertEquals(0, actual.getStatus());
   }
 
   @Test

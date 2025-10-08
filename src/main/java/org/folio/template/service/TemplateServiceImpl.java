@@ -2,6 +2,7 @@ package org.folio.template.service;
 
 import static io.vertx.core.Future.failedFuture;
 import static java.lang.String.format;
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.folio.okapi.common.XOkapiHeaders.TENANT;
 
 import java.util.Date;
@@ -104,11 +105,12 @@ public class TemplateServiceImpl implements TemplateService {
         templateDao.deleteTemplate(id) : failedFuture(new InUseTemplateException()))
       .recover(throwable -> {
         // indicates that route is not found (returned from folio-module-sidecar/gateway)
-        if (throwable instanceof OkapiModuleClientException clientException) {
-          if (Objects.equals(clientException.getStatus(), 404)) {
-            return templateDao.deleteTemplate(id);
-          }
+        if (isModuleUrlNotFound(throwable)) {
+          LOG.info("Patron notice policy storage not available, " +
+            "proceeding with deletion for template: {}", id);
+          return templateDao.deleteTemplate(id);
         }
+
         return failedFuture(throwable);
       });
   }
@@ -196,5 +198,10 @@ public class TemplateServiceImpl implements TemplateService {
         templateRequest.getLang());
       throw new BadRequestException(message);
     }
+  }
+
+  private static boolean isModuleUrlNotFound(Throwable throwable) {
+    return throwable instanceof OkapiModuleClientException clientException
+      && Objects.equals(clientException.getStatus(), NOT_FOUND.getStatusCode());
   }
 }
