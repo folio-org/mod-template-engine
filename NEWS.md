@@ -1,3 +1,6 @@
+## 2025-12-22 v1.21.1
+* Update to RMB 35.3.1 (MODTEMPENG-125)
+
 ## 2024-10-30 v1.21.0
 * Upgrade RMB version to V.35.3.0 (MODTEMPENG-107)
 * remove TTL details from the account-activation and password-reset templates (MODTEMPENG-105)
