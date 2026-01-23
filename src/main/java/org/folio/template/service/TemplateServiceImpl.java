@@ -2,6 +2,7 @@ package org.folio.template.service;
 
 import static io.vertx.core.Future.failedFuture;
 import static java.lang.String.format;
+import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.folio.okapi.common.XOkapiHeaders.TENANT;
 
@@ -202,6 +203,8 @@ public class TemplateServiceImpl implements TemplateService {
 
   private static boolean isModuleUrlNotFound(Throwable throwable) {
     return throwable instanceof OkapiModuleClientException clientException
-      && Objects.equals(clientException.getStatus(), NOT_FOUND.getStatusCode());
+      && (Objects.equals(clientException.getStatus(), NOT_FOUND.getStatusCode())
+        || Objects.equals(clientException.getStatus(), BAD_REQUEST.getStatusCode())
+        && clientException.getMessage().contains("Application is not enabled for tenant"));
   }
 }
