@@ -165,6 +165,39 @@ class TemplateDeletionTest {
   }
 
   @Test
+  void canDeleteTemplateWhenApplicationIsNotEnabled() {
+    var expectedQuery = format(EXPECTED_CQL_QUERY, inUseTemplate.getString("id"));
+    var errorMessage = "Application is not enabled for tenant: " + Postgres.getTenant();
+    wireMockServer.stubFor(
+        get(urlPathEqualTo("/patron-notice-policy-storage/patron-notice-policies"))
+            .withQueryParam("query", equalTo(expectedQuery))
+            .withQueryParam("limit", equalTo("0"))
+            .willReturn(jsonResponse(new JsonObject()
+                    .put("total_records", 1)
+                    .put("errors", new JsonArray().add(new JsonObject()
+                        .put("type", "TenantNotEnabledException")
+                        .put("code", "tenant_not_enabled")
+                        .put("message", errorMessage)
+                    ))
+                    .encode(),
+                400))
+    );
+
+    given()
+        .spec(spec)
+        .body(inUseTemplate.encode())
+        .when()
+        .post("/templates");
+
+    given()
+        .spec(spec)
+        .when()
+        .delete("/templates/" + inUseTemplate.getString("id"))
+        .then()
+        .statusCode(204);
+  }
+
+  @Test
   void cannotDeleteTemplateWhenInternalServerError() {
     var expectedQuery = format(EXPECTED_CQL_QUERY, unusedTemplate.getString("id"));
     wireMockServer.stubFor(
