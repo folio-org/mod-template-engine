@@ -1,8 +1,7 @@
 package org.folio.template.resolver;
 
 import io.vertx.codegen.annotations.ProxyGen;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 
@@ -22,7 +21,7 @@ public interface TemplateResolver {
    * @param templateContent templateContent
    * @param context         context
    * @param outputFormat    output format
-   * @param resultHandler   result handler
+   * @return Future containing the processed template as JsonObject
    */
-  void processTemplate(JsonObject templateContent, JsonObject context, String outputFormat, Handler<AsyncResult<JsonObject>> resultHandler);
+  Future<JsonObject> processTemplate(JsonObject templateContent, JsonObject context, String outputFormat);
 }

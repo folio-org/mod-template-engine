@@ -5,8 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.UUID;
-
-import org.apache.http.HttpStatus;
+import org.folio.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
@@ -64,9 +63,9 @@ public class TemplatesMigrationTest {
     DeploymentOptions options = new DeploymentOptions()
       .setConfig(new JsonObject().put("http.port", MODULE_PORT));
 
-    vertx.deployVerticle(RestVerticle.class.getName(), options,
-      context.asyncAssertSuccess(res -> postTenant(context)
-        .onSuccess(r -> async.complete())));
+    vertx.deployVerticle(RestVerticle.class.getName(), options)
+      .onComplete(context.asyncAssertSuccess(res ->
+        postTenant(context).onSuccess(r -> async.complete())));
   }
 
   @Before

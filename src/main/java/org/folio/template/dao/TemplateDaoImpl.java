@@ -17,8 +17,6 @@ import org.folio.rest.persist.interfaces.Results;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
-import io.vertx.sqlclient.Row;
-import io.vertx.sqlclient.RowSet;
 
 public class TemplateDaoImpl implements TemplateDao {
 
@@ -26,7 +24,7 @@ public class TemplateDaoImpl implements TemplateDao {
   public static final String TEMPLATE_SCHEMA_PATH = "ramls/template.json";
   private static final String TEMPLATES_TABLE = "template";
 
-  private PostgresClient pgClient;
+  private final PostgresClient pgClient;
 
   public TemplateDaoImpl(Vertx vertx, String tenantId) {
     pgClient = PostgresClient.getInstance(vertx, tenantId);
@@ -43,7 +41,7 @@ public class TemplateDaoImpl implements TemplateDao {
     try {
       String[] fieldList = {"*"};
       CQLWrapper cql = getCQL(query, limit, offset);
-      pgClient.get(TEMPLATES_TABLE, Template.class, fieldList, cql, true, false, promise);
+      pgClient.get(TEMPLATES_TABLE, Template.class, fieldList, cql, true, false, promise::handle);
     } catch (Exception e) {
       LOG.warn("Failed to retrieve templates from database with exception {}", e.getMessage());
       promise.fail(e);
@@ -55,37 +53,39 @@ public class TemplateDaoImpl implements TemplateDao {
   @Override
   public Future<Optional<Template>> getTemplateById(String id) {
     LOG.debug("getTemplateById:: Retrieving template from database by Template ID: {}", id);
-    Promise<Template> promise = Promise.promise();
-    pgClient.getById(TEMPLATES_TABLE, id, Template.class, promise);
-    LOG.info("getTemplateById:: Retrieved template from database by Template ID: {}", id);
-    return promise.future().map(Optional::ofNullable);
+    return pgClient.getById(TEMPLATES_TABLE, id, Template.class)
+      .map(template -> {
+        LOG.info("getTemplateById:: Retrieved template from database by Template ID: {}", id);
+        return Optional.ofNullable(template);
+      });
   }
 
   @Override
   public Future<String> addTemplate(Template template) {
     LOG.debug("addTemplate:: Adding template to database by Template ID: {}", template.getId());
-    Promise<String> promise = Promise.promise();
-    pgClient.save(TEMPLATES_TABLE, template.getId(), template, promise);
+    var saved = pgClient.save(TEMPLATES_TABLE, template.getId(), template);
     LOG.info("addTemplate:: Saved template to database by Template ID: {}", template.getId());
-    return promise.future();
+    return saved;
   }
 
   @Override
   public Future<Boolean> updateTemplate(Template template) {
     LOG.debug("updateTemplate:: Updating template in database by Template ID: {}", template.getId());
-    Promise<RowSet<Row>> promise = Promise.promise();
-    pgClient.update(TEMPLATES_TABLE, template, template.getId(), promise);
-    LOG.info("updateTemplate:: Updated template to database by Template ID: {}", template.getId());
-    return promise.future().map(updateResult -> updateResult.rowCount() == 1);
+    return pgClient.update(TEMPLATES_TABLE, template, template.getId())
+      .map(updateResult -> {
+        LOG.info("updateTemplate:: Updated template to database by Template ID: {}", template.getId());
+        return updateResult.rowCount() == 1;
+      });
   }
 
   @Override
   public Future<Boolean> deleteTemplate(String id) {
     LOG.debug("deleteTemplate:: Deleting template from database by Template ID: {}", id);
-    Promise<RowSet<Row>> promise = Promise.promise();
-    pgClient.delete(TEMPLATES_TABLE, id, promise);
-    LOG.info("deleteTemplate:: Deleted template from database by Template ID: {}", id);
-    return promise.future().map(updateResult -> updateResult.rowCount() == 1);
+    return pgClient.delete(TEMPLATES_TABLE, id)
+      .map(updateResult -> {
+        LOG.info("deleteTemplate:: Deleted template from database by Template ID: {}", id);
+        return updateResult.rowCount() == 1;
+      });
   }
 
   /**

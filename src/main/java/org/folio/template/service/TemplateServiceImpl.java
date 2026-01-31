@@ -1,6 +1,7 @@
 package org.folio.template.service;
 
 import static io.vertx.core.Future.failedFuture;
+import static io.vertx.core.json.JsonObject.mapFrom;
 import static java.lang.String.format;
 import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
@@ -16,7 +17,6 @@ import java.util.UUID;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
-import io.vertx.core.Promise;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.rest.jaxrs.model.LocalizedTemplatesProperty;
@@ -36,7 +36,6 @@ import org.folio.template.util.OkapiModuleClientException;
 import org.folio.template.util.TemplateContextPreProcessor;
 import org.folio.template.util.TemplateEngineHelper;
 
-import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -125,7 +124,7 @@ public class TemplateServiceImpl implements TemplateService {
 
     Future<LocaleSettings> localeConfigurationFuture = settingsClient.lookupLocaleSetting();
 
-    return CompositeFuture.all(templateByIdFuture, localeConfigurationFuture)
+    return Future.all(templateByIdFuture, localeConfigurationFuture)
       .compose(compositeFuture -> {
         Template template = compositeFuture.resultAt(0);
         validateTemplateProcessingRequest(templateRequest, template);
@@ -145,29 +144,24 @@ public class TemplateServiceImpl implements TemplateService {
         String templateResolverAddress = templateResolverAddressesMap.get(template.getTemplateResolver());
         TemplateResolver templateResolverProxy = TemplateResolver.createProxy(vertx, templateResolverAddress);
 
-        Promise<JsonObject> promise = Promise.promise();
-        templateResolverProxy.processTemplate(
-          JsonObject.mapFrom(templateContent),
-          contextObject,
-          templateRequest.getOutputFormat(), promise);
+        return templateResolverProxy.processTemplate(mapFrom(templateContent), contextObject, templateRequest.getOutputFormat())
+          .map(processedContent -> {
+            Result processedTemplate = processedContent
+              .mapTo(Result.class)
+              .withAttachments(preProcessor.getAttachments());
+            Meta resultMetaInfo = new Meta()
+              .withSize(processedTemplate.getBody().length())
+              .withDateCreate(new Date())
+              .withLang(templateRequest.getLang())
+              .withOutputFormat(templateRequest.getOutputFormat());
 
-        return promise.future().map(processedContent -> {
-          Result processedTemplate = processedContent
-            .mapTo(Result.class)
-            .withAttachments(preProcessor.getAttachments());
-          Meta resultMetaInfo = new Meta()
-            .withSize(processedTemplate.getBody().length())
-            .withDateCreate(new Date())
-            .withLang(templateRequest.getLang())
-            .withOutputFormat(templateRequest.getOutputFormat());
+            LOG.info("processTemplate:: Template processed successfully");
 
-          LOG.info("processTemplate:: Template processed successfully");
-
-          return new TemplateProcessingResult()
-            .withResult(processedTemplate)
-            .withMeta(resultMetaInfo)
-            .withTemplateId(templateRequest.getTemplateId());
-        });
+            return new TemplateProcessingResult()
+              .withResult(processedTemplate)
+              .withMeta(resultMetaInfo)
+              .withTemplateId(templateRequest.getTemplateId());
+          });
       });
   }
 

@@ -20,7 +20,7 @@ import io.vertx.ext.unit.junit.VertxUnitRunner;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import io.vertx.ext.web.client.HttpResponse;
-import org.apache.http.HttpStatus;
+import org.folio.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
@@ -73,7 +73,7 @@ public class RestVerticleTest {
     .put("description", NEW_TEMPLATE_DESCRIPTION);
 
   @BeforeClass
-  public static void setUpClass(final TestContext context) throws Exception {
+  public static void setUpClass(final TestContext context) {
     mockServerPort = NetworkUtils.nextFreePort();
     int okapiPort = NetworkUtils.nextFreePort();
 
@@ -99,40 +99,41 @@ public class RestVerticleTest {
         .put("http.port", okapiPort)
     );
 
-    vertx.deployVerticle(RestVerticle.class.getName(), options, context.asyncAssertSuccess(res -> {
-      try {
-        TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
-        tenantClient.postTenant(t, postResult -> {
-          if (postResult.failed()) {
-            Throwable cause = postResult.cause();
-            logger.error(cause);
-            context.fail(cause);
-            return;
-          }
-
-          final HttpResponse<Buffer> postResponse = postResult.result();
-          assertThat(postResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_CREATED));
-
-          String jobId = postResponse.bodyAsJson(TenantJob.class).getId();
-
-          tenantClient.getTenantByOperationId(jobId, POST_TENANT_TIMEOUT, getResult -> {
-            if (getResult.failed()) {
-              Throwable cause = getResult.cause();
-              logger.error(cause.getMessage());
+    vertx.deployVerticle(RestVerticle.class.getName(), options)
+      .onComplete(context.asyncAssertSuccess(res -> {
+        try {
+          TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
+          tenantClient.postTenant(t, postResult -> {
+            if (postResult.failed()) {
+              Throwable cause = postResult.cause();
+              logger.error(cause);
               context.fail(cause);
               return;
             }
 
-            final HttpResponse<Buffer> getResponse = getResult.result();
-            assertThat(getResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_OK));
-            assertThat(getResponse.bodyAsJson(TenantJob.class).getComplete(), CoreMatchers.is(true));
-            async.complete();
+            final HttpResponse<Buffer> postResponse = postResult.result();
+            assertThat(postResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_CREATED));
+
+            String jobId = postResponse.bodyAsJson(TenantJob.class).getId();
+
+            tenantClient.getTenantByOperationId(jobId, POST_TENANT_TIMEOUT, getResult -> {
+              if (getResult.failed()) {
+                Throwable cause = getResult.cause();
+                logger.error(cause.getMessage());
+                context.fail(cause);
+                return;
+              }
+
+              final HttpResponse<Buffer> getResponse = getResult.result();
+              assertThat(getResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_OK));
+              assertThat(getResponse.bodyAsJson(TenantJob.class).getComplete(), CoreMatchers.is(true));
+              async.complete();
+            });
           });
-        });
-      } catch (Exception e) {
-        context.fail(e);
-      }
-    }));
+        } catch (Exception e) {
+          context.fail(e);
+        }
+      }));
   }
 
   @Before
@@ -143,10 +144,11 @@ public class RestVerticleTest {
   @AfterClass
   public static void tearDown(TestContext context) {
     Async async = context.async();
-    vertx.close(context.asyncAssertSuccess(res -> {
-      wireMockServer.stop();
-      async.complete();
-    }));
+    vertx.close()
+      .onComplete(context.asyncAssertSuccess(res -> {
+        wireMockServer.stop();
+        async.complete();
+      }));
   }
 
   @Test
@@ -192,7 +194,7 @@ public class RestVerticleTest {
 
     chainedFuture.onComplete(chainedRes -> {
       if (chainedRes.failed()) {
-        logger.error("Test failed: " + chainedRes.cause().getLocalizedMessage());
+        logger.error("Test failed: {}", chainedRes.cause().getLocalizedMessage());
         context.fail(chainedRes.cause());
       } else {
         async.complete();

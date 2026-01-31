@@ -1,10 +1,10 @@
 package org.folio.rest.impl;
 
-import io.vertx.core.AsyncResult;
+import java.util.Map;
+import java.util.Optional;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
-import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
@@ -14,8 +14,6 @@ import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Map;
 
 /**
  * Helper class for API tests
@@ -66,7 +64,6 @@ public class ApiTestHelper {
   public static Future<WrappedResponse> doRequest(Vertx vertx, String url,
     HttpMethod method, MultiMap headers, String payload,
     Integer expectedCode, String explanation, Handler<WrappedResponse> handler) {
-    Promise<WrappedResponse> promise = Promise.promise();
     WebClient client = WebClient.create(vertx);
     HttpRequest<Buffer> request = client.requestAbs(method, url);
     //Add standard headers
@@ -81,31 +78,28 @@ public class ApiTestHelper {
       }
     }
 
-    logger.info(String.format("Sending %s request to url '%s with payload: %s'\n", method.toString(), url, payload));
+    logger.info("Sending {} request to url '{} with payload: {}'\n", method, url, payload);
 
-    Handler<AsyncResult<HttpResponse<Buffer>>> responseHandler = response -> {
-      String explainString = "(no explanation)";
-      if (explanation != null) {
-        explainString = explanation;
-      }
-      if (expectedCode != null && expectedCode != response.result().statusCode()) {
-        promise.fail(String.format("%s to %s failed. Expected status code %s, got status code %s : %s | %s",
-          method.toString(), url, expectedCode, response.result().statusCode(), response.result().bodyAsString(), explainString));
-      } else {
-        logger.info(String.format("Got status code %s with payload of: %s | %s",
-          response.result().statusCode(), response.result().bodyAsString(), explainString));
-        WrappedResponse wr = new WrappedResponse(explanation, response.result().statusCode(), response.result().bodyAsString(), response.result());
-        handler.handle(wr);
-        promise.complete(wr);
-      }
-    };
-
+    Future<HttpResponse<Buffer>> futureResponse;
     if (method == HttpMethod.PUT || method == HttpMethod.POST) {
-      request.sendJsonObject(new JsonObject(payload), responseHandler);
+      futureResponse = request.sendJsonObject(new JsonObject(payload));
     } else {
-      request.send(responseHandler);
+      futureResponse = request.send();
     }
 
-    return promise.future();
+    return futureResponse.compose(response -> {
+      var explainString = Optional.ofNullable(explanation).orElse("(no explanation)");
+      var statusCode = response.statusCode();
+      var body = response.bodyAsString();
+      if (expectedCode != null && expectedCode != statusCode) {
+        return Future.failedFuture(String.format("%s to %s failed. Expected status code %s, got status code %s : %s | %s",
+          method, url, expectedCode, statusCode, body, explainString));
+      } else {
+        logger.info("Got status code {} with payload of: {} | {}", statusCode, body, explainString);
+        WrappedResponse wr = new WrappedResponse(explanation, statusCode, body, response);
+        handler.handle(wr);
+        return Future.succeededFuture(wr);
+      }
+    });
   }
 }

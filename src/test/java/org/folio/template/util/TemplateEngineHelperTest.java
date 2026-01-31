@@ -1,6 +1,6 @@
 package org.folio.template.util;
 
-import org.apache.http.HttpStatus;
+import org.folio.HttpStatus;
 import org.folio.template.InUseTemplateException;
 import org.junit.jupiter.api.Test;
 

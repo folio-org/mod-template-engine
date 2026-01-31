@@ -1,6 +1,6 @@
 package org.folio.template.client;
 
-import io.vertx.core.Promise;
+import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
@@ -43,11 +43,11 @@ public class OkapiClient {
     return addHeaders(webClient.requestAbs(HttpMethod.POST, okapiUrl + path));
   }
 
-  public Promise<HttpResponse<Buffer>> getMany(String path, String query, int limit) {
+  public Future<HttpResponse<Buffer>> getMany(String path, String query, int limit) {
     return getMany(path, query, limit, 0);
   }
 
-  public Promise<HttpResponse<Buffer>> getMany(String path, String query, int limit, int offset) {
+  public Future<HttpResponse<Buffer>> getMany(String path, String query, int limit, int offset) {
     HttpRequest<Buffer> request = getAbs(path)
       .addQueryParam("query", query)
       .addQueryParam("limit", Integer.toString(limit));
@@ -56,10 +56,7 @@ public class OkapiClient {
       request = request.addQueryParam("offset", Integer.toString(offset));
     }
 
-    Promise<HttpResponse<Buffer>> promise = Promise.promise();
-    request.send(promise);
-
-    return promise;
+    return request.send();
   }
 
   private HttpRequest<Buffer> addHeaders(HttpRequest<Buffer> request) {

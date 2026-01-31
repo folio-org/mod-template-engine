@@ -6,7 +6,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import io.vertx.core.Promise;
-import org.apache.http.HttpStatus;
+import org.folio.HttpStatus;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,7 +49,7 @@ public final class TemplateEngineHelper {
     }
 
     Promise<Response> promise = Promise.promise();
-    ValidationHelper.handleError(throwable, promise);
+    ValidationHelper.handleError(throwable, promise::handle);
     if (promise.future().isComplete()) {
       Response response = promise.future().result();
       if (response.getStatus() == HttpStatus.SC_INTERNAL_SERVER_ERROR) {
