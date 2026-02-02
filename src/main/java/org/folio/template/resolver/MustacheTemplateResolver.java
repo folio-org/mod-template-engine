@@ -3,9 +3,7 @@ package org.folio.template.resolver;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
-import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,14 +17,14 @@ import java.util.Optional;
 public class MustacheTemplateResolver implements TemplateResolver {
 
   private static final Logger LOG = LogManager.getLogger("mod-template-engine");
-  private MustacheFactory mustacheFactory;
+  private final MustacheFactory mustacheFactory;
 
   public MustacheTemplateResolver() {
     mustacheFactory = new DefaultMustacheFactory();
   }
 
   @Override
-  public void processTemplate(JsonObject templateContent, JsonObject context, String outputFormat, Handler<AsyncResult<JsonObject>> resultHandler) {
+  public Future<JsonObject> processTemplate(JsonObject templateContent, JsonObject context, String outputFormat) {
     LOG.debug("processTemplate:: Processing Template");
     JsonObject result = new JsonObject();
     try {
@@ -36,10 +34,10 @@ public class MustacheTemplateResolver implements TemplateResolver {
           result.put(property.getKey(), processedPropertyValue);
         }
       }
-      resultHandler.handle(Future.succeededFuture(result));
+      return Future.succeededFuture(result);
     } catch (Exception e) {
       LOG.warn("Failed to Process Template {}", e.getMessage());
-      resultHandler.handle(Future.failedFuture(e));
+      return Future.failedFuture(e);
     }
   }
 

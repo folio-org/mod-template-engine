@@ -47,7 +47,7 @@ public class SettingsClient extends OkapiClient {
 
   private Future<JsonObject> lookupSettingsByQuery(String query, int limit, int offset) {
     LOG.debug("lookupSettingsByQuery:: Lookup settings by Query {}", query);
-    return getMany(settingsRequestPath, query, limit, offset).future()
+    return getMany(settingsRequestPath, query, limit, offset)
       .map(response -> {
         if (response.statusCode() != HttpStatus.HTTP_OK.toInt()) {
           LOG.warn("lookupSettingsByQuery:: Error getting locale settings. Status: {}, body: {}",

@@ -1,5 +1,6 @@
-## 2025-XX-XX v1.23.0-SNAPSHOT
+## 2026-XX-XX v1.23.0-SNAPSHOT
 * Replace `mod-configuration` with `mod-settings` to get language and locale settings ([MODTEMPENG-117](https://folio-org.atlassian.net/browse/MODTEMPENG-117))
+* Upgrade module to Vert.x 5.0 and Java 21 ([MODTEMPENG-122](https://folio-org.atlassian.net/browse/MODTEMPENG-122))
 
 ## 2025-03-13 v1.22.0
 * Support barcode image generate for HRID tokens (MODTEMPENG-111)

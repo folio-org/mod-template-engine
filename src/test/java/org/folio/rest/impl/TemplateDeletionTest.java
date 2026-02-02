@@ -83,21 +83,22 @@ class TemplateDeletionTest {
     TenantClient tenantClient = new TenantClient(okapiUrl, Postgres.getTenant(), null);
 
     vertx.deployVerticle(RestVerticle::new,
-      new DeploymentOptions().setConfig(new JsonObject().put("http.port", okapiPort)), deploy -> {
-      try {
-        if (deploy.failed()) {
-          context.failNow(deploy.cause());
+      new DeploymentOptions().setConfig(new JsonObject().put("http.port", okapiPort)))
+      .onComplete(deploy -> {
+        try {
+          if (deploy.failed()) {
+            context.failNow(deploy.cause());
+          }
+          TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
+          tenantClient.postTenant(t, post -> {
+            assertThat(post.result().statusCode(), is(201));
+            context.completeNow();
+          });
+        } catch (Exception e) {
+          logger.error(e.getMessage());
+          context.failNow(e);
         }
-        TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
-        tenantClient.postTenant(t, post -> {
-          assertThat(post.result().statusCode(), is(201));
-          context.completeNow();
-        });
-      } catch (Exception e) {
-        logger.error(e.getMessage());
-        context.failNow(e);
-      }
-    });
+      });
   }
 
   @AfterEach

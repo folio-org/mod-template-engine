@@ -101,7 +101,7 @@ class BarcodeIT {
 
     String location =
         given()
-          .body(new JsonObject().put("module_to", "999999.0.0").encode())
+          .body(new JsonObject().put("mod-template-engine", "999999.0.0").encode())
         .when()
           .post("/_/tenant")
         .then()

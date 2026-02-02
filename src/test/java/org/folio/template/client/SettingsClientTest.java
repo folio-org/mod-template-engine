@@ -1,7 +1,7 @@
 package org.folio.template.client;
 
 import static com.github.tomakehurst.wiremock.common.ContentTypes.APPLICATION_JSON;
-import static org.apache.hc.core5.http.HttpHeaders.ACCEPT;
+import static org.folio.HttpHeaders.ACCEPT;
 import static org.folio.okapi.common.XOkapiHeaders.REQUEST_ID;
 import static org.folio.okapi.common.XOkapiHeaders.TENANT;
 import static org.folio.okapi.common.XOkapiHeaders.TOKEN;
@@ -10,12 +10,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.platform.commons.util.ReflectionUtils.HierarchyTraversalMode.TOP_DOWN;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import io.vertx.core.Future;
-import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
@@ -107,11 +104,7 @@ class SettingsClientTest {
     when(requestMock.putHeader(TOKEN, "test-token")).thenReturn(requestMock);
     when(requestMock.putHeader(REQUEST_ID, "test-request-id")).thenReturn(requestMock);
     when(requestMock.addQueryParam("limit", "1")).thenReturn(requestMock);
-
-    doAnswer(inv -> {
-      inv.<Promise<HttpResponse<Buffer>>>getArgument(0).complete(responseMock);
-      return Future.succeededFuture(responseMock);
-    }).when(requestMock).send(any());
+    when(requestMock.send()).thenReturn(Future.succeededFuture(responseMock));
   }
 
   private void setMockWebClient(SettingsClient settingsClient) {

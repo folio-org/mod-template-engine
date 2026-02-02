@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.client.HttpResponse;
-import org.apache.http.HttpStatus;
+import org.folio.HttpStatus;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
@@ -85,40 +85,42 @@ public class TemplateRequestTest {
 
     TenantClient tenantClient = new TenantClient(moduleUrl, Postgres.getTenant(), null);
     DeploymentOptions restVerticleDeploymentOptions = new DeploymentOptions().setConfig(new JsonObject().put("http.port", port));
-    vertx.deployVerticle(RestVerticle.class.getName(), restVerticleDeploymentOptions, context.asyncAssertSuccess(res -> {
-      try {
-        TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
-        tenantClient.postTenant(t, postResult -> {
-          if (postResult.failed()) {
-            Throwable cause = postResult.cause();
-            logger.error(cause);
-            context.fail(cause);
-            return;
+    vertx.deployVerticle(RestVerticle.class.getName(), restVerticleDeploymentOptions)
+      .onComplete(
+        context.asyncAssertSuccess(res -> {
+          try {
+            TenantAttributes t = new TenantAttributes().withModuleTo("mod-template-engine-1.0.0");
+            tenantClient.postTenant(t, postResult -> {
+              if (postResult.failed()) {
+                Throwable cause = postResult.cause();
+                logger.error(cause);
+                context.fail(cause);
+                return;
+              }
+
+              final HttpResponse<Buffer> postResponse = postResult.result();
+              assertThat(postResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_CREATED));
+
+              String jobId = postResponse.bodyAsJson(TenantJob.class).getId();
+
+              tenantClient.getTenantByOperationId(jobId, POST_TENANT_TIMEOUT, getResult -> {
+                if (getResult.failed()) {
+                  Throwable cause = getResult.cause();
+                  logger.error(cause.getMessage());
+                  context.fail(cause);
+                  return;
+                }
+
+                final HttpResponse<Buffer> getResponse = getResult.result();
+                assertThat(getResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_OK));
+                assertThat(getResponse.bodyAsJson(TenantJob.class).getComplete(), CoreMatchers.is(true));
+                async.complete();
+              });
+            });
+          } catch (Exception e) {
+            context.fail(e);
           }
-
-          final HttpResponse<Buffer> postResponse = postResult.result();
-          assertThat(postResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_CREATED));
-
-          String jobId = postResponse.bodyAsJson(TenantJob.class).getId();
-
-          tenantClient.getTenantByOperationId(jobId, POST_TENANT_TIMEOUT, getResult -> {
-            if (getResult.failed()) {
-              Throwable cause = getResult.cause();
-              logger.error(cause.getMessage());
-              context.fail(cause);
-              return;
-            }
-
-            final HttpResponse<Buffer> getResponse = getResult.result();
-            assertThat(getResponse.statusCode(), CoreMatchers.is(HttpStatus.SC_OK));
-            assertThat(getResponse.bodyAsJson(TenantJob.class).getComplete(), CoreMatchers.is(true));
-            async.complete();
-          });
-        });
-      } catch (Exception e) {
-        context.fail(e);
-      }
-    }));
+        }));
   }
 
   @Before
@@ -143,7 +145,7 @@ public class TemplateRequestTest {
       .when()
       .post(TEMPLATE_REQUEST_PATH)
       .then()
-      .statusCode(HttpStatus.SC_UNPROCESSABLE_ENTITY);
+      .statusCode(HttpStatus.SC_UNPROCESSABLE_CONTENT);
   }
 
   @Test
@@ -269,10 +271,16 @@ public class TemplateRequestTest {
 
   @Test
   public void shouldCreateTemplateWithNewSpaceCharacter() {
-    String body = "Dear {{user.firstName}},\n\nYour password has been changed." +
-      "\nThis is a confirmation that your password was changed on {{dateTime}}.\n\nDid not change " +
-      "your password? Contact your Folio System Administrator to help secure your account." +
-      "\n\t\nRegards,\n\nFolio Support";
+    String body = """
+      Dear {{user.firstName}},
+      Your password has been changed.
+      This is a confirmation that your password was changed on {{dateTime}}.
+      Did not change your password? Contact your Folio System Administrator to help secure your account.
+
+        Regards,
+
+        Folio Support
+      """;
 
     Template template = new Template()
       .withDescription("Template for password change")
