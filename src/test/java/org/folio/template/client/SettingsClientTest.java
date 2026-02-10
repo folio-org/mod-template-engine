@@ -16,7 +16,6 @@ import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpMethod;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
@@ -93,17 +92,14 @@ class SettingsClientTest {
   }
 
   private void mockWebClientMethodForHttpRequest() {
-    var expectedUri = OKAPI_URL + "/settings/entries";
-    var expectedQuery = "scope==stripes-core.prefs.manage and key==tenantLocaleSettings";
+    var expectedUri = OKAPI_URL + "/locale";
 
     when(webClient.requestAbs(HttpMethod.GET, expectedUri)).thenReturn(requestMock);
-    when(requestMock.addQueryParam("query", expectedQuery)).thenReturn(requestMock);
     when(requestMock.putHeader(ACCEPT, APPLICATION_JSON)).thenReturn(requestMock);
     when(requestMock.putHeader(URL, "http://okapi:9130")).thenReturn(requestMock);
     when(requestMock.putHeader(TENANT, "diku")).thenReturn(requestMock);
     when(requestMock.putHeader(TOKEN, "test-token")).thenReturn(requestMock);
     when(requestMock.putHeader(REQUEST_ID, "test-request-id")).thenReturn(requestMock);
-    when(requestMock.addQueryParam("limit", "1")).thenReturn(requestMock);
     when(requestMock.send()).thenReturn(Future.succeededFuture(responseMock));
   }
 
@@ -128,14 +124,9 @@ class SettingsClientTest {
   }
 
   private static JsonObject settingsResponse() {
-    var configValue = new JsonObject()
+    return new JsonObject()
       .put("locale", "en-GB")
       .put("timezone", "Europe/London");
-
-    return new JsonObject()
-      .put("totalRecords", 1)
-      .put("items", new JsonArray()
-        .add(new JsonObject().put("value", configValue)));
   }
 
   private static Buffer errorResponse() {
