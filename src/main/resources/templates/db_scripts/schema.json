@@ -31,7 +31,7 @@
     },
     {
       "run": "after",
-      "snippetPath": "update-legacy-dateTime-placeholder-in-templates.sql"
+      "snippetPath": "update-dateTime-in-password-changed-template.sql"
     }
   ]
 }
