@@ -53,7 +53,7 @@ public class TemplateRequestTest {
 
   private static final String TEMPLATE_PATH = "/templates";
   private static final String TEMPLATE_REQUEST_PATH = "/template-request";
-  private static final String SETTINGS_REQUEST_PATH = "/settings/entries";
+  private static final String LOCALE_REQUEST_PATH = "/locale";
 
   private static final String TXT_OUTPUT_FORMAT = "txt";
   private static final String HTML_OUTPUT_FORMAT = "html";
@@ -1012,24 +1012,17 @@ public class TemplateRequestTest {
   }
 
   private void mockConfigModule() {
-    var settings = new JsonObject().put("items", new JsonArray());
-    stubFor(get(urlPathEqualTo(SETTINGS_REQUEST_PATH))
+    var settings = new JsonObject();
+    stubFor(get(urlPathEqualTo(LOCALE_REQUEST_PATH))
       .willReturn(okJson(toJson(settings))));
   }
 
   private void mockLocaleSettings(String languageToken, String timezoneId) {
-    var localeConfigValue = new JsonObject()
+    var localeSettings = new JsonObject()
       .put("locale", languageToken)
       .put("timezone", timezoneId);
 
-    var setting = new JsonObject()
-      .put("scope", "stripes-core.prefs.manage")
-      .put("key", "tenantLocaleSettings")
-      .put("value", localeConfigValue);
-    var settings = new JsonObject()
-      .put("items", new JsonArray().add(setting));
-
-    stubFor(get(urlPathEqualTo(SETTINGS_REQUEST_PATH))
-      .willReturn(okJson(toJson(settings))));
+    stubFor(get(urlPathEqualTo(LOCALE_REQUEST_PATH))
+      .willReturn(okJson(toJson(localeSettings))));
   }
 }
