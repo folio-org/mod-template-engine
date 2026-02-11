@@ -119,7 +119,6 @@
   "launchDescriptor": {
     "dockerImage": "${artifactId}:${version}",
     "dockerPull": false,
-    "dockerCMD": [ "verify.user=true" ],
     "dockerArgs": {
       "HostConfig": {
         "Memory": 357913941,
