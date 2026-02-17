@@ -1,3 +1,6 @@
+## 2026-02-17 v1.22.2
+* Add SQL to fix {{dateTime}} placeholders in existing templates (MODTEMPENG-127)
+
 ## 2025-12-22 v1.22.1
 * Update to RMB 35.4.1 (MODTEMPENG-126)
 

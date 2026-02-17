@@ -28,6 +28,10 @@
     {
       "run": "after",
       "snippetPath": "update-reset-password-email-template.sql"
+    },
+    {
+      "run": "after",
+      "snippetPath": "update-dateTime-in-password-changed-template.sql"
     }
   ]
 }
