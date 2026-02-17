@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>mod-template-engine</artifactId>
-  <version>1.22.2-SNAPSHOT</version>
+  <version>1.22.2</version>
   <packaging>jar</packaging>
 
   <licenses>
@@ -558,7 +558,7 @@
     <url>https://github.com/folio-org/${project.artifactId}</url>
     <connection>scm:git:git://github.com/folio-org/${project.artifactId}.git</connection>
     <developerConnection>scm:git:git@github.com:folio-org/${project.artifactId}.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v1.22.2</tag>
   </scm>
 
 </project>
