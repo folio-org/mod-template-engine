@@ -42,7 +42,7 @@ public class MustacheTemplateResolver implements TemplateResolver {
   }
 
   private String processTemplateProperty(String templateProperty, JsonObject context) {
-    LOG.debug("processTemplateProperty:: Processing template property {}", templateProperty);
+    LOG.debug("processTemplateProperty:: Processing template property");
     Mustache mustache = mustacheFactory.compile(new StringReader(templateProperty), null);
     StringWriter writer = new StringWriter();
     Map<String, Object> contextMap = Optional.of(context)
@@ -50,7 +50,7 @@ public class MustacheTemplateResolver implements TemplateResolver {
       .map(Context::getAdditionalProperties)
       .orElse(null);
     mustache.execute(writer, contextMap);
-    LOG.info("processTemplateProperty:: Processed template property {}", templateProperty);
+    LOG.info("processTemplateProperty:: Processed template property");
     return writer.toString();
   }
 }
