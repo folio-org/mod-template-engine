@@ -1,7 +1,33 @@
-## 2026-XX-XX v1.23.0-SNAPSHOT
-* Replace `mod-configuration` with `mod-settings` to get language and locale settings ([MODTEMPENG-117](https://folio-org.atlassian.net/browse/MODTEMPENG-117))
+## v1.23.0 2026-04-17
+
+### Breaking changes
 * Upgrade module to Vert.x 5.0 and Java 21 ([MODTEMPENG-122](https://folio-org.atlassian.net/browse/MODTEMPENG-122))
+* Replace `mod-configuration` with `mod-settings` to get language and locale settings ([MODTEMPENG-117](https://folio-org.atlassian.net/browse/MODTEMPENG-117))
 * Migrate to /locale API for tenant locale settings ([MODTEMPENG-133](https://folio-org.atlassian.net/browse/MODTEMPENG-133))
+
+### New APIs versions
+* Requires `locale v1.0` (replaces `configuration v2.0`)
+
+### Features
+* Make dependency on patron-notice-policy-storage optional ([MODTEMPENG-123](https://folio-org.atlassian.net/browse/MODTEMPENG-123))
+* Add SQL to fix {{dateTime}} placeholders in existing templates ([MODTEMPENG-127](https://folio-org.atlassian.net/browse/MODTEMPENG-127))
+
+### Bug fixes
+* Fix an error when template cannot be removed ([FAT-23505](https://folio-org.atlassian.net/browse/FAT-23505))
+
+### Tech Debt
+* Remove sensitive data from logs ([MODTEMPENG-112](https://folio-org.atlassian.net/browse/MODTEMPENG-112))
+* Migrate to GitHub Actions maven workflow ([MODTEMPENG-131](https://folio-org.atlassian.net/browse/MODTEMPENG-131))
+
+### Dependencies
+* Bump `raml-module-builder` from `35.4.0` to `36.0.0`
+* Bump `vertx` from `4.5.13` to `5.0.6`
+* Bump `aspectj` from `1.9.22.1` to `1.9.24`
+* Bump `maven-shade-plugin` to `3.6.1`
+* Bump `barcode4j` from `1.20.1` to `1.21.4`
+* Bump `maven-checkstyle-plugin` from `1.14` to `1.14.1`
+* Add `mockito-bom` `5.20.0`
+* Remove `httpclient` `4.5.14` (replaced by Vert.x 5 built-in HTTP client)
 
 ## 2025-03-13 v1.22.0
 * Support barcode image generate for HRID tokens (MODTEMPENG-111)
