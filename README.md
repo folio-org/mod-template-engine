@@ -31,6 +31,7 @@ Example of template record:
        "text/html"
      ],
      "templateResolver": "mustache",
+     "scope": "circulation",
      "localizedTemplates": {
        "de": {
          "header": "Hallo message for {{user.name}}",

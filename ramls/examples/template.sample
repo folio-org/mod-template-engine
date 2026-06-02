@@ -6,6 +6,7 @@
     "text/html"
   ],
   "templateResolver": "mustache",
+  "scope": "circulation",
   "localizedTemplates": {
     "en": {
       "header": "Hello message for {{user.name}}",
