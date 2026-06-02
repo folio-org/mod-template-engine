@@ -6,6 +6,7 @@ import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.folio.rest.jaxrs.model.TemplatePreviewRequest;
 import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.jaxrs.resource.TemplateRequest;
 import org.folio.template.service.TemplateService;
@@ -34,6 +35,28 @@ public class TemplateRequestImpl implements TemplateRequest {
           .onComplete(asyncResultHandler);
       } catch (Exception e) {
         LOG.warn("Error in posting Template Request: {}", e.getMessage());
+        asyncResultHandler.handle(Future.succeededFuture(
+          TemplateEngineHelper.mapExceptionToResponse(e)));
+      }
+    });
+  }
+
+  @Override
+  public void postTemplateRequestPreview(TemplatePreviewRequest entity,
+                                         Map<String, String> okapiHeaders,
+                                         Handler<AsyncResult<Response>> asyncResultHandler,
+                                         Context vertxContext) {
+    LOG.debug("postTemplateRequestPreview:: Rendering inline template preview");
+    vertxContext.runOnContext(v -> {
+      try {
+        TemplateService templateService = new TemplateServiceImpl(vertxContext.owner(), okapiHeaders);
+        templateService.previewTemplate(entity)
+          .map(PostTemplateRequestPreviewResponse::respond200WithApplicationJson)
+          .map(Response.class::cast)
+          .otherwise(TemplateEngineHelper::mapExceptionToResponse)
+          .onComplete(asyncResultHandler);
+      } catch (Exception e) {
+        LOG.warn("Error in posting Template Request Preview: {}", e.getMessage());
         asyncResultHandler.handle(Future.succeededFuture(
           TemplateEngineHelper.mapExceptionToResponse(e)));
       }

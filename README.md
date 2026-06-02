@@ -20,6 +20,7 @@ about format, size and date. Supports localization of templates.
 | DELETE /templates/{templateId}       | Delete template from storage                       |
 | GET /templates?query={custom\_query} | Get list of templates from storage by custom query |
 | POST /template-request               | Process specified template using context           |
+| POST /template-request/preview       | Render an inline template against a context without persisting it |
 
 Example of template record:
 ```
@@ -73,6 +74,26 @@ Example of template record:
         "lang": "en",
         "outputFormat": "text/plain"
     }
+}
+```
+
+**POST /template-request/preview :**
+```
+{
+  "header": "Hello message for {{user.name}}",
+  "body": "Hello {{user.name}}",
+  "context": {
+    "user": {
+      "name": "Alex"
+    }
+  }
+}
+```
+**Response :**
+```
+{
+    "header": "Hello message for Alex",
+    "body": "Hello Alex"
 }
 ```
 

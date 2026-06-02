@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Request for inline template preview",
+  "type": "object",
+  "properties": {
+    "header": {
+      "type": "string",
+      "description": "Template for header"
+    },
+    "body": {
+      "type": "string",
+      "description": "Template for body"
+    },
+    "context": {
+      "type": "object",
+      "description": "Context object",
+      "$ref": "context.json"
+    }
+  },
+  "additionalProperties": false
+}
