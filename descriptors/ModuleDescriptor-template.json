@@ -49,6 +49,12 @@
           "pathPattern": "/template-request",
           "permissionsRequired": ["template-request.post"],
           "modulePermissions": ["locale.item.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/template-request/preview",
+          "permissionsRequired": ["template-request.post"],
+          "modulePermissions": ["locale.item.get"]
         }
       ]
     },
