@@ -1,9 +1,14 @@
 {
-  "header": "Hello message for {{user.name}}",
-  "body": "Hello {{user.name}}",
+  "header": "Welcome back, {{user.name}}!",
+  "body": "Hi {{user.name}}, your {{user.pet.type}} {{user.pet.name}} has a message for you: {{{user.pet.hint}}}",
   "context": {
     "user": {
-      "name": "Alex"
+      "name": "Alex",
+      "pet": {
+        "type": "cat",
+        "name": "Whiskers",
+        "hint": "<b>Feed me NOW.</b>"
+      }
     }
   }
 }
