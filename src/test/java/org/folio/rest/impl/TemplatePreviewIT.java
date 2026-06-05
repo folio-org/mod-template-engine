@@ -194,10 +194,16 @@ public class TemplatePreviewIT {
       .willReturn(serverError()));
 
     TemplatePreviewRequest req = new TemplatePreviewRequest()
-      .withHeader("Hello {{user.name}}")
-      .withBody("Body {{user.name}}")
+      .withHeader("Welcome back, {{user.name}}!")
+      .withBody("Hi {{user.name}}, your {{user.pet.type}} {{user.pet.name}} "
+        + "has a message for you: {{{user.pet.hint}}}")
       .withContext(new Context()
-        .withAdditionalProperty("user", new JsonObject().put("name", "Alex")));
+        .withAdditionalProperty("user", new JsonObject()
+          .put("name", "Alex")
+          .put("pet", new JsonObject()
+            .put("type", "cat")
+            .put("name", "Whiskers")
+            .put("hint", "<b>Feed me NOW.</b>"))));
 
     RestAssured.given()
       .spec(spec)
@@ -206,8 +212,8 @@ public class TemplatePreviewIT {
       .post(PREVIEW_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("header", is("Hello Alex"))
-      .body("body", is("Body Alex"));
+      .body("header", is("Welcome back, Alex!"))
+      .body("body", is("Hi Alex, your cat Whiskers has a message for you: <b>Feed me NOW.</b>"));
   }
 
   private String toJson(Object object) {
