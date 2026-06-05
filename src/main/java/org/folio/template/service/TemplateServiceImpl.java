@@ -7,6 +7,7 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static org.folio.okapi.common.XOkapiHeaders.TENANT;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -154,7 +155,7 @@ public class TemplateServiceImpl implements TemplateService {
               .withAttachments(rendered.attachments());
             Meta resultMetaInfo = new Meta()
               .withSize(processedTemplate.getBody().length())
-              .withDateCreate(new Date())
+              .withDateCreate(Date.from(Instant.now()))
               .withLang(templateRequest.getLang())
               .withOutputFormat(templateRequest.getOutputFormat());
 
