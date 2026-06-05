@@ -80,11 +80,16 @@ Example of template record:
 **POST /template-request/preview :**
 ```
 {
-  "header": "Hello message for {{user.name}}",
-  "body": "Hello {{user.name}}",
+  "header": "Welcome back, {{user.name}}!",
+  "body": "Hi {{user.name}}, your {{user.pet.type}} {{user.pet.name}} has a message for you: {{{user.pet.hint}}}",
   "context": {
     "user": {
-      "name": "Alex"
+      "name": "Alex",
+      "pet": {
+        "type": "cat",
+        "name": "Whiskers",
+        "hint": "<b>Feed me NOW.</b>"
+      }
     }
   }
 }
@@ -92,8 +97,8 @@ Example of template record:
 **Response :**
 ```
 {
-    "header": "Hello message for Alex",
-    "body": "Hello Alex"
+  "header": "Welcome back, Alex!",
+  "body": "Hi Alex, your cat Whiskers has a message for you: <b>Feed me NOW.</b>"
 }
 ```
 
