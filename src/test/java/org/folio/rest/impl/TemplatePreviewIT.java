@@ -11,9 +11,8 @@ import static org.hamcrest.Matchers.is;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
 import org.folio.HttpStatus;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.folio.rest.RestVerticle;
 import org.folio.rest.client.TenantClient;
 import org.folio.rest.jaxrs.model.Context;
@@ -49,7 +48,6 @@ public class TemplatePreviewIT {
   private static final String PREVIEW_PATH = "/template-request/preview";
   private static final String LOCALE_REQUEST_PATH = "/locale";
 
-  private static final Logger logger = LogManager.getLogger("TemplatePreviewIT");
   private static final int POST_TENANT_TIMEOUT = 10000;
 
   private static Vertx vertx;
@@ -73,7 +71,7 @@ public class TemplatePreviewIT {
     Postgres.init();
     Postgres.dropSchema();
 
-    TenantClient tenantClient = new TenantClient(moduleUrl, Postgres.getTenant(), null);
+    TenantClient tenantClient = new TenantClient(moduleUrl, Postgres.getTenant(), null, WebClient.create(vertx));
     DeploymentOptions options = new DeploymentOptions()
       .setConfig(new JsonObject().put("http.port", port));
     vertx.deployVerticle(RestVerticle.class.getName(), options)
