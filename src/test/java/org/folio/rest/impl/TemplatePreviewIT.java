@@ -157,7 +157,7 @@ public class TemplatePreviewIT {
       .then()
       .statusCode(HttpStatus.SC_OK)
       .body("header", is("Request created on 6/10/19"))
-      .body("body", is("Due date is 6/18/19, 2:04 PM"));
+      .body("body", is("Due date is 6/18/19, 2:04 PM"));
   }
 
   @Test
