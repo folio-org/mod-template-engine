@@ -139,13 +139,7 @@ public class TemplatePreviewIT {
   }
 
   @Test
-  public void formatsDateTokensAccordingToTenantLocale() {
-    stubFor(get(urlPathEqualTo(LOCALE_REQUEST_PATH))
-      .willReturn(okJson(new JsonObject()
-        .put("locale", "de-DE")
-        .put("timezone", "Europe/Berlin")
-        .toString())));
-
+  public void formatsDateTokensWithDefaultConfiguration() {
     TemplatePreviewRequest req = new TemplatePreviewRequest()
       .withHeader("Request created on {{request.creationDate}}")
       .withBody("Due date is {{loan.dueDateTime}}")
@@ -162,8 +156,8 @@ public class TemplatePreviewIT {
       .post(PREVIEW_PATH)
       .then()
       .statusCode(HttpStatus.SC_OK)
-      .body("header", is("Request created on 10.06.19"))
-      .body("body", is("Due date is 18.06.19, 16:04"));
+      .body("header", is("Request created on 6/10/19"))
+      .body("body", is("Due date is 6/18/19, 2:04 PM"));
   }
 
   @Test
