@@ -16,7 +16,7 @@
   "provides": [
     {
       "id": "template-engine",
-      "version": "2.2",
+      "version": "2.3",
       "handlers": [
         {
           "methods": ["GET"],
@@ -48,6 +48,12 @@
           "methods": ["POST"],
           "pathPattern": "/template-request",
           "permissionsRequired": ["template-request.post"],
+          "modulePermissions": ["locale.item.get"]
+        },
+        {
+          "methods": ["POST"],
+          "pathPattern": "/template-request/preview",
+          "permissionsRequired": ["template-request.preview.post"],
           "modulePermissions": ["locale.item.get"]
         }
       ]
@@ -99,6 +105,11 @@
       "description": "Request for template compilation"
     },
     {
+      "permissionName": "template-request.preview.post",
+      "displayName": "Template request preview",
+      "description": "Request for inline template preview without persisting"
+    },
+    {
       "permissionName": "templates.all",
       "displayName": "Templates module - all permissions",
       "description": "Entire set of permissions needed to use the Templates module",
@@ -108,7 +119,8 @@
         "templates.item.post",
         "templates.item.put",
         "templates.item.delete",
-        "template-request.post"
+        "template-request.post",
+        "template-request.preview.post"
       ],
       "visible": false
     }

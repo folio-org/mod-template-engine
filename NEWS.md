@@ -1,3 +1,11 @@
+## 1.24.0 (in progress)
+
+### New APIs versions
+* Provides `template-engine 2.3` — adds `POST /template-request/preview`
+
+### Features
+* Add non-persisted template preview endpoint `POST /template-request/preview` ([MODTEMPENG-135](https://folio-org.atlassian.net/browse/MODTEMPENG-135))
+
 ## v1.23.0 2026-04-17
 
 ### Breaking changes

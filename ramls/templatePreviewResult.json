@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Result of inline template preview",
+  "type": "object",
+  "properties": {
+    "header": {
+      "type": "string",
+      "description": "Rendered header"
+    },
+    "body": {
+      "type": "string",
+      "description": "Rendered body"
+    }
+  },
+  "additionalProperties": false
+}

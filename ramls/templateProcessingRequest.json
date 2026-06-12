@@ -17,7 +17,8 @@
     },
     "context": {
       "type": "object",
-      "description": "Context object"
+      "description": "Context object",
+      "$ref": "context.json"
     }
   },
   "required": [

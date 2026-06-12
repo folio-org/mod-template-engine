@@ -2,6 +2,8 @@ package org.folio.template.service;
 
 import io.vertx.core.Future;
 import org.folio.rest.jaxrs.model.Template;
+import org.folio.rest.jaxrs.model.TemplatePreviewRequest;
+import org.folio.rest.jaxrs.model.TemplatePreviewResult;
 import org.folio.rest.jaxrs.model.TemplateProcessingRequest;
 import org.folio.rest.jaxrs.model.TemplateProcessingResult;
 
@@ -64,4 +66,12 @@ public interface TemplateService {
    */
   Future<TemplateProcessingResult> processTemplate(
     TemplateProcessingRequest templateRequest) throws UnsupportedEncodingException;
+
+  /**
+   * Renders an inline template (header + body) against a context without persisting it
+   *
+   * @param previewRequest inline template preview request
+   * @return rendered header and body
+   */
+  Future<TemplatePreviewResult> previewTemplate(TemplatePreviewRequest previewRequest);
 }

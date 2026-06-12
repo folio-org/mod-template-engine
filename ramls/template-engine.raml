@@ -14,6 +14,8 @@ types:
   templatesCollection: !include templatesCollection.json
   templateProcessingRequest: !include templateProcessingRequest.json
   templateProcessingResult: !include templateProcessingResult.json
+  templatePreviewRequest: !include templatePreviewRequest.json
+  templatePreviewResult: !include templatePreviewResult.json
   errors: !include raml-util/schemas/errors.schema
 
 traits:
@@ -143,4 +145,24 @@ traits:
         body:
           text/plain:
             example: "Internal server error"
+  /preview:
+    post:
+      is: [validate]
+      description: Render an inline template (header + body) against a context without persisting it
+      body:
+        application/json:
+          type: templatePreviewRequest
+      responses:
+        200:
+          body:
+            application/json:
+              type: templatePreviewResult
+        400:
+          body:
+            text/plain:
+              example: "Bad request"
+        500:
+          body:
+            text/plain:
+              example: "Internal server error"
 
