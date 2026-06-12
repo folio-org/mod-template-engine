@@ -34,6 +34,10 @@
     "metadata": {
       "type" : "object",
       "$ref" : "raml-util/schemas/metadata.schema"
+    },
+    "scope": {
+      "type": "string",
+      "description": "Context of the template, e.g. 'orders', 'circulation'. Used by each app to filter its own templates."
     }
   },
   "required": [
