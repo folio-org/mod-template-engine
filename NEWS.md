@@ -5,6 +5,7 @@
 
 ### Features
 * Add non-persisted template preview endpoint `POST /template-request/preview` ([MODTEMPENG-135](https://folio-org.atlassian.net/browse/MODTEMPENG-135))
+* Support `item.shortTitle` ([MODTEMPENG-137](https://folio-org.atlassian.net/browse/MODTEMPENG-137))
 
 ## v1.23.0 2026-04-17
 
