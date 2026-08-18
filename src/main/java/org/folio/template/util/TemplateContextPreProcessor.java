@@ -35,7 +35,7 @@ public class TemplateContextPreProcessor {
 
   private static final String ITEM_TITLE_KEY = "item.title";
   private static final String ITEM_SHORT_TITLE_KEY = "item.shortTitle";
-  private static final int SHORT_TITLE_MAX_LENGTH = 50;
+  private static final int SHORT_TITLE_MAX_LENGTH = 25;
   private static final String ELLIPSIS = "\u2026";
 
   private final LocalizedTemplatesProperty template;

@@ -229,7 +229,7 @@ class TemplateContextPreProcessorTest {
       .withHeader("Title: {{item.shortTitle}}")
       .withBody("Item: {{item.barcode}}");
 
-    String longTitle = "This is a very long item title that exceeds the fifty character limit";
+    String longTitle = "This is a very long title that exceeds the character limit";
     JsonObject inputJson = new JsonObject()
       .put("item", new JsonObject()
         .put("title", longTitle));
@@ -238,7 +238,7 @@ class TemplateContextPreProcessorTest {
 
     String shortTitle = inputJson.getJsonObject("item").getString("shortTitle");
     assertNotNull(shortTitle);
-    assertEquals("This is a very long item title that exceeds the fi\u2026", shortTitle);
+    assertEquals("This is a very long title\u2026", shortTitle);
   }
 
   @Test
