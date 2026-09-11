@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.folio.rest.resource.interfaces.InitAPI;
 import org.folio.template.dao.TemplateDaoImpl;
+import org.folio.template.resolver.HandlebarsTemplateResolver;
 import org.folio.template.resolver.MustacheTemplateResolver;
 import org.folio.template.resolver.TemplateResolver;
 import org.folio.template.util.TemplateEngineHelper;
@@ -35,6 +36,8 @@ public class InitAPIs implements InitAPI {
       LOG.info("init:: Registering Template resolver");
       registerTemplateResolver("mustache",
         "template-resolver.mustache.queue", new MustacheTemplateResolver(), vertx);
+      registerTemplateResolver("handlebars",
+        "template-resolver.handlebars.queue", new HandlebarsTemplateResolver(), vertx);
 
       resultHandler.handle(Future.succeededFuture(true));
     }

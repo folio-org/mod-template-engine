@@ -6,6 +6,13 @@
 ### Features
 * Add non-persisted template preview endpoint `POST /template-request/preview` ([MODTEMPENG-135](https://folio-org.atlassian.net/browse/MODTEMPENG-135))
 * Support `item.shortTitle` ([MODTEMPENG-137](https://folio-org.atlassian.net/browse/MODTEMPENG-137))
+* Add Handlebars template resolver (`templateResolver: "handlebars"`) with conditional helpers and `nl2br`, `nl2sep`, `numberFormat`, `dateFormat`, `equalsAny` and `where` helpers ([MODTEMPENG-136](https://folio-org.atlassian.net/browse/MODTEMPENG-136))
+
+### Bug fixes
+* Return HTTP 400 when processing a stored template with an unsupported resolver, and avoid an NPE for templates without a body ([MODTEMPENG-136](https://folio-org.atlassian.net/browse/MODTEMPENG-136))
+
+### Dependencies
+* Add `handlebars` `4.4.0`
 
 ## v1.23.0 2026-04-17
 
