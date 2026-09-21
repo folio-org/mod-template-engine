@@ -33,6 +33,11 @@ public class TemplateContextPreProcessor {
   private static final List<String> BARCODE_IMAGE_SUFFIXES = Arrays.asList(".barcode", "Hrid");
   private static final String SUFFIX_IMAGE = "Image";
 
+  private static final String ITEM_TITLE_KEY = "item.title";
+  private static final String ITEM_SHORT_TITLE_KEY = "item.shortTitle";
+  private static final int SHORT_TITLE_MAX_LENGTH = 25;
+  private static final String ELLIPSIS = "\u2026";
+
   private final LocalizedTemplatesProperty template;
   private final JsonObject context;
   private final LocaleSettings config;
@@ -60,6 +65,7 @@ public class TemplateContextPreProcessor {
     LOG.debug("process:: Started processing");
     enrichContextWithDateTimes();
     formatDatesInContext(context, config.getLanguageTag(), config.getTimeZoneId());
+    handleShortTitleToken();
     handleBarcodeImageTokens();
   }
 
@@ -71,6 +77,23 @@ public class TemplateContextPreProcessor {
       .filter(key -> objectIsNonBlankString(contextMap.get(key)))
       .filter(key -> !contextMap.containsKey(key + SUFFIX_TIME))
       .forEach(key -> jsonParser.setValueAt(key + SUFFIX_TIME, contextMap.get(key)));
+  }
+
+  void handleShortTitleToken() {
+    LOG.debug("handleShortTitleToken:: Handling short title token");
+    if (!templateTokens.contains(ITEM_SHORT_TITLE_KEY)) {
+      return;
+    }
+    Map<String, Object> contextMap = getContextMap();
+    Object titleObj = contextMap.get(ITEM_TITLE_KEY);
+    if (!objectIsNonBlankString(titleObj)) {
+      return;
+    }
+    String fullTitle = (String) titleObj;
+    String shortTitle = fullTitle.length() <= SHORT_TITLE_MAX_LENGTH
+      ? fullTitle
+      : fullTitle.substring(0, SHORT_TITLE_MAX_LENGTH) + ELLIPSIS;
+    jsonParser.setValueAt(ITEM_SHORT_TITLE_KEY, shortTitle);
   }
 
   void handleBarcodeImageTokens() {

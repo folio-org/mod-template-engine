@@ -6,6 +6,7 @@
 ### Features
 * Add optional `scope` field to the template schema so each app can tag and filter its own templates ([UIOR-1493](https://folio-org.atlassian.net/browse/UIOR-1493))
 * Add non-persisted template preview endpoint `POST /template-request/preview` ([MODTEMPENG-135](https://folio-org.atlassian.net/browse/MODTEMPENG-135))
+* Support `item.shortTitle` ([MODTEMPENG-137](https://folio-org.atlassian.net/browse/MODTEMPENG-137))
 
 ## v1.23.0 2026-04-17
 

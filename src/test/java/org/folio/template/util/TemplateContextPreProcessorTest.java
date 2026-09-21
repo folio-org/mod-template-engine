@@ -201,4 +201,94 @@ class TemplateContextPreProcessorTest {
     assertTrue(processor.getAttachments().isEmpty());
   }
 
+  @Test
+  void shortTitleIsInjectedWhenTitleFitsWithinLimit() {
+    LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
+      .withHeader("Title: {{item.shortTitle}}")
+      .withBody("Item: {{item.barcode}}");
+
+    String shortEnoughTitle = "A short title";
+    JsonObject inputJson = new JsonObject()
+      .put("item", new JsonObject()
+        .put("barcode", "11111")
+        .put("title", shortEnoughTitle));
+
+    JsonObject expectedJson = new JsonObject()
+      .put("item", new JsonObject()
+        .put("barcode", "11111")
+        .put("title", shortEnoughTitle)
+        .put("shortTitle", shortEnoughTitle));
+
+    new TemplateContextPreProcessor(template, inputJson, null).handleShortTitleToken();
+    assertEquals(expectedJson, inputJson);
+  }
+
+  @Test
+  void shortTitleIsTruncatedWithEllipsisWhenTitleExceedsLimit() {
+    LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
+      .withHeader("Title: {{item.shortTitle}}")
+      .withBody("Item: {{item.barcode}}");
+
+    String longTitle = "This is a very long title that exceeds the character limit";
+    JsonObject inputJson = new JsonObject()
+      .put("item", new JsonObject()
+        .put("title", longTitle));
+
+    new TemplateContextPreProcessor(template, inputJson, null).handleShortTitleToken();
+
+    String shortTitle = inputJson.getJsonObject("item").getString("shortTitle");
+    assertNotNull(shortTitle);
+    assertEquals("This is a very long title\u2026", shortTitle);
+  }
+
+  @Test
+  void shortTitleIsNotInjectedWhenTokenIsAbsentFromTemplate() {
+    LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
+      .withHeader("Title: {{item.title}}")
+      .withBody("Item: {{item.barcode}}");
+
+    JsonObject inputJson = new JsonObject()
+      .put("item", new JsonObject()
+        .put("title", "Some title")
+        .put("barcode", "11111"));
+
+    JsonObject expectedJson = inputJson.copy();
+
+    new TemplateContextPreProcessor(template, inputJson, null).handleShortTitleToken();
+    assertEquals(expectedJson, inputJson);
+  }
+
+  @Test
+  void shortTitleIsNotInjectedWhenItemTitleIsMissing() {
+    LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
+      .withHeader("Title: {{item.shortTitle}}")
+      .withBody("Item: {{item.barcode}}");
+
+    JsonObject inputJson = new JsonObject()
+      .put("item", new JsonObject()
+        .put("barcode", "11111"));
+
+    JsonObject expectedJson = inputJson.copy();
+
+    new TemplateContextPreProcessor(template, inputJson, null).handleShortTitleToken();
+    assertEquals(expectedJson, inputJson);
+  }
+
+  @Test
+  void shortTitleIsNotInjectedWhenItemTitleIsBlank() {
+    LocalizedTemplatesProperty template = new LocalizedTemplatesProperty()
+      .withHeader("Title: {{item.shortTitle}}")
+      .withBody("Item: {{item.barcode}}");
+
+    JsonObject inputJson = new JsonObject()
+      .put("item", new JsonObject()
+        .put("title", "   ")
+        .put("barcode", "11111"));
+
+    JsonObject expectedJson = inputJson.copy();
+
+    new TemplateContextPreProcessor(template, inputJson, null).handleShortTitleToken();
+    assertEquals(expectedJson, inputJson);
+  }
+
 }
