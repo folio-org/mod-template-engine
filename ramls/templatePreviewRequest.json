@@ -11,6 +11,11 @@
       "type": "string",
       "description": "Template for body"
     },
+    "templateResolver": {
+      "type": "string",
+      "description": "Template engine name (defaults to 'mustache' when omitted)",
+      "default": "mustache"
+    },
     "context": {
       "type": "object",
       "description": "Context object",
