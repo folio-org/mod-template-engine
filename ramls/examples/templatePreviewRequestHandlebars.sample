@@ -1,0 +1,20 @@
+{
+  "header": "{{#if user.pet}}News from {{user.pet.name}}{{else}}Welcome back{{/if}}, {{user.name}}!",
+  "body": "Hi {{user.name}}, {{#equalsAny user.pet.type \"cat\" \"dog\"}}your {{user.pet.type}} {{user.pet.name}}{{else}}your pet{{/equalsAny}} has a message for you: {{{user.pet.hint}}}<br>Toys: {{#each user.pet.toys}}{{name}}{{#unless @last}}, {{/unless}}{{/each}}<br>Favourites: {{#where user.pet.toys \"favourite\" \"true\"}}{{#unless @first}}, {{/unless}}{{name}}{{else}}none{{/where}}",
+  "templateResolver": "handlebars",
+  "context": {
+    "user": {
+      "name": "Alex",
+      "pet": {
+        "type": "cat",
+        "name": "Whiskers",
+        "hint": "<b>Feed me NOW.</b>",
+        "toys": [
+          { "name": "Mouse", "favourite": true },
+          { "name": "Ball", "favourite": false },
+          { "name": "Feather", "favourite": true }
+        ]
+      }
+    }
+  }
+}

@@ -189,6 +189,44 @@ public class TemplatePreviewIT {
   }
 
   @Test
+  public void rendersWithHandlebarsWhenRequested() {
+    // {{#if}}/{{else}} is Handlebars-only: Mustache would reject the mismatched tags with 400.
+    TemplatePreviewRequest req = new TemplatePreviewRequest()
+      .withHeader("Order {{order.poNumber}}")
+      .withBody("{{#if order.notes}}Note: {{order.notes}}{{else}}No note{{/if}}")
+      .withTemplateResolver("handlebars")
+      .withContext(new Context()
+        .withAdditionalProperty("order", new JsonObject().put("poNumber", "10001")));
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(req))
+      .when()
+      .post(PREVIEW_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_OK)
+      .body("header", is("Order 10001"))
+      .body("body", is("No note"));
+  }
+
+  @Test
+  public void unsupportedTemplateResolverReturns400() {
+    TemplatePreviewRequest req = new TemplatePreviewRequest()
+      .withHeader("Hello")
+      .withBody("Hello")
+      .withTemplateResolver("velocity");
+
+    RestAssured.given()
+      .spec(spec)
+      .body(toJson(req))
+      .when()
+      .post(PREVIEW_PATH)
+      .then()
+      .statusCode(HttpStatus.SC_BAD_REQUEST)
+      .body(is("Template resolver 'velocity' is not supported"));
+  }
+
+  @Test
   public void localeServiceDownStillReturns200WithDefaults() {
     stubFor(get(urlPathEqualTo(LOCALE_REQUEST_PATH))
       .willReturn(serverError()));
