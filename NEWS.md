@@ -1,7 +1,7 @@
 ## 1.24.0 (in progress)
 
 ### New APIs versions
-* Provides `template-engine 2.3` — adds `POST /template-request/preview`
+* Provides `template-engine 2.3` — adds `POST /template-request/preview` and the optional template `scope` field
 
 ### Features
 * Add optional `scope` field to the template schema so each app can tag and filter its own templates ([UIOR-1493](https://folio-org.atlassian.net/browse/UIOR-1493))
