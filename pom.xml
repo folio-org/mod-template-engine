@@ -16,7 +16,6 @@
   <properties>
     <aspectj.version>1.9.22.1</aspectj.version>
     <http.port>8081</http.port>
-    <java.version>21</java.version>
     <ramlfiles_path>${basedir}/ramls</ramlfiles_path>
     <ramlfiles_util_path>${basedir}/raml-util</ramlfiles_util_path>
     <raml-module-builder.version>35.4.1</raml-module-builder.version>
@@ -210,7 +209,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.14.0</version>
         <configuration>
-          <release>${java.version}</release>
+          <release>21</release>
           <encoding>UTF-8</encoding>
           <annotationProcessors>
             <annotationProcessor>io.vertx.codegen.CodeGenProcessor</annotationProcessor>
@@ -273,7 +272,7 @@
         <configuration>
           <verbose>true</verbose>
           <showWeaveInfo>false</showWeaveInfo>
-          <complianceLevel>${java.version}</complianceLevel>
+          <complianceLevel>17</complianceLevel>
           <aspectDirectory>src/main/java/org/folio/rest/annotations</aspectDirectory>
           <XaddSerialVersionUID>true</XaddSerialVersionUID>
           <showWeaveInfo>true</showWeaveInfo>
